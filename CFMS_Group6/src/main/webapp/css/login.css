@@ -1,0 +1,157 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/ClientSide/css.css to edit this template
+*/
+/* 
+    Created on : Feb 2, 2026, 7:12:03 PM
+    Author     : Nguyen Dinh Giap
+*/
+/* * File: login.css
+ * Styles riêng cho trang Đăng nhập (Clean & Short)
+ */
+
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- Card Container --- */
+.login-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    overflow: hidden;
+    width: 100%;
+    max-width: 400px;
+    background-color: white;
+}
+
+.card-header-custom {
+    background-color: transparent;
+    border-bottom: none;
+    padding-top: 2rem;
+    text-align: center;
+}
+
+.login-icon {
+    font-size: 3rem;
+    color: #764ba2;
+    margin-bottom: 10px;
+}
+
+/* --- Typography (Rút gọn) --- */
+.title-text {
+    font-weight: 700; /* fw-bold */
+    color: #212529;   /* text-dark */
+    margin-bottom: 0.5rem;
+}
+
+.subtitle-text {
+    font-size: 0.875em; /* small */
+    color: #6c757d;     /* text-muted */
+}
+
+.custom-label {
+    font-weight: 700;
+    color: #6c757d; /* text-secondary */
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* --- Input Groups  --- */
+.input-icon {
+    background-color: #fff;
+    border-right: 0;
+    border-top-left-radius: 50rem !important; /* rounded-pill effect */
+    border-bottom-left-radius: 50rem !important;
+    padding-left: 1rem !important;
+    color: #6c757d;
+    border: 1px solid #ced4da; /* Viền mặc định của bootstrap */
+}
+
+/* Thay cho: form-control border-start-0 ps-2 */
+.custom-input {
+    border-left: 0;
+    padding-left: 0.5rem !important;
+    border-top-right-radius: 50rem !important;
+    border-bottom-right-radius: 50rem !important;
+    background-color: #f7f9fc;
+    border: 1px solid #ced4da;
+}
+
+/* Khi focus vào input thì đổi màu cả icon bên cạnh */
+.custom-input:focus {
+    box-shadow: none;
+    border-color: #764ba2;
+    background-color: #fff;
+}
+.custom-input:focus + .input-icon, 
+.input-group:focus-within .input-icon {
+    border-color: #764ba2;
+    background-color: #fff;
+}
+
+/* --- Button --- */
+.btn-submit {
+    border-radius: 50rem;
+    padding: 10px 20px;
+    font-weight: bold;
+    background: linear-gradient(to right, #667eea, #764ba2);
+    border: none;
+    color: white;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+    background: linear-gradient(to right, #764ba2, #667eea);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+    color: white;
+}
+
+/* --- Links & Error --- */
+.forgot-link {
+    text-decoration: none;
+    font-size: 0.875em;
+    color: #6c757d;
+    transition: color 0.3s;
+}
+
+.forgot-link:hover {
+    color: #4e73df;
+}
+
+.error-msg {
+    color: #dc3545;
+    background-color: #ffe6e6;
+    border: 1px solid #ffcccc;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- Animation --- */
+.fade-in-down {
+    animation: fadeInDown 0.8s ease-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -20px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}

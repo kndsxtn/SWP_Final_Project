@@ -1,4 +1,4 @@
-package dao;
+package dal;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
