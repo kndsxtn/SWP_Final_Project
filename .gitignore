@@ -1,3 +1,4 @@
-build/  
-nbproject/private/  
-*.class  
+build/ 
+nbproject/private/ 
+*.class 
+.netbeans_automatic_build
