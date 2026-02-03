@@ -44,7 +44,7 @@
                             <i class="fas fa-user"></i>
                         </span>
                         <input type="text" class="form-control custom-input" id="username" name="username" 
-                               value="${username}" placeholder="Nhập username..." required autofocus>
+                               value="${username}" placeholder="Tên Đăng Nhập" required autofocus>
                     </div>
                 </div>
                 
@@ -56,7 +56,7 @@
                             <i class="fas fa-lock"></i>
                         </span>
                         <input type="password" class="form-control custom-input" id="password" name="password" 
-                               placeholder="Nhập mật khẩu..." required>
+                               placeholder="mật khẩu" required>
                     </div>
                 </div>
                 

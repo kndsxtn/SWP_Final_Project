@@ -7,7 +7,6 @@ package controller.authentication.role;
 import constant.RoleConstant;
 import dto.UserDto;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

@@ -13,5 +13,8 @@
     </head>
     <body>
         <h1>Hello principal</h1>
+        <a href="${pageContext.request.contextPath}/logout" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
     </body>
 </html>
