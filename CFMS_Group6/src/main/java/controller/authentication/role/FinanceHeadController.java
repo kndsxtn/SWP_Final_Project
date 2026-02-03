@@ -20,21 +20,22 @@ import jakarta.servlet.http.HttpSession;
  *
  * @author Nguyen Dinh Giap
  */
-@WebServlet(name="StaffController", urlPatterns={"/staff"})
-public class StaffController extends HttpServlet {
- 
+@WebServlet(name="FinanceController", urlPatterns={"/financeHead"})
+public class FinanceHeadController extends HttpServlet {
+   
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-         HttpSession session = request.getSession();
+        HttpSession session = request.getSession();
         UserDto user = (UserDto) session.getAttribute("user");
         
         //check dieu kien
-        if(user == null || user.getRoleId() != RoleConstant.NV_QUAN_LY){
+        if(user == null || user.getRoleId() != RoleConstant.TP_TAI_CHINH){
             response.sendRedirect(request.getContextPath() + "/loginHome");
             return;
         }
- 
-        request.getRequestDispatcher("/views/staff.jsp").forward(request, response);
+        //TP tai chinh vao tcn quan ly 
+        request.getRequestDispatcher("/views/financeHead.jsp").forward(request, response);
     } 
+
 }

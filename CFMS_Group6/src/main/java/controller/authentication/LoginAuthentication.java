@@ -107,19 +107,19 @@ public class LoginAuthentication extends HttpServlet {
             //case TP_TAI_CHINH = 3
             case constant.RoleConstant.TP_TAI_CHINH:
                 //chuyen ve trang chu cua TP_TAI_CHINH
-                response.sendRedirect(request.getContextPath() + "/finance");
+                response.sendRedirect(request.getContextPath() + "/financeHead");
                 break;
 
             //case NV_QUAN_LY = 4
             case constant.RoleConstant.NV_QUAN_LY:
                 //chuyen ve trang chu cua NV_QUAN_LY
-                response.sendRedirect(request.getContextPath() + "/staff");
+                response.sendRedirect(request.getContextPath() + "/facilityManager");
                 break;
 
             //case TRUONG_BO_MON = 5
             case constant.RoleConstant.TRUONG_BO_MON:
                 //chuyen ve trang chu cua TRUONG_BO_MON
-                response.sendRedirect(request.getContextPath() + "/teacher");
+                response.sendRedirect(request.getContextPath() + "/headOfDepartment");
                 break;
             default:
                 //neu loi thi huy session
