@@ -1,7 +1,7 @@
 <%-- 
-    Document   : teacher
+    Document   : Head of Department
     Created on : Feb 2, 2026, 9:01:40 PM
-    Author     : Nguyen Dinh Giap
+    Author     : Nguyen Dang Khang
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
