@@ -1,0 +1,66 @@
+.pic {
+    width: 100px;
+    height: 100px;
+    background: #4facfe;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+}
+.row {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+.col {
+    flex: 1;
+}
+.info {
+    margin-bottom: 15px;
+}
+.info label {
+    font-size: 0.8rem;
+    color: #636e72;
+    text-transform: uppercase;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 5px;
+}
+input {
+    border-radius: 10px !important;
+    padding: 10px 15px !important;
+    border: 1px solid #edf2f7 !important;
+    background: #f8faff;
+    transition: 0.3s;
+}
+input:focus {
+    border-color: #4facfe !important;
+    background: white !important;
+    box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1) !important;
+    outline: none;
+}
+.btn-update {
+    background: #4facfe;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    font-weight: 700;
+    margin-top: 10px;
+    transition: 0.3s;
+    width: 100%;
+}
+.btn-update:hover {
+    background: #0080ff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 128, 255, 0.3);
+}
+.form-control:focus {
+    border-color: #0d6efd; /* Màu xanh khi bấm vào */
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15); /* Hiệu ứng tỏa sáng nhẹ */
+}
