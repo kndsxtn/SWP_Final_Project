@@ -1,0 +1,165 @@
+/* Reset & Base */
+body {
+    display: flex;
+    min-height: 100vh;
+    background: #f0f2f5;
+    margin: 0;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    color: #2d3436;
+}
+
+/* Side: Sidebar phong cách Premium */
+.side {
+    width: 280px;
+    background: #1a1a2e; /* Màu tối sang trọng */
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+    color: #fff;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
+.side h4 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 40px;
+    color: #4facfe;
+    text-align: center;
+}
+
+.side a {
+    color: #a2a2c2;
+    text-decoration: none;
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+.side a i {
+    font-size: 1.1rem;
+    margin-right: 15px;
+}
+
+.side a:hover, .side .active {
+    background: rgba(79, 172, 254, 0.15);
+    color: #4facfe;
+    transform: translateX(5px);
+}
+
+.side .active {
+    background: #4facfe;
+    color: white;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+}
+
+/* Main: Nội dung chính */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f8faff;
+}
+
+/* Nav: Thanh điều hướng phía trên */
+.nav {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #edf2f7;
+    position: sticky;
+    top: 0;
+}
+
+.nav b { color: #16213e; }
+
+/* Box: Khu vực chứa Card */
+.box {
+    padding: 40px;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Card: Bảng dữ liệu */
+.card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+}
+
+.card h3 {
+    font-weight: 800;
+    color: #1a1a2e;
+}
+
+/* Table styling */
+.table {
+    margin-top: 20px;
+}
+
+.table thead th {
+    background: #f8faff;
+    border: none;
+    color: #636e72;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    padding: 15px;
+}
+
+.table tbody td {
+    padding: 18px 15px;
+    border-bottom: 1px solid #f1f2f6;
+    font-size: 0.95rem;
+}
+
+/* Out: Nút Logout */
+.out {
+    color: #ff4757;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1.5px solid #ff4757;
+    padding: 7px 20px;
+    border-radius: 50px;
+    transition: 0.3s;
+    font-size: 0.85rem;
+}
+
+.out:hover {
+    background: #ff4757;
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+}
+
+/* Tag: Vai trò */
+.tag {
+    background: #eef2ff;
+    color: #4338ca;
+    padding: 5px 14px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+/* Badge status */
+.badge {
+    padding: 6px 12px;
+    font-weight: 600;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

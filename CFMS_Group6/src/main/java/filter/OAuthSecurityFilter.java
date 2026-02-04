@@ -8,11 +8,15 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
- * Filter này dùng để bảo vệ đường dẫn nhận kết quả trả về từ Google.
- * Nó đảm bảo request có chứa tham số 'code' và 'state' hợp lệ.
+ *
+ * @author Nguyen Dinh Giap
+ */
+/**
+ * Filter này dùng để bảo vệ đường dẫn nhận kết quả trả về từ Google. Nó đảm bảo
+ * request có chứa tham số 'code' và 'state' hợp lệ.
  */
 // Đường dẫn này phải KHỚP với cấu hình trong Google Cloud Console
-@WebFilter("/oauth2callback") 
+@WebFilter("/oauth2callback")
 public class OAuthSecurityFilter implements Filter {
 
     // Tạo Logger để ghi lại nhật ký lỗi nếu có ai đó cố tình truy cập trái phép

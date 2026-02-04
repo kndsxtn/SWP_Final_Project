@@ -1,7 +1,7 @@
 <%-- 
     Document   : header.jsp
-    Created on : Feb 3, 2026, 11:45:24 PM
-    Author     : Nguyen Dang Khang
+    Created on : Feb 4, 2026, 4:32:40 PM
+    Author     : Nguyen Dinh Giap
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>

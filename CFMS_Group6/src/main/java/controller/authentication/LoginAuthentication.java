@@ -4,11 +4,10 @@
  */
 package controller.authentication;
 
-import constant.RoleConstant;
-import dao.user.UserDao;
+import constant.Message;
+import dal.UserDao;
 import dto.UserDto;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -49,36 +48,39 @@ public class LoginAuthentication extends HttpServlet {
         //khai bao password
         String password = request.getParameter("password");
 
-        //call DAO check 
+        //call DAO 
         UserDao dao = new UserDao();
 
-        //check login ben dao
-        UserDto account = dao.checkLogin(user, password);
+        try {
+            UserDto account = dao.getUserByUserName(user);
+            //kiem tra account co trong database ko
+            if (account == null) {
+                request.setAttribute("errorMsg", Message.NO_EXITING);
+                request.setAttribute("username", user);
+                request.getRequestDispatcher("/views/auth/login.jsp").forward(request, response);
+                return;
+            }
+            String passwordDB = dao.getPasswordByUserName(user);
 
-        //Xu ly ket qua
-        if (account != null) {
-            //tao session moi
-            HttpSession session = request.getSession();
+            //kiem tra mat khau
+            if (passwordDB != null && passwordDB.trim().equals(password)) {
 
-            //luu user vao session
-            //phan quyen ben filter user khop ben AuthFilter va RoleFilter
-            session.setAttribute("user", account);
-
-            //thiet lap thoi gian session
-            session.setMaxInactiveInterval(30 * 60);
-            
-            //goi dieu huong
-            redirectBasedOnRole(request, response, account);
-
-        } else {
-            //truong hop sai pass
-            //gan thong tin loi de hien thi ben JSP
-            request.setAttribute("errorMessage", "Incorrect username or password!");
-
-            //giu lai usename khi go sai pass hoac ten
-            request.setAttribute("username", user);
-
-            //quay lai trang login jsp
+                //neu dung thi cho dang nhap
+                HttpSession session = request.getSession(true);
+                session.setAttribute("user", account);
+                session.setMaxInactiveInterval(30 * 60);
+                redirectBasedOnRole(request, response, account);
+                return;
+            } else {
+                //neu sai thi view ra thong bao
+                request.setAttribute("errorPass", Message.ERROR_PASS);
+                request.setAttribute("username", user);
+                request.getRequestDispatcher("/views/auth/login.jsp").forward(request, response);
+                return;
+            }
+        } catch (Exception e) {
+            //neu loi thi quay ra login
+            e.printStackTrace();
             request.getRequestDispatcher("/views/auth/login.jsp").forward(request, response);
         }
 
@@ -86,46 +88,35 @@ public class LoginAuthentication extends HttpServlet {
 
     private void redirectBasedOnRole(HttpServletRequest request, HttpServletResponse response, UserDto user)
             throws IOException {
+        //lay role name
+        String roleName = user.getRoleName();
+        String redirect = request.getContextPath();
 
-        //dieu huong theo role
-        int role = user.getRoleId();
-
-        //su dung switch case
-        switch (role) {
-            //case Admin = 1
-            case constant.RoleConstant.Admin:
-                //chuyen ve trang chu cua Admin
-                response.sendRedirect(request.getContextPath() + "/admin");
+        //dieu huong dua vao vai tro
+        switch (roleName) {
+            case Message.ADMIN:
+                //quan ly nguoi dung
+                response.sendRedirect(redirect + "/admin/user-list");
                 break;
-
-            //case Hieu_Truong = 2
-            case constant.RoleConstant.Hieu_Truong:
-                //chuyen ve trang chu cua Hieu_Truong
-                response.sendRedirect(request.getContextPath() + "/principal");
+            case Message.HIEU_TRUONG:
+                //xem bao cao
+                response.sendRedirect(redirect + "/report/dashboard");
                 break;
-
-            //case TP_TAI_CHINH = 3
-            case constant.RoleConstant.TP_TAI_CHINH:
-                //chuyen ve trang chu cua TP_TAI_CHINH
-                response.sendRedirect(request.getContextPath() + "/financeHead");
+            case Message.NV_QUAN_LY:
+                //xu ly yeu cau
+                response.sendRedirect(redirect + "/request/allocation-list");
                 break;
-
-            //case NV_QUAN_LY = 4
-            case constant.RoleConstant.NV_QUAN_LY:
-                //chuyen ve trang chu cua NV_QUAN_LY
-                response.sendRedirect(request.getContextPath() + "/facilityManager");
+            case Message.TP_TAI_CHINH:
+                //quan ly tai san va thanh ly
+                response.sendRedirect(redirect + "/asset/list");
                 break;
-
-            //case TRUONG_BO_MON = 5
-            case constant.RoleConstant.TRUONG_BO_MON:
-                //chuyen ve trang chu cua TRUONG_BO_MON
-                response.sendRedirect(request.getContextPath() + "/headOfDepartment");
+            case Message.TRUONG_BAN:
+                //theo doi lich su yeu cau
+                response.sendRedirect(redirect + "/request/my-requests");
                 break;
             default:
-                //neu loi thi huy session
                 request.getSession().invalidate();
-                //ve lai login
-                response.sendRedirect(request.getContextPath() + "/loginHome?error=invalidRole");
+                response.sendRedirect(redirect + "/loginHome?error=invalidRole");
                 break;
         }
 
