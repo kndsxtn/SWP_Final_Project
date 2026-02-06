@@ -3,3 +3,5 @@ nbproject/private/
 *.class 
 .netbeans_automatic_build
 /CFMS_Group6/target/
+*.war
+

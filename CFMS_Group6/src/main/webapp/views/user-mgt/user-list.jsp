@@ -11,28 +11,13 @@
         <link href="${pageContext.request.contextPath}/css/user-list.css" rel="stylesheet">
     </head>
     <body>
-
-        <jsp:include page="/views/common/sidebar.jsp">
-            <jsp:param name="active" value="user" />
-        </jsp:include>
-
         <div class="main">
-            <jsp:include page="/views/common/navbar.jsp">
+            <jsp:include page="/views/components/navbar.jsp">
                 <jsp:param name="title" value="Hệ thống / Quản lý người dùng" />
             </jsp:include>
 
             <div class="box">
                 <div class="card border-0 shadow-sm p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <h3 class="fw-bold text-dark m-0">Danh sách người dùng</h3>
-                            <p class="text-muted small">Cấp quyền và quản lý tài khoản hệ thống</p>
-                        </div>
-                        <a href="user-create" class="btn btn-primary px-4 rounded-pill shadow-sm">
-                            <i class="fas fa-user-plus me-2"></i> Thêm người dùng mới
-                        </a>
-                    </div>
-
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
@@ -46,24 +31,14 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <c:forEach items="${list}" var="u">
+                                <c:forEach items="${list}" var="l">
                                     <tr>
-                                        <td class="text-muted">${u.userId}</td>
-                                        <td><span class="fw-semibold">${u.username}</span></td>
+                                        <td class="text-muted">${l.userId}</td>
+                                        <td><span class="fw-semibold">${l.username}</span></td>
                                         <td>${u.fullName}</td>
-                                        <td><span class="badge bg-info-subtle text-info px-3">${u.roleName}</span></td>
-                                        <td>
-                                            <c:choose>
-                                                <c:when test="${u.status == 'Active'}">
-                                                    <span class="badge bg-success-subtle text-success rounded-pill">Hoạt động</span>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span class="badge bg-danger-subtle text-danger rounded-pill">Đã khóa</span>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </td>
+                                        <td><span class="badge bg-info-subtle text-info px-3">${l.roleName}</span></td>
                                         <td class="text-center">
-                                            <a href="edit?id=${u.userId}" class="btn btn-sm btn-light me-1" title="Sửa">
+                                            <a href="edit?id=${l.userId}" class="btn btn-sm btn-light me-1" title="Sửa">
                                                 <i class="fas fa-edit text-primary"></i>
                                             </a>
                                         </td>

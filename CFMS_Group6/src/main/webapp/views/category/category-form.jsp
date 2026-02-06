@@ -1,7 +1,7 @@
 <%-- 
     Document   : form
-    Created on : Feb 4, 2026, 4:56:05 PM
-    Author     : Nguyen Dinh Giap
+    Created on : Feb 3, 2026, 11:23:35 AM
+    Author     : quang
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -9,9 +9,14 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>Biểu mẫu danh mục</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <form action="CreateCategory" method="post">
+            Tạo danh mục mới: <input type="text" name="category_name"/><br/>
+            Nhập tiền tố cho danh mục: <input type="text" name="prefix_code"/><br/>
+            Nhập mô tả cho danh mục: <input type="text" name="description"/><br/>
+            <input type="submit" name = "cat_form_submit" value="Tạo danh mục mới"/>
+        </form>
     </body>
 </html>
