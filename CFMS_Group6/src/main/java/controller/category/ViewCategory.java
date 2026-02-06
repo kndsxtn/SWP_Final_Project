@@ -19,7 +19,7 @@ import model.Category;
  *
  * @author quang
  */
-@WebServlet(name="LoadCategory", urlPatterns={"/LoadCategory"})
+@WebServlet(name="ViewCategory", urlPatterns={"/ViewCategory"})
 public class ViewCategory extends HttpServlet {
    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -49,6 +49,11 @@ public class ViewCategory extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        String keyword = request.getParameter("keyword");
+        CategoryDao cDao = new CategoryDao();
+        List<Category> catList = cDao.searchCategory(keyword);
+        request.setAttribute("catList", catList);
+        request.getRequestDispatcher("/views/category/category-list.jsp").forward(request, response);
     }
 
     /** 

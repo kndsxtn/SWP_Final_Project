@@ -59,7 +59,7 @@ public class CategoryDao {
     }
 
     public boolean updateCategory(int categoryId, String categoryName, String description) {
-        String sql = "update category set categoryName = ? , description = ? where category_id = ?";
+        String sql = "update categories set category_name = ? , description = ? where category_id = ?";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, categoryName);
             ps.setString(2, description);
@@ -88,7 +88,7 @@ public class CategoryDao {
 
     public List<Category> searchCategory(String keyword) {
         List<Category> list = new ArrayList<>();
-        String sql = "select * from Category where categoryName like ? or description like ? or prefixCode like ?";
+        String sql = "select * from categories where category_name like ? or description like ? or prefix_code like ?";
         String searchKeyword = "%" + keyword + "%";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, searchKeyword);
@@ -109,4 +109,6 @@ public class CategoryDao {
         }
         return list;
     }
+
+    
 }
