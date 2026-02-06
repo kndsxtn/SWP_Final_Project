@@ -50,7 +50,7 @@
                     </div>
 
                     <!-- Search / Filter -->
-                    <form action="[Search]" method="get" class="row g-2 mb-3">
+                    <form action="${pageContext.request.contextPath}/ViewCategory" method="post" class="row g-2 mb-3">
                         <div class="col-md-4">
                             <input type="text" name="keyword" class="form-control"
                                    placeholder="Tìm theo tên, mã hoặc mô tả..."
