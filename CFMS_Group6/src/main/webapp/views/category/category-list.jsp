@@ -91,7 +91,7 @@
                                                class="btn btn-sm btn-light me-1" title="Sửa">
                                                 <i class="fas fa-edit text-primary"></i>
                                             </a>
-                                            <a href="delete-category?id=${c.categoryId}"
+                                            <a href="${pageContext.request.contextPath}/DeleteCategory?id=${c.categoryId}"
                                                class="btn btn-sm btn-light"
                                                onclick="return confirm('Bạn có chắc muốn xóa?');"
                                                title="Xóa">
