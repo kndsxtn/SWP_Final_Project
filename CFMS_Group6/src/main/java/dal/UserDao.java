@@ -4,7 +4,6 @@
  */
 package dal;
 
-import dal.DBContext;
 import dto.UserDto;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
