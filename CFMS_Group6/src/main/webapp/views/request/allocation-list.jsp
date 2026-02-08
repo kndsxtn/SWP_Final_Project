@@ -1,7 +1,7 @@
 <%-- 
     Document   : allocation-list
     Created on : Feb 4, 2026, 4:59:57 PM
-    Author     : Nguyen Dinh Giap
+    Author     : Nguyen Dang Khang
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>

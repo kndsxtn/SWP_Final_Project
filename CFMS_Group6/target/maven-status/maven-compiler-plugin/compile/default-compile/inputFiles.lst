@@ -1,5 +1,4 @@
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\model\AssetImage.java
-C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\controller\admin\UserManagementController.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\controller\category\CategoryController.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\filter\OAuthSecurityFilter.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\controller\authentication\LogoutAuthentication.java
@@ -8,7 +7,10 @@ C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\model\AllocationRequest.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\model\Category.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\exception\DataAccessException.java
+C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\controller\dashboard\DashboardController.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\model\Asset.java
+C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\controller\authentication\LoginController.java
+C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\dal\UserDao.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\controller\request\AllocationListController.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\dto\UserDto.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\model\AssetHistory.java
@@ -20,13 +22,12 @@ C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\model\AllocationDetail.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\constant\Message.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\model\Role.java
-C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\controller\authentication\LoginAuthentication.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\model\Supplier.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\model\User.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\filter\RoleFilter.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\exception\AuthException.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\model\TransferDetail.java
-C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\dao\user\UserDao.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\model\Room.java
+C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\controller\userMgt\UserManagementController.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\model\Department.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\SWP_Final_Project\CFMS_Group6\src\main\java\dal\DBContext.java

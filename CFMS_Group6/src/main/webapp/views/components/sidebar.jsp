@@ -1,41 +1,54 @@
 <%-- 
     Document   : sidebar.jsp
     Created on : Feb 4, 2026, 4:32:50 PM
-    Author     : Nguyen Dinh Giap
+    Author     : Nguyen Dang Khang
 --%>
 
-<%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ page import="constant.Message" %>
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<div class="side">
-    <div class="brand-logo mb-4">
-        <h4 class="text-white"><i class="fas fa-shield-alt me-2"></i>CFMS SYSTEM</h4>
+<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+    <div class="position-sticky pt-3">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item">
+                <a class="nav-link ${param.page == 'home' ? 'active' : ''}" href="${pageContext.request.contextPath}/dashboard">
+                    <i class="bi bi-house-door me-2"></i> Tổng quan
+                </a>
+            </li>
+
+            <c:if test="${sessionScope.user.roleName == 'Admin'}">
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>QUẢN TRỊ</span>
+                </h6>
+                <li class="nav-item">
+                    <a class="nav-link ${param.page == 'user' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/user-list">
+                        <i class="bi bi-people me-2"></i>
+                        Người dùng
+                    </a>
+                </li>
+            </c:if>
+
+            <c:if test="${sessionScope.user.roleName == 'Asset Staff' || sessionScope.user.roleName == 'Asset Manager'}">
+                <h6 class="sidebar-heading px-3 mt-4 mb-1 text-muted">
+                    <span>TÀI SẢN</span>
+                </h6>
+                <li class="nav-item">
+                    <a class="nav-link ${param.page == 'asset_list' ? 'active' : ''}" href="${pageContext.request.contextPath}/asset/list">
+                        <i class="bi bi-pc-display me-2"></i>
+                        Danh sách tài sản
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link ${param.page == 'request' ? 'active' : ''}" href="${pageContext.request.contextPath}/request/list">
+                        <i class="bi bi-inbox me-2"></i>
+                        Yêu cầu cấp phát
+                    </a>
+                </li>
+            </c:if>
+            
+          
+            
+        </ul>
     </div>
-
-    <c:if test="${sessionScope.user.roleName == Message.ADMIN}">
-        <p class="text-uppercase small fw-bold mb-2 text-secondary px-3">Hệ thống</p>
-        <a href="${pageContext.request.contextPath}/admin/user-list" 
-           class="${param.active == 'user' ? 'active' : ''}">
-            <i class="fas fa-users-cog"></i> Quản lý Actor
-        </a>
-    </c:if>
-
-    <c:if test="${sessionScope.user.roleName != Message.ADMIN}">
-        <p class="text-uppercase small fw-bold mb-2 text-secondary px-3">Nghiệp vụ</p>
-        <a href="${pageContext.request.contextPath}/asset/list" 
-           class="${param.active == 'asset' ? 'active' : ''}">
-            <i class="fas fa-box-open"></i> Tài sản
-        </a>
-        <a href="${pageContext.request.contextPath}/request/list" 
-           class="${param.active == 'request' ? 'active' : ''}">
-            <i class="fas fa-file-invoice"></i> Yêu cầu
-        </a>
-    </c:if>
-
-    <div style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
-        <a href="${pageContext.request.contextPath}/profile" class="${param.active == 'profile' ? 'active' : ''}">
-            <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
-        </a>
-    </div>
-</div>
+</nav>

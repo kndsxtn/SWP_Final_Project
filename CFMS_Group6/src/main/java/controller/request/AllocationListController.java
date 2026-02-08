@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 /**
  *
- * @author Nguyen Dinh Giap
+ * @author Nguyen Dang Khang
  */
 @WebServlet(name="AllocationListController", urlPatterns={"/request/allocation-list"})
 public class AllocationListController extends HttpServlet {
