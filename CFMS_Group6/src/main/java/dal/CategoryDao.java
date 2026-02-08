@@ -110,5 +110,22 @@ public class CategoryDao {
         return list;
     }
 
-    
+    public Category findCategoryById(int id) {
+        String sql = "select * from categories where category_id = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String name = rs.getString("category_name");
+                    String prefix = rs.getString("prefix_code");
+                    String description = rs.getString("description");
+                    return new Category(id, name, prefix, description);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

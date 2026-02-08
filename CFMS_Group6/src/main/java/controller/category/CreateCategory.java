@@ -22,6 +22,7 @@ public class CreateCategory extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setAttribute("categoryForm", "create");
         request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
     }
 
