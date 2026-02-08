@@ -12,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.Category;
 
 /**
  *
@@ -42,6 +43,10 @@ public class UpdateCategory extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
+        CategoryDao cDao = new CategoryDao();
+        Category category = cDao.findCategoryById(id);
+        request.setAttribute("category",category );
+        request.setAttribute("categoryForm", "update");
         request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
     }
 

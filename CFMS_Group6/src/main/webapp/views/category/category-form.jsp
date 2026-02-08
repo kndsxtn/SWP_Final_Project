@@ -38,7 +38,7 @@
                             </c:if>
                             <div class="card border-0 shadow-sm p-4">
                                 <%-- FORM CREATE --%>
-                                <c:if test="${empty category.categoryId}"> 
+                                <c:if test="${categoryForm == 'create'}"> 
                                     <div class="card-body">
                                         <h4 class="fw-bold text-dark mb-4 border-bottom pb-3">
                                             <i class="fas fa-plus-circle text-primary me-2"></i>Tạo danh mục mới
@@ -74,7 +74,7 @@
                                     </div>
                                 </c:if>
                                 <%-- FORM UPDATE --%>
-                                <c:if test="${not empty category.categoryId}">
+                                <c:if test="${categoryForm == 'update'}"> 
                                     <div class="card-body">
                                         <h4 class="fw-bold text-dark mb-4 border-bottom pb-3">
                                             <i class="fas fa-edit text-warning me-2"></i>Cập nhật danh mục
@@ -84,7 +84,8 @@
                                             <div class="row g-3">
                                                 <div class="col-md-2">
                                                     <label class="form-label fw-semibold">ID</label>
-                                                    <input type="text" name="category_id" value="${category.categoryId}" class="form-control bg-light" readonly/>
+                                                    <input type="text"value="${category.categoryId}" class="form-control bg-light" disabled/>
+                                                    <input type="hidden" name="category_id" value="${categoryId}" />
                                                 </div>
 
                                                 <div class="col-md-10">
