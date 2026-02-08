@@ -87,7 +87,7 @@
                                         </td>
                                         <td>${c.description}</td>
                                         <td class="text-center">
-                                            <a href="edit-category?id=${c.categoryId}"
+                                            <a href="${pageContext.request.contextPath}/UpdateCategory?id=${c.categoryId}"
                                                class="btn btn-sm btn-light me-1" title="Sửa">
                                                 <i class="fas fa-edit text-primary"></i>
                                             </a>
@@ -111,7 +111,6 @@
                             </tbody>
                         </table>
                     </div>
-
                 </div>
             </div>
         </div>
