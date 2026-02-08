@@ -41,7 +41,7 @@
     </c:if>
 
     <div style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
-        <a href="${pageContext.request.contextPath}/profile" class="${param.active == 'profile' ? 'active' : ''}">
+        <a href="${pageContext.request.contextPath}/auth/profile" class="${param.active == 'profile' ? 'active' : ''}">
             <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
         </a>
     </div>

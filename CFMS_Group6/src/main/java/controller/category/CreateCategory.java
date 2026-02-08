@@ -65,7 +65,7 @@ public class CreateCategory extends HttpServlet {
             cDao.createCategory(category_name, prefix_code, description);
             status = "Tạo danh mục mới thành công";
             request.setAttribute("status", status);
-        } catch (Exception e) {
+        } catch (IOException e) {
             status = "Lỗi khi tạo danh mục.";
             request.setAttribute("status", status);
         }
