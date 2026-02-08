@@ -42,9 +42,25 @@ public class UpdateCategory extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
+        String idStr = request.getParameter("id");
+        int id;
+        if(idStr == null || idStr.isBlank()) {
+            response.sendRedirect("ViewCategory");
+            return;
+        }
+        try{
+            id = Integer.parseInt(idStr);
+        }catch(NumberFormatException e){
+            response.sendRedirect("ViewCategory");
+            return;
+        }
+        
         CategoryDao cDao = new CategoryDao();
         Category category = cDao.findCategoryById(id);
+        if(category == null){
+            response.sendRedirect("ViewCategory");
+            return;
+        }
         request.setAttribute("category",category );
         request.setAttribute("categoryForm", "update");
         request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
