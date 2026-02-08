@@ -43,24 +43,32 @@ public class CreateCategory extends HttpServlet {
             String category_name = request.getParameter("category_name");
             if(category_name.isBlank()){
                 status = "Tên danh mục không được để trống";
+                request.setAttribute("status", status);
+                response.sendRedirect("CreateCategory");
                 return;
             }
             String prefix_code = request.getParameter("prefix_code");
             if(prefix_code.isBlank()){
-                status = "Tên danh mục không được để trống";
+                status = "Tiền tố danh mục không được để trống";
+                request.setAttribute("status", status);
+                response.sendRedirect("CreateCategory");
                 return;
             }
             String description = request.getParameter("description");
             if(description.isBlank()){
-                status = "Tên danh mục không được để trống";
+                status = "Mô tả danh mục không được để trống";
+                request.setAttribute("status", status);
+                response.sendRedirect("CreateCategory");
                 return;
             }
             cDao.createCategory(category_name, prefix_code, description);
             status = "Tạo danh mục mới thành công";
+            request.setAttribute("status", status);
         } catch (Exception e) {
             status = "Lỗi khi tạo danh mục.";
+            request.setAttribute("status", status);
         }
-        response.sendRedirect("LoadCategory");
+        response.sendRedirect("ViewCategory");
 
     }
 

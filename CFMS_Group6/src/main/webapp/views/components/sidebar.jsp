@@ -24,12 +24,19 @@
     <c:if test="${sessionScope.user.roleName != Message.ADMIN}">
         <p class="text-uppercase small fw-bold mb-2 text-secondary px-3">Nghiệp vụ</p>
         <a href="${pageContext.request.contextPath}/asset/list" 
-           class="${param.active == 'asset' ? 'active' : ''}">
+           class="${param.active == 'category' ? 'active' : ''}">
             <i class="fas fa-box-open"></i> Tài sản
         </a>
         <a href="${pageContext.request.contextPath}/request/list" 
            class="${param.active == 'request' ? 'active' : ''}">
             <i class="fas fa-file-invoice"></i> Yêu cầu
+        </a>
+    </c:if>
+    <c:if test="${sessionScope.user.roleName == Message.NV_QUAN_LY}">
+        <p class="text-uppercase small fw-bold mb-2 text-secondary px-3">Quản lý</p>
+        <a href="${pageContext.request.contextPath}/ViewCategory" 
+           class="${param.active == 'asset' ? 'active' : ''}">
+            <i class="fas fa-box-open"></i> Danh sách danh mục
         </a>
     </c:if>
 

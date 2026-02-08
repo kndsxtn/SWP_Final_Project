@@ -41,7 +41,8 @@ public class UpdateCategory extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        int id = Integer.parseInt(request.getParameter("id"));
+        request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
     }
 
     /**
