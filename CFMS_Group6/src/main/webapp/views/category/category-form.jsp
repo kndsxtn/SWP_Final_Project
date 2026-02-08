@@ -85,7 +85,7 @@
                                                 <div class="col-md-2">
                                                     <label class="form-label fw-semibold">ID</label>
                                                     <input type="text"value="${category.categoryId}" class="form-control bg-light" disabled/>
-                                                    <input type="hidden" name="category_id" value="${categoryId}" />
+                                                    <input type="hidden" name="category_id" value="${category.categoryId}" />
                                                 </div>
 
                                                 <div class="col-md-10">
@@ -97,7 +97,7 @@
                                                     <label class="form-label fw-semibold">Mã tiền tố</label>
                                                     <div class="input-group">
                                                         <span class="input-group-text bg-light"><i class="fas fa-tag"></i></span>
-                                                        <input type="text" name="prefix_code" value="${category.prefixCode}" class="form-control"/>
+                                                        <input type="text" name="prefix_code" value="${category.prefixCode}" class="form-control" disabled/>
                                                     </div>
                                                 </div>
 
