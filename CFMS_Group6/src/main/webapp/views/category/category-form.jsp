@@ -43,7 +43,7 @@
                                         <h4 class="fw-bold text-dark mb-4 border-bottom pb-3">
                                             <i class="fas fa-plus-circle text-primary me-2"></i>Tạo danh mục mới
                                         </h4>
-                                        <form action="${pageContext.request.contextPath}/CreateCategory" method="post" class="needs-validation">
+                                        <form action="${pageContext.request.contextPath}/category/CreateCategory" method="post" class="needs-validation">
                                             <div class="row g-3">
                                                 <div class="col-md-12">
                                                     <label class="form-label fw-semibold">Tên danh mục <span class="text-danger">*</span></label>
@@ -62,7 +62,7 @@
                                                     <input type="text" name="description" class="form-control" placeholder="Nhập mô tả ngắn gọn..."/>
                                                 </div>
                                                 <div class="col-12 mt-4 d-flex justify-content-end gap-2">
-                                                    <a href="${pageContext.request.contextPath}/ViewCategory" class="btn btn-light rounded-pill px-4">
+                                                    <a href="${pageContext.request.contextPath}/category/ViewCategory" class="btn btn-light rounded-pill px-4">
                                                         Hủy bỏ
                                                     </a>
                                                     <button type="submit" name="cat_form_submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
@@ -80,7 +80,7 @@
                                             <i class="fas fa-edit text-warning me-2"></i>Cập nhật danh mục
                                         </h4>
 
-                                        <form action="${pageContext.request.contextPath}/UpdateCategory" method="post">
+                                        <form action="${pageContext.request.contextPath}/category/UpdateCategory" method="post">
                                             <div class="row g-3">
                                                 <div class="col-md-2">
                                                     <label class="form-label fw-semibold">ID</label>
@@ -107,7 +107,7 @@
                                                 </div>
 
                                                 <div class="col-12 mt-4 d-flex justify-content-end gap-2">
-                                                    <a href="${pageContext.request.contextPath}/ViewCategory" class="btn btn-light rounded-pill px-4">
+                                                    <a href="${pageContext.request.contextPath}/category/ViewCategory" class="btn btn-light rounded-pill px-4">
                                                         Quay lại
                                                     </a>
                                                     <button type="submit" name="cat_form_submit" class="btn btn-warning text-white rounded-pill px-4 shadow-sm">

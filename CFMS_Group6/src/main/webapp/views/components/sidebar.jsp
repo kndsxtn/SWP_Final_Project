@@ -34,7 +34,7 @@
     </c:if>
     <c:if test="${sessionScope.user.roleName == Message.NV_QUAN_LY}">
         <p class="text-uppercase small fw-bold mb-2 text-secondary px-3">Quản lý</p>
-        <a href="${pageContext.request.contextPath}/ViewCategory" 
+        <a href="${pageContext.request.contextPath}/category/ViewCategory" 
            class="${param.active == 'category' ? 'active' : ''}">
             <i class="fas fa-box-open"></i> Danh sách danh mục
         </a>

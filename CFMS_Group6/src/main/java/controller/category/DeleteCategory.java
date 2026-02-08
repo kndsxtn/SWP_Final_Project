@@ -18,7 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author quang
  */
-@WebServlet(name="DeleteCategory", urlPatterns={"/DeleteCategory"})
+@WebServlet(name="DeleteCategory", urlPatterns={"/category/DeleteCategory"})
 public class DeleteCategory extends HttpServlet {
    
     /** 
