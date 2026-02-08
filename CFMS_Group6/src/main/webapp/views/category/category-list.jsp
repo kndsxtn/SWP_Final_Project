@@ -43,14 +43,14 @@
                             <h3 class="fw-bold text-dark m-0">Danh sách danh mục tài sản</h3>
                             <p class="text-muted small">Quản lý và phân loại tài sản trong hệ thống</p>
                         </div>
-                        <a href="${pageContext.request.contextPath}/CreateCategory"
+                        <a href="${pageContext.request.contextPath}/category/CreateCategory"
                            class="btn btn-primary px-4 rounded-pill shadow-sm">
                             <i class="fas fa-plus me-2"></i> Thêm danh mục
                         </a>
                     </div>
 
                     <!-- Search / Filter -->
-                    <form action="${pageContext.request.contextPath}/ViewCategory" method="post" class="row g-2 mb-3">
+                    <form action="${pageContext.request.contextPath}/category/ViewCategory" method="post" class="row g-2 mb-3">
                         <div class="col-md-4">
                             <input type="text" name="keyword" class="form-control"
                                    placeholder="Tìm theo tên, mã hoặc mô tả..."
@@ -87,11 +87,11 @@
                                         </td>
                                         <td>${c.description}</td>
                                         <td class="text-center">
-                                            <a href="${pageContext.request.contextPath}/UpdateCategory?id=${c.categoryId}"
+                                            <a href="${pageContext.request.contextPath}/category/UpdateCategory?id=${c.categoryId}"
                                                class="btn btn-sm btn-light me-1" title="Sửa">
                                                 <i class="fas fa-edit text-primary"></i>
                                             </a>
-                                            <a href="${pageContext.request.contextPath}/DeleteCategory?id=${c.categoryId}"
+                                            <a href="${pageContext.request.contextPath}/category/DeleteCategory?id=${c.categoryId}"
                                                class="btn btn-sm btn-light"
                                                onclick="return confirm('Bạn có chắc muốn xóa?');"
                                                title="Xóa">

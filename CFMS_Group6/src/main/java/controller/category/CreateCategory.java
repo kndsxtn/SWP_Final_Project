@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author quang
  */
-@WebServlet(name = "CreateCategory", urlPatterns = {"/CreateCategory"})
+@WebServlet(name = "CreateCategory", urlPatterns = {"/category/CreateCategory"})
 public class CreateCategory extends HttpServlet {
 
     @Override
