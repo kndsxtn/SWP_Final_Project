@@ -18,7 +18,7 @@ import model.Category;
  *
  * @author quang
  */
-@WebServlet(name = "UpdateCategory", urlPatterns = {"/UpdateCategory"})
+@WebServlet(name = "UpdateCategory", urlPatterns = {"/category/UpdateCategory"})
 public class UpdateCategory extends HttpServlet {
 
     /**

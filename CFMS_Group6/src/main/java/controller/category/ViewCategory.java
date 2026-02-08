@@ -19,7 +19,7 @@ import model.Category;
  *
  * @author quang
  */
-@WebServlet(name="ViewCategory", urlPatterns={"/ViewCategory"})
+@WebServlet(name="ViewCategory", urlPatterns={"/category/ViewCategory"})
 public class ViewCategory extends HttpServlet {
    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
