@@ -62,16 +62,16 @@ public class UpdateCategory extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String status = "";
-        int categoryId = Integer.parseInt(request.getParameter("categoryId"));
-        String categoryName = request.getParameter("categoryName");
+        int category_id = Integer.parseInt(request.getParameter("category_id"));
+        String category_name = request.getParameter("category_name");
         String description = request.getParameter("description");
 
         CategoryDao cDao = new CategoryDao();
-        boolean checkUpdate = cDao.updateCategory(categoryId, categoryName, description);
+        boolean checkUpdate = cDao.updateCategory(category_id, category_name, description);
         if (!checkUpdate) {
             return;
         }
-        request.getRequestDispatcher(status).forward(request, response);
+        response.sendRedirect("ViewCategory");
     }
 
     /**
