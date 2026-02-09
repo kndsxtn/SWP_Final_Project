@@ -3,25 +3,24 @@ package model;
 /**
  * Represents details of an allocation request.
  * Matches table 'allocation_details'.
+ * Each row links one asset to a request.
  */
 public class AllocationDetail {
     private int detailId;
     private int requestId;
-    private int categoryId;
-    private int quantity;
+    private int assetId;
     private String note;
 
     // Relationships
-    private Category category;
+    private Asset asset;
 
     public AllocationDetail() {
     }
 
-    public AllocationDetail(int detailId, int requestId, int categoryId, int quantity, String note) {
+    public AllocationDetail(int detailId, int requestId, int assetId, String note) {
         this.detailId = detailId;
         this.requestId = requestId;
-        this.categoryId = categoryId;
-        this.quantity = quantity;
+        this.assetId = assetId;
         this.note = note;
     }
 
@@ -41,20 +40,12 @@ public class AllocationDetail {
         this.requestId = requestId;
     }
 
-    public int getCategoryId() {
-        return categoryId;
+    public int getAssetId() {
+        return assetId;
     }
 
-    public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setAssetId(int assetId) {
+        this.assetId = assetId;
     }
 
     public String getNote() {
@@ -65,11 +56,11 @@ public class AllocationDetail {
         this.note = note;
     }
 
-    public Category getCategory() {
-        return category;
+    public Asset getAsset() {
+        return asset;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setAsset(Asset asset) {
+        this.asset = asset;
     }
 }

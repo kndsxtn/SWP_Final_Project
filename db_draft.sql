@@ -450,9 +450,7 @@ INSERT INTO allocation_requests (created_by, created_date, status, reason_reject
 -- Trưởng BM Ngoại Ngữ yêu cầu điều hòa (đã duyệt hoàn tất)
 (16, '2024-06-01 08:00:00', N'Completed', NULL),
 -- Trưởng BM Cơ Bản yêu cầu bảng trắng (Approved by Principal)
-(13, '2025-01-28 09:00:00', N'Approved_By_Principal', NULL),
--- Trưởng BM Đào Tạo yêu cầu thêm laptop (Pending - chờ Staff duyệt)
-(11, '2025-02-05 08:30:00', N'Pending', NULL);
+(13, '2025-01-28 09:00:00', N'Approved_By_Principal', NULL);
 GO
 
 -- ===================== ALLOCATION DETAILS =====================
