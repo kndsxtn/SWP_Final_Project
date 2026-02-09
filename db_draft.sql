@@ -1,4 +1,4 @@
-﻿-- ==========================================================
+-- ==========================================================
 -- 0. TẠO DATABASE & THIẾT LẬP CƠ BẢN
 -- ==========================================================
 USE master;
@@ -241,21 +241,16 @@ GO
 
 -- ===================== USERS =====================
 INSERT INTO users (username, password_hash, full_name, email, phone, role_id, dept_id, status) VALUES
--- Principal (role_id=1)
 ('principal01', 'hash_principal01', N'Nguyễn Văn An', 'an.nguyen@school.edu.vn', '0901000001', 1, NULL, N'Active'),
--- Vice Principals (role_id=2)
 ('vp01', 'hash_vp01', N'Trần Thị Bích', 'bich.tran@school.edu.vn', '0901000002', 2, NULL, N'Active'),
 ('vp02', 'hash_vp02', N'Lê Quang Cường', 'cuong.le@school.edu.vn', '0901000003', 2, NULL, N'Active'),
--- Finance Head (role_id=3)
 ('finance01', 'hash_finance01', N'Phạm Minh Đức', 'duc.pham@school.edu.vn', '0901000004', 3, 6, N'Active'),
 ('finance02', 'hash_finance02', N'Hoàng Thị Hương', 'huong.hoang@school.edu.vn', '0901000005', 3, 6, N'Active'),
--- Staff (role_id=4)
 ('staff01', 'hash_staff01', N'Võ Thanh Hải', 'hai.vo@school.edu.vn', '0901000006', 4, 2, N'Active'),
 ('staff02', 'hash_staff02', N'Đặng Ngọc Linh', 'linh.dang@school.edu.vn', '0901000007', 4, 2, N'Active'),
 ('staff03', 'hash_staff03', N'Bùi Văn Mạnh', 'manh.bui@school.edu.vn', '0901000008', 4, 6, N'Active'),
 ('staff04', 'hash_staff04', N'Ngô Thị Ngân', 'ngan.ngo@school.edu.vn', '0901000009', 4, 1, N'Active'),
 ('staff05', 'hash_staff05', N'Lý Hoàng Phúc', 'phuc.ly@school.edu.vn', '0901000010', 4, 2, N'Inactive'),
--- Head of Dept (role_id=5)
 ('hod01', 'hash_hod01', N'Trương Văn Quân', 'quan.truong@school.edu.vn', '0901000011', 5, 1, N'Active'),
 ('hod02', 'hash_hod02', N'Đinh Thị Thanh', 'thanh.dinh@school.edu.vn', '0901000012', 5, 2, N'Active'),
 ('hod03', 'hash_hod03', N'Mai Xuân Uy', 'uy.mai@school.edu.vn', '0901000013', 5, 3, N'Active'),
@@ -314,7 +309,6 @@ GO
 
 -- ===================== ASSETS =====================
 INSERT INTO assets (asset_code, asset_name, category_id, supplier_id, room_id, price, purchase_date, warranty_expiry_date, status, description) VALUES
--- Laptops (category_id=1, supplier_id=3 Dell)
 ('LAP-001', N'Dell Latitude 5540', 1, 3, 9, 22000000, '2024-01-15', '2026-01-15', N'In_Use', N'Laptop cho phòng Lab IT 01'),
 ('LAP-002', N'Dell Latitude 5540', 1, 3, 9, 22000000, '2024-01-15', '2026-01-15', N'In_Use', N'Laptop cho phòng Lab IT 01'),
 ('LAP-003', N'Dell Latitude 5540', 1, 3, 10, 22000000, '2024-01-15', '2026-01-15', N'In_Use', N'Laptop cho phòng Lab IT 02'),
@@ -325,8 +319,6 @@ INSERT INTO assets (asset_code, asset_name, category_id, supplier_id, room_id, p
 ('LAP-008', N'Dell Latitude 5550', 1, 3, NULL, 25000000, '2025-02-01', '2027-02-01', N'New', N'Laptop mới nhập kho'),
 ('LAP-009', N'Dell Latitude 5550', 1, 3, NULL, 25000000, '2025-02-01', '2027-02-01', N'New', N'Laptop mới nhập kho'),
 ('LAP-010', N'Dell Latitude 5550', 1, 3, NULL, 25000000, '2025-02-01', '2027-02-01', N'New', N'Laptop mới nhập kho'),
-
--- Máy chiếu (category_id=2, supplier_id=7 BenQ)
 ('PRO-001', N'BenQ MH560', 2, 7, 1, 12000000, '2023-08-10', '2026-08-10', N'In_Use', N'Máy chiếu phòng 101'),
 ('PRO-002', N'BenQ MH560', 2, 7, 2, 12000000, '2023-08-10', '2026-08-10', N'In_Use', N'Máy chiếu phòng 102'),
 ('PRO-003', N'BenQ MH560', 2, 7, 3, 12000000, '2023-08-10', '2026-08-10', N'In_Use', N'Máy chiếu phòng 103'),
@@ -334,59 +326,43 @@ INSERT INTO assets (asset_code, asset_name, category_id, supplier_id, room_id, p
 ('PRO-005', N'BenQ MW560', 2, 7, 12, 15000000, '2024-03-01', '2027-03-01', N'In_Use', N'Máy chiếu hội trường A'),
 ('PRO-006', N'BenQ MH560', 2, 7, NULL, 12000000, '2023-08-10', '2026-08-10', N'Maintenance', N'Bóng đèn yếu, cần thay'),
 ('PRO-007', N'Epson EB-X51', 2, 4, 13, 11000000, '2022-05-15', '2024-05-15', N'In_Use', N'Máy chiếu hội trường B'),
-
--- Bàn học sinh (category_id=3, supplier_id=5 Hoàng Gia)
 ('TAB-001', N'Bàn học sinh đôi BHS-02', 3, 5, 1, 1500000, '2023-01-10', NULL, N'In_Use', N'Bàn đôi phòng 101'),
 ('TAB-002', N'Bàn học sinh đôi BHS-02', 3, 5, 1, 1500000, '2023-01-10', NULL, N'In_Use', N'Bàn đôi phòng 101'),
 ('TAB-003', N'Bàn học sinh đôi BHS-02', 3, 5, 2, 1500000, '2023-01-10', NULL, N'In_Use', NULL),
 ('TAB-004', N'Bàn học sinh đôi BHS-02', 3, 5, 3, 1500000, '2023-01-10', NULL, N'In_Use', NULL),
 ('TAB-005', N'Bàn học sinh đơn BHS-01', 3, 5, 5, 900000, '2022-06-01', NULL, N'In_Use', NULL),
 ('TAB-006', N'Bàn học sinh đơn BHS-01', 3, 5, 5, 900000, '2022-06-01', NULL, N'Broken', N'Gãy chân bàn'),
-
--- Ghế học sinh (category_id=4, supplier_id=5)
 ('CHR-001', N'Ghế học sinh GHS-01', 4, 5, 1, 600000, '2023-01-10', NULL, N'In_Use', NULL),
 ('CHR-002', N'Ghế học sinh GHS-01', 4, 5, 1, 600000, '2023-01-10', NULL, N'In_Use', NULL),
 ('CHR-003', N'Ghế học sinh GHS-01', 4, 5, 2, 600000, '2023-01-10', NULL, N'In_Use', NULL),
 ('CHR-004', N'Ghế học sinh GHS-01', 4, 5, 3, 600000, '2023-01-10', NULL, N'In_Use', NULL),
 ('CHR-005', N'Ghế xoay văn phòng', 4, 5, 14, 2500000, '2024-02-01', NULL, N'In_Use', N'Ghế phòng họp'),
-
--- Máy in (category_id=5, supplier_id=4 Epson)
 ('PRT-001', N'Epson L3250', 5, 4, 14, 5500000, '2024-05-10', '2025-05-10', N'In_Use', N'Máy in phòng họp 01'),
 ('PRT-002', N'Epson L3250', 5, 4, 18, 5500000, '2024-05-10', '2025-05-10', N'In_Use', N'Máy in kho thiết bị'),
 ('PRT-003', N'Epson EcoTank L6290', 5, 4, 9, 9800000, '2024-08-01', '2026-08-01', N'In_Use', N'Máy in Lab IT 01'),
 ('PRT-004', N'Epson L3250', 5, 4, NULL, 5500000, '2023-03-01', '2024-03-01', N'Broken', N'Hỏng đầu in, hết bảo hành'),
-
--- Điều hòa (category_id=6, supplier_id=6 Đại Việt)
 ('AIR-001', N'Daikin FTKB35XVMV 1.5HP', 6, 6, 1, 12000000, '2023-03-15', '2026-03-15', N'In_Use', NULL),
 ('AIR-002', N'Daikin FTKB35XVMV 1.5HP', 6, 6, 2, 12000000, '2023-03-15', '2026-03-15', N'In_Use', NULL),
 ('AIR-003', N'Daikin FTKB35XVMV 1.5HP', 6, 6, 3, 12000000, '2023-03-15', '2026-03-15', N'In_Use', NULL),
 ('AIR-004', N'Daikin FTKC50UVMV 2HP', 6, 6, 5, 16000000, '2024-01-10', '2027-01-10', N'In_Use', NULL),
 ('AIR-005', N'Daikin FTKC50UVMV 2HP', 6, 6, 12, 16000000, '2024-01-10', '2027-01-10', N'In_Use', N'Điều hòa hội trường A'),
 ('AIR-006', N'Daikin FTKB35XVMV 1.5HP', 6, 6, 9, 12000000, '2023-03-15', '2026-03-15', N'Maintenance', N'Đang bảo trì định kỳ'),
-
--- Màn hình (category_id=7, supplier_id=3 Dell)
 ('MON-001', N'Dell E2422H 24 inch', 7, 3, 9, 4500000, '2024-01-15', '2027-01-15', N'In_Use', NULL),
 ('MON-002', N'Dell E2422H 24 inch', 7, 3, 9, 4500000, '2024-01-15', '2027-01-15', N'In_Use', NULL),
 ('MON-003', N'Dell E2422H 24 inch', 7, 3, 10, 4500000, '2024-01-15', '2027-01-15', N'In_Use', NULL),
 ('MON-004', N'Dell E2422H 24 inch', 7, 3, 10, 4500000, '2024-01-15', '2027-01-15', N'In_Use', NULL),
 ('MON-005', N'Dell S2722QC 27 inch 4K', 7, 3, 14, 8500000, '2024-06-01', '2027-06-01', N'In_Use', N'Màn hình phòng họp'),
-
--- Máy tính bàn (category_id=8, supplier_id=2 Phương Nam)
 ('DES-001', N'PC Intel i5-13400 / 16GB / SSD 512GB', 8, 2, 9, 14000000, '2024-01-15', '2026-01-15', N'In_Use', N'Máy tính Lab IT 01'),
 ('DES-002', N'PC Intel i5-13400 / 16GB / SSD 512GB', 8, 2, 9, 14000000, '2024-01-15', '2026-01-15', N'In_Use', N'Máy tính Lab IT 01'),
 ('DES-003', N'PC Intel i5-13400 / 16GB / SSD 512GB', 8, 2, 10, 14000000, '2024-01-15', '2026-01-15', N'In_Use', N'Máy tính Lab IT 02'),
 ('DES-004', N'PC Intel i5-13400 / 16GB / SSD 512GB', 8, 2, 10, 14000000, '2024-01-15', '2026-01-15', N'In_Use', N'Máy tính Lab IT 02'),
 ('DES-005', N'PC Intel i3-12100 / 8GB / SSD 256GB', 8, 2, 11, 9000000, '2022-08-01', '2024-08-01', N'In_Use', N'Máy tính Lab IT 03'),
 ('DES-006', N'PC Intel i3-12100 / 8GB / SSD 256GB', 8, 2, 11, 9000000, '2022-08-01', '2024-08-01', N'Broken', N'Hỏng nguồn'),
-
--- Bảng trắng (category_id=9, supplier_id=1 Minh Phát)
 ('WBD-001', N'Bảng trắng từ 1.2m x 2.4m', 9, 1, 1, 1800000, '2023-01-10', NULL, N'In_Use', NULL),
 ('WBD-002', N'Bảng trắng từ 1.2m x 2.4m', 9, 1, 2, 1800000, '2023-01-10', NULL, N'In_Use', NULL),
 ('WBD-003', N'Bảng trắng từ 1.2m x 2.4m', 9, 1, 3, 1800000, '2023-01-10', NULL, N'In_Use', NULL),
 ('WBD-004', N'Bảng trắng từ 1.2m x 2.4m', 9, 1, 5, 1800000, '2023-01-10', NULL, N'In_Use', NULL),
 ('WBD-005', N'Bảng trắng từ 0.6m x 0.9m', 9, 1, 14, 500000, '2024-02-01', NULL, N'In_Use', N'Bảng nhỏ phòng họp'),
-
--- Micro & Loa (category_id=10, supplier_id=8 ÂS Việt)
 ('AUD-001', N'Bộ Micro không dây Shure BLX288/PG58', 10, 8, 12, 8500000, '2024-04-01', '2026-04-01', N'In_Use', N'Hội trường A'),
 ('AUD-002', N'Loa JBL EON715 15 inch', 10, 8, 12, 15000000, '2024-04-01', '2026-04-01', N'In_Use', N'Hội trường A'),
 ('AUD-003', N'Bộ Micro không dây Shure BLX288/PG58', 10, 8, 13, 8500000, '2024-04-01', '2026-04-01', N'In_Use', N'Hội trường B'),
@@ -397,126 +373,153 @@ GO
 -- ===================== ASSET IMAGES =====================
 INSERT INTO asset_images (asset_id, image_url, description) VALUES
 (1, '/images/assets/LAP-001_front.jpg', N'Mặt trước laptop'),
-(1, '/images/assets/LAP-001_keyboard.jpg', N'Bàn phím laptop'),
+(4, '/images/assets/LAP-004_front.jpg', N'Ảnh tổng quan tài sản'),
 (4, '/images/assets/LAP-004_damage.jpg', N'Hình chụp lỗi bàn phím'),
+(4, '/images/maintenance_requests/LAP-004_keyboard.jpg', N'Ảnh minh chứng lỗi bàn phím'),
+(5, '/images/assets/LAP-005_front.jpg', N'Ảnh tổng quan tài sản'),
 (5, '/images/assets/LAP-005_broken_screen.jpg', N'Màn hình hỏng'),
+(5, '/images/maintenance_requests/LAP-005_broken_screen.jpg', N'Ảnh minh chứng màn hình vỡ'),
 (11, '/images/assets/PRO-001_installed.jpg', N'Máy chiếu đã lắp đặt'),
-(16, '/images/assets/PRO-006_lamp.jpg', N'Bóng đèn yếu'),
-(23, '/images/assets/TAB-006_broken.jpg', N'Gãy chân bàn'),
-(33, '/images/assets/PRT-004_broken.jpg', N'Đầu in hỏng'),
-(51, '/images/assets/DES-006_broken_psu.jpg', N'Nguồn hỏng'),
-(58, '/images/assets/AUD-001_setup.jpg', N'Lắp đặt micro hội trường');
+(16, '/images/assets/PRO-006_front.jpg', N'Ảnh tổng quan tài sản'),
+(16, '/images/assets/PRO-006_lamp.webp', N'Bóng đèn yếu'),
+(16, '/images/maintenance_requests/PRO-006_lamp.jpg', N'Ảnh minh chứng bóng đèn yếu'),
+(23, '/images/assets/TAB-006_front.jpg', N'Ảnh tổng quan tài sản'),
+(23, '/images/assets/TAB-006_broke.jpg', N'Gãy chân bàn'),
+(23, '/images/maintenance_requests/TAB-006_broken_leg.jpg', N'Ảnh minh chứng gãy chân bàn'),
+(32, '/images/assets/PRT-004_front.jpg', N'Ảnh tổng quan tài sản'),
+(32, '/images/assets/PRT-004_broken.jpg', N'Máy in hỏng'),
+(32, '/images/maintenance_requests/PRT-004_head.jpg', N'Ảnh minh chứng đầu in hỏng'),
+(49, '/images/assets/DES-006_front.jpg', N'Ảnh tổng quan tài sản'),
+(49, '/images/assets/DES-006_broken_psu.jpg', N'Nguồn hỏng'),
+(49, '/images/maintenance_requests/DES-006_psu.jpg', N'Ảnh minh chứng nguồn hỏng'),
+(55, '/images/assets/AUD-001_setup.jpg', N'Lắp đặt micro hội trường'),
+(2,  '/images/assets/LAP-002_front.jpg', N'Ảnh tổng quan tài sản'),
+(3,  '/images/assets/LAP-003_front.jpg', N'Ảnh tổng quan tài sản'),
+(6,  '/images/assets/LAP-006_front.jpg', N'Ảnh tổng quan tài sản'),
+(7,  '/images/assets/LAP-007_front.jpg', N'Ảnh tổng quan tài sản'),
+(8,  '/images/assets/LAP-008_front.jpg', N'Ảnh tổng quan tài sản'),
+(9,  '/images/assets/LAP-009_front.jpg', N'Ảnh tổng quan tài sản'),
+(10, '/images/assets/LAP-010_front.jpg', N'Ảnh tổng quan tài sản'),
+(12, '/images/assets/PRO-002_front.jpg', N'Ảnh tổng quan tài sản'),
+(13, '/images/assets/PRO-003_front.jpg', N'Ảnh tổng quan tài sản'),
+(14, '/images/assets/PRO-004_front.jpg', N'Ảnh tổng quan tài sản'),
+(15, '/images/assets/PRO-005_front.jpg', N'Ảnh tổng quan tài sản'),
+(17, '/images/assets/PRO-007_front.jpg', N'Ảnh tổng quan tài sản'),
+(18, '/images/assets/TAB-001_front.jpg', N'Ảnh tổng quan tài sản'),
+(19, '/images/assets/TAB-002_front.jpg', N'Ảnh tổng quan tài sản'),
+(20, '/images/assets/TAB-003_front.jpg', N'Ảnh tổng quan tài sản'),
+(21, '/images/assets/TAB-004_front.jpg', N'Ảnh tổng quan tài sản'),
+(22, '/images/assets/TAB-005_front.jpg', N'Ảnh tổng quan tài sản'),
+(24, '/images/assets/CHR-001_front.jpg', N'Ảnh tổng quan tài sản'),
+(25, '/images/assets/CHR-002_front.jpg', N'Ảnh tổng quan tài sản'),
+(26, '/images/assets/CHR-003_front.jpg', N'Ảnh tổng quan tài sản'),
+(27, '/images/assets/CHR-004_front.jpg', N'Ảnh tổng quan tài sản'),
+(28, '/images/assets/CHR-005_front.jpg', N'Ảnh tổng quan tài sản'),
+(29, '/images/assets/PRT-001_front.jpg', N'Ảnh tổng quan tài sản'),
+(30, '/images/assets/PRT-002_front.jpg', N'Ảnh tổng quan tài sản'),
+(31, '/images/assets/PRT-003_front.jpg', N'Ảnh tổng quan tài sản'),
+(33, '/images/assets/AIR-001_front.jpg', N'Ảnh tổng quan tài sản'),
+(34, '/images/assets/AIR-002_front.jpg', N'Ảnh tổng quan tài sản'),
+(35, '/images/assets/AIR-003_front.jpg', N'Ảnh tổng quan tài sản'),
+(36, '/images/assets/AIR-004_front.jpg', N'Ảnh tổng quan tài sản'),
+(37, '/images/assets/AIR-005_front.jpg', N'Ảnh tổng quan tài sản'),
+(38, '/images/assets/AIR-006_front.jpg', N'Ảnh tổng quan tài sản'),
+(39, '/images/assets/MON-001_front.jpg', N'Ảnh tổng quan tài sản'),
+(40, '/images/assets/MON-002_front.jpg', N'Ảnh tổng quan tài sản'),
+(41, '/images/assets/MON-003_front.jpg', N'Ảnh tổng quan tài sản'),
+(42, '/images/assets/MON-004_front.jpg', N'Ảnh tổng quan tài sản'),
+(43, '/images/assets/MON-005_front.jpg', N'Ảnh tổng quan tài sản'),
+(44, '/images/assets/DES-001_front.jpg', N'Ảnh tổng quan tài sản'),
+(45, '/images/assets/DES-002_front.jpg', N'Ảnh tổng quan tài sản'),
+(46, '/images/assets/DES-003_front.jpg', N'Ảnh tổng quan tài sản'),
+(47, '/images/assets/DES-004_front.jpg', N'Ảnh tổng quan tài sản'),
+(48, '/images/assets/DES-005_front.jpg', N'Ảnh tổng quan tài sản'),
+(50, '/images/assets/WBD-001_front.jpg', N'Ảnh tổng quan tài sản'),
+(51, '/images/assets/WBD-002_front.jpg', N'Ảnh tổng quan tài sản'),
+(52, '/images/assets/WBD-003_front.jpg', N'Ảnh tổng quan tài sản'),
+(53, '/images/assets/WBD-004_front.jpg', N'Ảnh tổng quan tài sản'),
+(54, '/images/assets/WBD-005_front.jpg', N'Ảnh tổng quan tài sản'),
+(56, '/images/assets/AUD-002_front.jpg', N'Ảnh tổng quan tài sản'),
+(57, '/images/assets/AUD-003_front.jpg', N'Ảnh tổng quan tài sản'),
+(58, '/images/assets/AUD-004_front.jpg', N'Ảnh tổng quan tài sản'),
+(59, '/images/assets/AUD-005_front.jpg', N'Ảnh tổng quan tài sản');
 GO
 
 -- ===================== ASSET HISTORY =====================
 INSERT INTO asset_history (asset_id, action, performed_by, description, action_date) VALUES
--- LAP-001: Nhập kho -> Cấp phát
 (1, N'Nhập kho', 6, N'Nhập lô laptop Dell Latitude 5540 x10', '2024-01-15 09:00:00'),
 (1, N'Cấp phát', 6, N'Cấp phát cho phòng Lab IT 01', '2024-01-20 10:00:00'),
--- LAP-004: Nhập kho -> Cấp phát -> Bảo trì
 (4, N'Nhập kho', 6, N'Nhập lô laptop Dell Latitude 3440 x5', '2023-06-20 09:00:00'),
 (4, N'Cấp phát', 6, N'Cấp phát cho phòng Lab IT 02', '2023-07-01 08:30:00'),
 (4, N'Bảo trì', 7, N'Báo lỗi bàn phím, chuyển bảo trì', '2025-01-10 14:00:00'),
--- LAP-005: Nhập kho -> Cấp phát -> Hỏng
 (5, N'Nhập kho', 6, N'Nhập lô laptop Dell Latitude 3440 x5', '2023-06-20 09:00:00'),
 (5, N'Cấp phát', 6, N'Cấp phát cho phòng Lab IT 02', '2023-07-01 08:30:00'),
 (5, N'Hỏng', 7, N'Màn hình bị vỡ do rơi, chuyển Broken', '2024-11-05 16:00:00'),
--- PRO-001: Nhập kho -> Cấp phát
 (11, N'Nhập kho', 6, N'Nhập lô máy chiếu BenQ MH560 x6', '2023-08-10 09:00:00'),
 (11, N'Cấp phát', 6, N'Lắp đặt tại phòng 101', '2023-08-15 10:00:00'),
--- PRO-006: Nhập kho -> Cấp phát -> Bảo trì
 (16, N'Nhập kho', 6, N'Nhập lô máy chiếu BenQ MH560 x6', '2023-08-10 09:00:00'),
 (16, N'Cấp phát', 6, N'Lắp đặt tại phòng 104', '2023-08-16 10:00:00'),
 (16, N'Bảo trì', 7, N'Bóng đèn yếu, cần thay bóng mới', '2025-01-20 11:00:00'),
--- AIR-006: Bảo trì định kỳ
-(39, N'Nhập kho', 6, N'Nhập lô điều hòa Daikin', '2023-03-15 09:00:00'),
-(39, N'Cấp phát', 6, N'Lắp đặt tại Lab IT 01', '2023-03-20 14:00:00'),
-(39, N'Bảo trì', 7, N'Bảo trì định kỳ: vệ sinh, nạp gas', '2025-01-25 09:00:00'),
--- AUD-005: Thất lạc
-(58, N'Nhập kho', 6, N'Nhập micro Shure SM58', '2022-01-01 09:00:00'),
-(58, N'Thất lạc', 8, N'Không tìm thấy sau sự kiện khai giảng', '2024-09-10 17:00:00');
+(38, N'Nhập kho', 6, N'Nhập lô điều hòa Daikin', '2023-03-15 09:00:00'),
+(38, N'Cấp phát', 6, N'Lắp đặt tại Lab IT 01', '2023-03-20 14:00:00'),
+(38, N'Bảo trì', 7, N'Bảo trì định kỳ: vệ sinh, nạp gas', '2025-01-25 09:00:00'),
+(59, N'Nhập kho', 6, N'Nhập micro Shure SM58', '2022-01-01 09:00:00'),
+(59, N'Thất lạc', 8, N'Không tìm thấy sau sự kiện khai giảng', '2024-09-10 17:00:00');
 GO
 
 -- ===================== ALLOCATION REQUESTS =====================
 INSERT INTO allocation_requests (created_by, created_date, status, reason_reject) VALUES
--- Trưởng BM Đào Tạo yêu cầu cấp phát laptop (đã hoàn thành)
 (11, '2024-01-18 08:00:00', N'Completed', NULL),
--- Trưởng BM IT yêu cầu thêm máy in (đã duyệt VP, chờ Principal)
 (12, '2025-01-05 09:30:00', N'Approved_By_VP', NULL),
--- Trưởng BM Kinh Tế yêu cầu máy chiếu (đang chờ duyệt - đã qua Staff)
 (14, '2025-01-15 10:00:00', N'Approved_By_Staff', NULL),
--- Trưởng BM Kỹ Thuật yêu cầu bàn ghế (bị từ chối)
 (15, '2024-11-20 14:00:00', N'Rejected', N'Ngân sách năm 2024 đã hết, vui lòng gửi lại đầu năm 2025'),
--- Trưởng BM Ngoại Ngữ yêu cầu điều hòa (đã duyệt hoàn tất)
 (16, '2024-06-01 08:00:00', N'Completed', NULL),
--- Trưởng BM Cơ Bản yêu cầu bảng trắng (Approved by Principal)
 (13, '2025-01-28 09:00:00', N'Approved_By_Principal', NULL);
 GO
 
 -- ===================== ALLOCATION DETAILS =====================
 INSERT INTO allocation_details (request_id, asset_id, note) VALUES
--- Request 1 (Completed): Cấp phát laptop cho Lab IT
 (1, 1, N'Laptop Dell Latitude 5540 cho Lab IT 01'),
 (1, 2, N'Laptop Dell Latitude 5540 cho Lab IT 01'),
 (1, 3, N'Laptop Dell Latitude 5540 cho Lab IT 02'),
 (1, 4, N'Laptop Dell Latitude 3440 cho Lab IT 02'),
 (1, 5, N'Laptop Dell Latitude 3440 cho Lab IT 02'),
--- Request 2 (Approved_By_VP): Cấp phát máy in
 (2, 30, N'Máy in Epson L3250 cho phòng Lab IT 02'),
 (2, 31, N'Máy in EcoTank L6290 cho phòng 201'),
--- Request 3 (Pending): Cấp phát máy chiếu cho Khoa Kinh Tế
 (3, 14, N'Máy chiếu BenQ MW560 cho phòng 202'),
 (3, 8, N'Laptop mới cho phòng Khoa Kinh Tế'),
 (3, 9, N'Laptop mới cho phòng Khoa Kinh Tế'),
--- Request 4 (Rejected): Bàn ghế cho Khoa Kỹ Thuật
 (4, 22, N'Bàn học sinh cho phòng mới'),
 (4, 28, N'Ghế học sinh cho phòng mới'),
--- Request 5 (Completed): Điều hòa cho Ngoại Ngữ
 (5, 34, N'Điều hòa Daikin 1.5HP cho phòng 301'),
 (5, 35, N'Điều hòa Daikin 1.5HP cho phòng 302 - chưa có trong kho, sẽ mua thêm'),
--- Request 6 (Approved_By_Principal): Bảng trắng cho Khoa Cơ Bản
 (6, 52, N'Bảng trắng thay thế cho phòng 103'),
 (6, 53, N'Bảng trắng thay thế cho phòng 104');
 GO
 
 -- ===================== TRANSFER ORDERS =====================
 INSERT INTO transfer_orders (created_by, source_room_id, dest_room_id, created_date, approved_by, status, note) VALUES
--- Chuyển laptop từ Lab IT 02 sang Lab IT 03 (hoàn thành)
 (6, 10, 11, '2024-09-01 08:00:00', 2, N'Completed', N'Điều chuyển laptop sang lab mới'),
--- Chuyển bàn từ phòng 201 sang phòng 203 (đã duyệt)
 (7, 5, 7, '2025-01-10 09:00:00', 2, N'Approved', N'Chuyển bàn dư sang phòng thiếu'),
--- Chuyển máy chiếu từ kho sang phòng 204 (chờ duyệt)
 (6, 18, 8, '2025-02-01 10:00:00', NULL, N'Pending', N'Lắp máy chiếu phòng 204'),
--- Chuyển điều hòa từ phòng 103 sang phòng 301 (bị từ chối)
 (7, 3, 16, '2024-12-15 11:00:00', 3, N'Rejected', N'Phòng 103 vẫn cần điều hòa, không thể chuyển');
 GO
 
 -- ===================== TRANSFER DETAILS =====================
 INSERT INTO transfer_details (transfer_id, asset_id, status_at_transfer, transfer_date) VALUES
--- Transfer 1: Chuyển LAP-003 từ Lab IT 02 -> Lab IT 03
 (1, 3, N'In_Use', '2024-09-02 10:00:00'),
--- Transfer 2: Chuyển TAB-005 từ phòng 201 -> phòng 203
 (2, 22, N'In_Use', '2025-01-12 14:00:00'),
--- Transfer 3: (Pending - chưa có transfer_date thực tế, dùng ngày tạo)
 (3, 16, N'Maintenance', '2025-02-01 10:00:00');
 GO
 
 -- ===================== MAINTENANCE REQUESTS =====================
 INSERT INTO maintenance_requests (asset_id, reported_by_guest, reported_by_user_id, reported_date, issue_description, image_proof_url, status, cost, technician_note) VALUES
--- LAP-004: Báo lỗi bàn phím (đang sửa)
-(4, NULL, 12, '2025-01-10 14:00:00', N'Bàn phím laptop bị liệt một số phím, không gõ được ký tự số hàng trên', '/images/maintenance/LAP-004_keyboard.jpg', N'In_Progress', 500000, N'Đã đặt bàn phím thay thế, chờ linh kiện về'),
--- LAP-005: Hỏng màn hình (không sửa được)
-(5, NULL, 12, '2024-11-05 16:00:00', N'Màn hình laptop bị vỡ do rơi từ bàn xuống đất', '/images/maintenance/LAP-005_broken_screen.jpg', N'Cannot_Fix', 0, N'Màn hình vỡ nặng, chi phí thay thế cao hơn giá trị còn lại. Đề xuất thanh lý'),
--- PRO-006: Bóng đèn yếu (đã xác minh)
-(16, NULL, 11, '2025-01-20 11:00:00', N'Máy chiếu chiếu mờ, bóng đèn yếu dần sau 2 năm sử dụng', '/images/maintenance/PRO-006_lamp.jpg', N'Verified', 2500000, NULL),
--- TAB-006: Gãy chân bàn (đã sửa xong)
-(23, NULL, 14, '2024-10-01 09:00:00', N'Bàn học sinh bị gãy chân, nghiêng và không ổn định', '/images/maintenance/TAB-006_broken_leg.jpg', N'Fixed', 200000, N'Đã hàn và gia cố lại chân bàn'),
--- AIR-006: Bảo trì định kỳ (đang xử lý)
-(39, NULL, 6, '2025-01-25 09:00:00', N'Điều hòa cần bảo trì định kỳ: vệ sinh lưới lọc, kiểm tra gas', NULL, N'In_Progress', 800000, N'Đang vệ sinh và nạp gas bổ sung'),
--- DES-006: Hỏng nguồn (báo cáo mới)
-(51, NULL, 7, '2025-02-05 10:00:00', N'Máy tính không khởi động được, nghi hỏng nguồn (PSU)', '/images/maintenance/DES-006_psu.jpg', N'Reported', 0, NULL),
--- Báo cáo từ khách (guest)
+(4, NULL, 12, '2025-01-10 14:00:00', N'Bàn phím laptop bị liệt một số phím, không gõ được ký tự số hàng trên', '/images/maintenance_requests/LAP-004_keyboard.jpg', N'In_Progress', 500000, N'Đã đặt bàn phím thay thế, chờ linh kiện về'),
+(5, NULL, 12, '2024-11-05 16:00:00', N'Màn hình laptop bị vỡ do rơi từ bàn xuống đất', '/images/maintenance_requests/LAP-005_broken_screen.jpg', N'Cannot_Fix', 0, N'Màn hình vỡ nặng, chi phí thay thế cao hơn giá trị còn lại. Đề xuất thanh lý'),
+(16, NULL, 11, '2025-01-20 11:00:00', N'Máy chiếu chiếu mờ, bóng đèn yếu dần sau 2 năm sử dụng', '/images/maintenance_requests/PRO-006_lamp.jpg', N'Verified', 2500000, NULL),
+(23, NULL, 14, '2024-10-01 09:00:00', N'Bàn học sinh bị gãy chân, nghiêng và không ổn định', '/images/maintenance_requests/TAB-006_broken_leg.jpg', N'Fixed', 200000, N'Đã hàn và gia cố lại chân bàn'),
+(38, NULL, 6, '2025-01-25 09:00:00', N'Điều hòa cần bảo trì định kỳ: vệ sinh lưới lọc, kiểm tra gas', NULL, N'In_Progress', 800000, N'Đang vệ sinh và nạp gas bổ sung'),
+(49, NULL, 7, '2025-02-05 10:00:00', N'Máy tính không khởi động được, nghi hỏng nguồn (PSU)', '/images/maintenance_requests/DES-006_psu.jpg', N'Reported', 0, NULL),
 (NULL, N'Nguyễn Minh Tú - Sinh viên K68', NULL, '2025-02-03 15:30:00', N'Điều hòa phòng 201 không mát, chạy có tiếng ồn lớn', NULL, N'Reported', 0, NULL),
--- PRT-004: Hỏng đầu in (không sửa được)
-(33, NULL, 6, '2024-08-15 11:00:00', N'Máy in ra giấy bị nhòe và có vạch kẻ, đầu in hỏng', '/images/maintenance/PRT-004_head.jpg', N'Cannot_Fix', 0, N'Đầu in hỏng không thể sửa, hết bảo hành. Đề xuất thanh lý');
+(32, NULL, 6, '2024-08-15 11:00:00', N'Máy in ra giấy bị nhòe và có vạch kẻ, đầu in hỏng', '/images/maintenance_requests/PRT-004_head.jpg', N'Cannot_Fix', 0, N'Đầu in hỏng không thể sửa, hết bảo hành. Đề xuất thanh lý');
 GO

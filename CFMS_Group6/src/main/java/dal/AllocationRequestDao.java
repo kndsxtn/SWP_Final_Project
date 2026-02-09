@@ -8,6 +8,7 @@ import java.util.List;
 import model.AllocationDetail;
 import model.AllocationRequest;
 import model.Asset;
+import model.AssetImage;
 import model.Category;
 import model.User;
 
@@ -156,6 +157,88 @@ public class AllocationRequestDao {
             e.printStackTrace();
         }
         return list;
+    }
+
+    // ─── Get single request by ID (for detail page) ───
+    public AllocationRequest getRequestById(int requestId) {
+        String sql = "SELECT ar.*, u.full_name AS creator_name "
+                + "FROM allocation_requests ar "
+                + "JOIN users u ON ar.created_by = u.user_id "
+                + "WHERE ar.request_id = ?";
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, requestId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRequest(rs);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // ─── Get full details with asset info + images (for detail page) ───
+    public List<AllocationDetail> getDetailsFullByRequestId(int requestId) {
+        List<AllocationDetail> list = new ArrayList<>();
+        String sql = "SELECT ad.*, a.asset_id AS a_id, a.asset_code, a.asset_name, "
+                + "a.status AS asset_status, a.price, a.description AS asset_desc, "
+                + "a.category_id, c.category_name, c.prefix_code "
+                + "FROM allocation_details ad "
+                + "JOIN assets a ON ad.asset_id = a.asset_id "
+                + "JOIN categories c ON a.category_id = c.category_id "
+                + "WHERE ad.request_id = ? "
+                + "ORDER BY ad.detail_id";
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, requestId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    AllocationDetail d = mapDetail(rs);
+
+                    // Enrich asset with extra fields
+                    Asset asset = d.getAsset();
+                    asset.setStatus(rs.getString("asset_status"));
+                    asset.setPrice(rs.getBigDecimal("price"));
+                    asset.setDescription(rs.getString("asset_desc"));
+
+                    // Load images for this asset
+                    asset.setImages(getImagesByAssetId(con, asset.getAssetId()));
+
+                    list.add(d);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // ─── Get images for an asset (reuses existing connection) ───
+    private List<AssetImage> getImagesByAssetId(Connection con, int assetId) throws Exception {
+        List<AssetImage> images = new ArrayList<>();
+        String sql = "SELECT * FROM asset_images WHERE asset_id = ? ORDER BY image_id";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, assetId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    AssetImage img = new AssetImage();
+                    img.setImageId(rs.getInt("image_id"));
+                    img.setAssetId(rs.getInt("asset_id"));
+                    img.setImageUrl(rs.getString("image_url"));
+                    img.setUploadedAt(rs.getTimestamp("uploaded_at"));
+                    img.setDescription(rs.getString("description"));
+                    images.add(img);
+                }
+            }
+        }
+        return images;
     }
 
     // ─── Mapping helpers ───
