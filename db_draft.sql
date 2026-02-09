@@ -149,19 +149,18 @@ CREATE TABLE allocation_requests (
     reason_reject NVARCHAR(MAX),
     
     FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE,
-    CONSTRAINT CHK_AllocStatus CHECK (status IN (N'Pending', N'Approved_By_VP', N'Approved_By_Principal', N'Rejected', N'Completed'))
+    CONSTRAINT CHK_AllocStatus CHECK (status IN (N'Pending', N'Approved_By_Staff', N'Approved_By_VP', N'Approved_By_Principal', N'Rejected', N'Completed'))
 );
 GO
 
 CREATE TABLE allocation_details (
     detail_id INT IDENTITY(1,1) PRIMARY KEY,
     request_id INT NOT NULL,
-    category_id INT NOT NULL,
-    quantity INT NOT NULL,
+    asset_id INT NOT NULL,
     note NVARCHAR(255),
-    
+
     FOREIGN KEY (request_id) REFERENCES allocation_requests(request_id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+    FOREIGN KEY (asset_id) REFERENCES assets(asset_id)
 );
 GO
 
@@ -444,31 +443,42 @@ INSERT INTO allocation_requests (created_by, created_date, status, reason_reject
 (11, '2024-01-18 08:00:00', N'Completed', NULL),
 -- Trưởng BM IT yêu cầu thêm máy in (đã duyệt VP, chờ Principal)
 (12, '2025-01-05 09:30:00', N'Approved_By_VP', NULL),
--- Trưởng BM Kinh Tế yêu cầu máy chiếu (đang chờ duyệt)
-(14, '2025-01-15 10:00:00', N'Pending', NULL),
+-- Trưởng BM Kinh Tế yêu cầu máy chiếu (đang chờ duyệt - đã qua Staff)
+(14, '2025-01-15 10:00:00', N'Approved_By_Staff', NULL),
 -- Trưởng BM Kỹ Thuật yêu cầu bàn ghế (bị từ chối)
 (15, '2024-11-20 14:00:00', N'Rejected', N'Ngân sách năm 2024 đã hết, vui lòng gửi lại đầu năm 2025'),
 -- Trưởng BM Ngoại Ngữ yêu cầu điều hòa (đã duyệt hoàn tất)
 (16, '2024-06-01 08:00:00', N'Completed', NULL),
 -- Trưởng BM Cơ Bản yêu cầu bảng trắng (Approved by Principal)
-(13, '2025-01-28 09:00:00', N'Approved_By_Principal', NULL);
+(13, '2025-01-28 09:00:00', N'Approved_By_Principal', NULL),
+-- Trưởng BM Đào Tạo yêu cầu thêm laptop (Pending - chờ Staff duyệt)
+(11, '2025-02-05 08:30:00', N'Pending', NULL);
 GO
 
 -- ===================== ALLOCATION DETAILS =====================
-INSERT INTO allocation_details (request_id, category_id, quantity, note) VALUES
--- Request 1: Laptop x5
-(1, 1, 5, N'Cần laptop cho phòng Lab IT mới'),
--- Request 2: Máy in x2
-(2, 5, 2, N'Bổ sung máy in cho phòng Lab IT 02 và phòng 201'),
--- Request 3: Máy chiếu x3
-(3, 2, 3, N'Lắp thêm máy chiếu cho 3 phòng Khoa Kinh Tế'),
--- Request 4: Bàn x20, Ghế x20
-(4, 3, 20, N'Bàn cho phòng mới Khoa Kỹ Thuật'),
-(4, 4, 20, N'Ghế cho phòng mới Khoa Kỹ Thuật'),
--- Request 5: Điều hòa x2
-(5, 6, 2, N'Điều hòa cho phòng 301, 302 Ngoại Ngữ'),
--- Request 6: Bảng trắng x4
-(6, 9, 4, N'Thay bảng cũ tại phòng Khoa Cơ Bản');
+INSERT INTO allocation_details (request_id, asset_id, note) VALUES
+-- Request 1 (Completed): Cấp phát laptop cho Lab IT
+(1, 1, N'Laptop Dell Latitude 5540 cho Lab IT 01'),
+(1, 2, N'Laptop Dell Latitude 5540 cho Lab IT 01'),
+(1, 3, N'Laptop Dell Latitude 5540 cho Lab IT 02'),
+(1, 4, N'Laptop Dell Latitude 3440 cho Lab IT 02'),
+(1, 5, N'Laptop Dell Latitude 3440 cho Lab IT 02'),
+-- Request 2 (Approved_By_VP): Cấp phát máy in
+(2, 30, N'Máy in Epson L3250 cho phòng Lab IT 02'),
+(2, 31, N'Máy in EcoTank L6290 cho phòng 201'),
+-- Request 3 (Pending): Cấp phát máy chiếu cho Khoa Kinh Tế
+(3, 14, N'Máy chiếu BenQ MW560 cho phòng 202'),
+(3, 8, N'Laptop mới cho phòng Khoa Kinh Tế'),
+(3, 9, N'Laptop mới cho phòng Khoa Kinh Tế'),
+-- Request 4 (Rejected): Bàn ghế cho Khoa Kỹ Thuật
+(4, 22, N'Bàn học sinh cho phòng mới'),
+(4, 28, N'Ghế học sinh cho phòng mới'),
+-- Request 5 (Completed): Điều hòa cho Ngoại Ngữ
+(5, 34, N'Điều hòa Daikin 1.5HP cho phòng 301'),
+(5, 35, N'Điều hòa Daikin 1.5HP cho phòng 302 - chưa có trong kho, sẽ mua thêm'),
+-- Request 6 (Approved_By_Principal): Bảng trắng cho Khoa Cơ Bản
+(6, 52, N'Bảng trắng thay thế cho phòng 103'),
+(6, 53, N'Bảng trắng thay thế cho phòng 104');
 GO
 
 -- ===================== TRANSFER ORDERS =====================
