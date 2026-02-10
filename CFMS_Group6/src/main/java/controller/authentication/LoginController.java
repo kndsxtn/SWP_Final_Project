@@ -19,21 +19,21 @@ import jakarta.servlet.http.HttpSession;
  *
  * @author Nguyen Dinh Giap
  */
-@WebServlet(name = "LoginAuthentication", urlPatterns = {"/loginHome"})
+@WebServlet(name = "LoginAuthentication", urlPatterns = { "/loginHome" })
 public class LoginController extends HttpServlet {
 
     @Override
-    //Chay khi user go link /loginHome hoặc bi Filter da ve hien trang Login
+    // Chay khi user go link /loginHome hoặc bi Filter da ve hien trang Login
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        //kiem tra da dang nhap roi thi ko cho vao login nua
+        // kiem tra da dang nhap roi thi ko cho vao login nua
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("user") != null) {
-//            UserDto user = (UserDto) session.getAttribute("user");
-//            //dieu huong ve login
-//            redirectBasedOnRole(request, response, user);
-//            return;
-            response.sendRedirect(request.getContextPath() + "/dashboardController");
+            // UserDto user = (UserDto) session.getAttribute("user");
+            // //dieu huong ve login
+            // redirectBasedOnRole(request, response, user);
+            // return;
+            response.sendRedirect(request.getContextPath() + "/dashboard");
             return;
         }
         request.getRequestDispatcher("/views/auth/login.jsp")
@@ -41,21 +41,21 @@ public class LoginController extends HttpServlet {
     }
 
     @Override
-    //chay khi user bam nut dang nhap trong form
+    // chay khi user bam nut dang nhap trong form
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        //lay data tu form
-        //khai bao user
+        // lay data tu form
+        // khai bao user
         String user = request.getParameter("username");
-        //khai bao password
+        // khai bao password
         String password = request.getParameter("password");
 
-        //call DAO 
+        // call DAO
         UserDao dao = new UserDao();
 
         try {
             UserDto account = dao.getUserByUserName(user);
-            //kiem tra account co trong database ko
+            // kiem tra account co trong database ko
             if (account == null) {
                 request.setAttribute("errorMsg", Message.NO_EXITING);
                 request.setAttribute("username", user);
@@ -64,64 +64,65 @@ public class LoginController extends HttpServlet {
             }
             String passwordDB = dao.getPasswordByUserName(user);
 
-            //kiem tra mat khau
+            // kiem tra mat khau
             if (passwordDB != null && passwordDB.trim().equals(password)) {
 
-                //neu dung thi cho dang nhap
+                // neu dung thi cho dang nhap
                 HttpSession session = request.getSession(true);
                 session.setAttribute("user", account);
                 session.setMaxInactiveInterval(30 * 60);
-//                redirectBasedOnRole(request, response, account);
-//                return;
-                response.sendRedirect(request.getContextPath() + "/dashboardController");
+                // redirectBasedOnRole(request, response, account);
+                // return;
+                response.sendRedirect(request.getContextPath() + "/dashboard");
             } else {
-                //neu sai thi view ra thong bao
+                // neu sai thi view ra thong bao
                 request.setAttribute("errorPass", Message.ERROR_PASS);
                 request.setAttribute("username", user);
                 request.getRequestDispatcher("/views/auth/login.jsp").forward(request, response);
                 return;
             }
         } catch (Exception e) {
-            //neu loi thi quay ra login
+            // neu loi thi quay ra login
             e.printStackTrace();
             request.getRequestDispatcher("/views/auth/login.jsp").forward(request, response);
         }
 
     }
 
-//    private void redirectBasedOnRole(HttpServletRequest request, HttpServletResponse response, UserDto user)
-//            throws IOException {
-//        //lay role name
-//        String roleName = user.getRoleName();
-//        String redirect = request.getContextPath();
-//
-//        //dieu huong dua vao vai tro
-//        switch (roleName) {
-//            case Message.ADMIN:
-//                //quan ly nguoi dung
-//                response.sendRedirect(redirect + "/admin/user-list");
-//                break;
-//            case Message.HIEU_TRUONG:
-//                //xem bao cao
-//                response.sendRedirect(redirect + "/report/dashboard");
-//                break;
-//            case Message.NV_QUAN_LY:
-//                //xu ly yeu cau
-//                response.sendRedirect(redirect + "/request/allocation-list");
-//                break;
-//            case Message.TP_TAI_CHINH:
-//                //quan ly tai san va thanh ly
-//                response.sendRedirect(redirect + "/asset/list");
-//                break;
-//            case Message.TRUONG_BAN:
-//                //theo doi lich su yeu cau
-//                response.sendRedirect(redirect + "/request/my-requests");
-//                break;
-//            default:
-//                request.getSession().invalidate();
-//                response.sendRedirect(redirect + "/loginHome?error=invalidRole");
-//                break;
-//        }
-//
-//    }
+    // private void redirectBasedOnRole(HttpServletRequest request,
+    // HttpServletResponse response, UserDto user)
+    // throws IOException {
+    // //lay role name
+    // String roleName = user.getRoleName();
+    // String redirect = request.getContextPath();
+    //
+    // //dieu huong dua vao vai tro
+    // switch (roleName) {
+    // case Message.ADMIN:
+    // //quan ly nguoi dung
+    // response.sendRedirect(redirect + "/admin/user-list");
+    // break;
+    // case Message.HIEU_TRUONG:
+    // //xem bao cao
+    // response.sendRedirect(redirect + "/report/dashboard");
+    // break;
+    // case Message.NV_QUAN_LY:
+    // //xu ly yeu cau
+    // response.sendRedirect(redirect + "/request/allocation-list");
+    // break;
+    // case Message.TP_TAI_CHINH:
+    // //quan ly tai san va thanh ly
+    // response.sendRedirect(redirect + "/asset/list");
+    // break;
+    // case Message.TRUONG_BAN:
+    // //theo doi lich su yeu cau
+    // response.sendRedirect(redirect + "/request/my-requests");
+    // break;
+    // default:
+    // request.getSession().invalidate();
+    // response.sendRedirect(redirect + "/loginHome?error=invalidRole");
+    // break;
+    // }
+    //
+    // }
 }

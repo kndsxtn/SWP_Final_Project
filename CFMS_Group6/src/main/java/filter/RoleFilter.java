@@ -15,14 +15,14 @@ import java.util.*;
  * @author Nguyen Dinh Giap
  */
 @WebFilter({
-    // Danh sách các URL cần bảo vệ quyền hạn
-    "/category/create", "/category/update", "/category/delete",
-    "/asset/create", "/asset/update", "/asset/status", "/asset/delete",
-    "/request/create", "/request/cancel", "/request/approve", "/request/check-stock",
-    "/procurement/create", "/procurement/cancel", "/procurement/approve",
-    "/transfer/create", "/transfer/cancel", "/transfer/approve",
-    "/transfer/confirm-handover", "/transfer/confirm-receive",
-    "/report/export"
+        // Danh sách các URL cần bảo vệ quyền hạn
+        "/category/create", "/category/update", "/category/delete",
+        "/asset/create", "/asset/update", "/asset/status", "/asset/delete", "/asset/deleteImage",
+        "/request/create", "/request/cancel", "/request/approve", "/request/check-stock",
+        "/procurement/create", "/procurement/cancel", "/procurement/approve",
+        "/transfer/create", "/transfer/cancel", "/transfer/approve",
+        "/transfer/confirm-handover", "/transfer/confirm-receive",
+        "/report/export"
 })
 public class RoleFilter implements Filter {
 
@@ -39,7 +39,9 @@ public class RoleFilter implements Filter {
         routeRoles.put("/asset/create", Arrays.asList(Message.NV_QUAN_LY)); // UC05
         routeRoles.put("/asset/update", Arrays.asList(Message.NV_QUAN_LY)); // UC08
         routeRoles.put("/asset/status", Arrays.asList(Message.NV_QUAN_LY)); // UC09
-        routeRoles.put("/asset/delete", Arrays.asList(Message.TP_TAI_CHINH)); // UC10: Chỉ TP Tài chính
+        routeRoles.put("/asset/delete", Arrays.asList(Message.NV_QUAN_LY, Message.TP_TAI_CHINH)); // UC10: NV QLTS hoặc
+                                                                                                  // TP Tài chính
+        routeRoles.put("/asset/deleteImage", Arrays.asList(Message.NV_QUAN_LY)); // Xóa ảnh tài sản
 
         // --- NHÓM 3: YÊU CẦU CẤP PHÁT (UC11-UC15) ---
         routeRoles.put("/request/create", Arrays.asList(Message.TRUONG_BAN)); // UC11

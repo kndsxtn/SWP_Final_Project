@@ -1,0 +1,48 @@
+/* ============================================================
+   Paging Component - CFMS System
+   Pagination bar below tables.
+   ============================================================ */
+
+.cfms-paging {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.65rem 1rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+.cfms-paging .paging-info {
+    white-space: nowrap;
+}
+
+/* --- Page links --- */
+.cfms-paging .pagination {
+    margin: 0;
+    gap: 3px;
+}
+
+.cfms-paging .page-link {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 5px;
+    color: var(--text-body);
+    border-color: var(--border-light);
+}
+
+.cfms-paging .page-link:hover {
+    background: var(--bg-hover);
+    color: var(--primary-dark);
+}
+
+.cfms-paging .page-item.active .page-link {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.cfms-paging .page-item.disabled .page-link {
+    color: var(--text-muted);
+    background: transparent;
+}

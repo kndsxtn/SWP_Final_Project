@@ -1,0 +1,111 @@
+/* ============================================================
+   Sidebar Styles - CFMS System
+   Uses CSS variables from style.css
+   ============================================================ */
+
+/* --- Sidebar Container --- */
+.cfms-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: var(--header-height) 0 0;
+    background: var(--bg-white);
+    border-right: 1px solid var(--border-light);
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: all 0.2s;
+}
+
+.cfms-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.cfms-sidebar::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 4px;
+}
+
+/* --- Section Heading --- */
+.cfms-sidebar .sidebar-heading {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    padding: 1.25rem 1.25rem 0.4rem;
+    margin: 0;
+}
+
+/* --- Nav Links --- */
+.cfms-sidebar .nav-link {
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: var(--text-body);
+    padding: 0.55rem 1.25rem;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+    margin: 1px 0;
+}
+
+.cfms-sidebar .nav-link i {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+    color: var(--text-muted);
+    transition: color 0.15s;
+    flex-shrink: 0;
+}
+
+.cfms-sidebar .nav-link:hover {
+    color: var(--text-dark);
+    background: var(--bg-hover);
+    border-left-color: var(--primary-medium);
+}
+
+.cfms-sidebar .nav-link:hover i {
+    color: var(--text-dark);
+}
+
+/* --- Active State --- */
+.cfms-sidebar .nav-link.active {
+    color: var(--primary-darker);
+    background: var(--primary-light);
+    border-left-color: var(--primary);
+    font-weight: 600;
+}
+
+.cfms-sidebar .nav-link.active i {
+    color: var(--primary);
+}
+
+/* --- Badge (for counts) --- */
+.cfms-sidebar .sidebar-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-left: auto;
+    background: var(--primary-light);
+    color: var(--primary-darker);
+}
+
+/* --- Bottom Section (profile link, etc.) --- */
+.cfms-sidebar .sidebar-bottom {
+    border-top: 1px solid var(--border-light);
+    padding: 0.75rem 0;
+    margin-top: auto;
+}
+
+/* --- Responsive --- */
+@media (max-width: 767.98px) {
+    .cfms-sidebar {
+        top: var(--header-height);
+        padding-top: 0;
+    }
+}

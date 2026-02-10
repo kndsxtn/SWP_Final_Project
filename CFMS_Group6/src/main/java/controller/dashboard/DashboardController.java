@@ -1,12 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller.dashboard;
 
+import dal.DashboardDAO;
 import dto.UserDto;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.Map;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -15,91 +12,63 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 /**
+ * Controller Dashboard chung.
+ * Sau khi đăng nhập, tất cả role đều vào đây.
+ * Dựa vào role sẽ load dữ liệu thống kê phù hợp và hiển thị trên dashboard.
  *
- * @author Nguyen Dang Khang
+ * @author Nguyen Dang Khang, Vũ Quang Hiếu
  */
-@WebServlet(name = "DashboardController", urlPatterns = {"/dashboardController"})
+@WebServlet(name = "DashboardController", urlPatterns = { "/dashboard" })
 public class DashboardController extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet DashboardController</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet DashboardController at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         HttpSession session = request.getSession(false);
-        
-        // Check neu chua dang nhap thi redirect ve login
+
+        // Chưa đăng nhập → redirect về login
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/loginHome");
             return;
         }
 
-        // get user tu session
+        // Lấy thông tin user từ session
         UserDto user = (UserDto) session.getAttribute("user");
-        
-        // log ra console theo doi cho no de
         String role = user.getRoleName();
         System.out.println("User " + user.getUsername() + " truy cập Dashboard với quyền: " + role);
 
-        // chuyen sang trang jsp dashboard chung de hien thi dashboard
+        // Gọi DAO lấy thống kê
+        DashboardDAO dao = new DashboardDAO();
+
+        // ─── Thống kê chung (mọi role đều thấy) ───
+        request.setAttribute("totalAssets", dao.countTotalAssets());
+        request.setAttribute("totalCategories", dao.countCategories());
+        request.setAttribute("totalRooms", dao.countRooms());
+
+        // ─── Thống kê tài sản theo trạng thái ───
+        Map<String, Integer> assetByStatus = dao.countAssetsByStatus();
+        request.setAttribute("assetByStatus", assetByStatus);
+
+        request.setAttribute("assetsNew", dao.countAssetsNew());
+        request.setAttribute("assetsInUse", dao.countAssetsInUse());
+        request.setAttribute("assetsMaintenance", dao.countAssetsMaintenance());
+        request.setAttribute("assetsBroken", dao.countAssetsBroken());
+
+        // ─── Thống kê theo role ───
+        request.setAttribute("pendingAllocations", dao.countPendingAllocations());
+        request.setAttribute("pendingTransfers", dao.countPendingTransfers());
+        request.setAttribute("pendingMaintenance", dao.countPendingMaintenance());
+
+        // Dữ liệu riêng cho Head of Dept
+        if ("Head of Dept".equals(role)) {
+            request.setAttribute("myAllocations", dao.countAllocationsByUser(user.getUserId()));
+            if (user.getDeptId() > 0) {
+                request.setAttribute("deptAssets", dao.countAssetsByDept(user.getDeptId()));
+            }
+        }
+
+        // Forward sang trang JSP
         request.getRequestDispatcher("/views/components/dashboard.jsp").forward(request, response);
     }
-
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
 }
