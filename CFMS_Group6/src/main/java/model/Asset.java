@@ -2,6 +2,7 @@ package model;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Represents an Asset.
@@ -25,6 +26,7 @@ public class Asset {
     private Category category;
     private Supplier supplier;
     private Room room;
+    private List<AssetImage> images;
 
     public Asset() {
     }
@@ -165,5 +167,13 @@ public class Asset {
 
     public void setRoom(Room room) {
         this.room = room;
+    }
+
+    public List<AssetImage> getImages() {
+        return images;
+    }
+
+    public void setImages(List<AssetImage> images) {
+        this.images = images;
     }
 }

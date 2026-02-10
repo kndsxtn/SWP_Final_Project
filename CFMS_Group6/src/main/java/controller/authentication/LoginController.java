@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpSession;
  * @author Nguyen Dinh Giap
  */
 @WebServlet(name = "LoginAuthentication", urlPatterns = {"/loginHome"})
-public class LoginAuthentication extends HttpServlet {
+public class LoginController extends HttpServlet {
 
     @Override
     //Chay khi user go link /loginHome hoặc bi Filter da ve hien trang Login
@@ -29,9 +29,11 @@ public class LoginAuthentication extends HttpServlet {
         //kiem tra da dang nhap roi thi ko cho vao login nua
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("user") != null) {
-            UserDto user = (UserDto) session.getAttribute("user");
-            //dieu huong ve login
-            redirectBasedOnRole(request, response, user);
+//            UserDto user = (UserDto) session.getAttribute("user");
+//            //dieu huong ve login
+//            redirectBasedOnRole(request, response, user);
+//            return;
+            response.sendRedirect(request.getContextPath() + "/dashboardController");
             return;
         }
         request.getRequestDispatcher("/views/auth/login.jsp")
@@ -69,8 +71,9 @@ public class LoginAuthentication extends HttpServlet {
                 HttpSession session = request.getSession(true);
                 session.setAttribute("user", account);
                 session.setMaxInactiveInterval(30 * 60);
-                redirectBasedOnRole(request, response, account);
-                return;
+//                redirectBasedOnRole(request, response, account);
+//                return;
+                response.sendRedirect(request.getContextPath() + "/dashboardController");
             } else {
                 //neu sai thi view ra thong bao
                 request.setAttribute("errorPass", Message.ERROR_PASS);
@@ -86,39 +89,39 @@ public class LoginAuthentication extends HttpServlet {
 
     }
 
-    private void redirectBasedOnRole(HttpServletRequest request, HttpServletResponse response, UserDto user)
-            throws IOException {
-        //lay role name
-        String roleName = user.getRoleName();
-        String redirect = request.getContextPath();
-
-        //dieu huong dua vao vai tro
-        switch (roleName) {
-            case Message.ADMIN:
-                //quan ly nguoi dung
-                response.sendRedirect(redirect + "/admin/user-list");
-                break;
-            case Message.HIEU_TRUONG:
-                //xem bao cao
-                response.sendRedirect(redirect + "/report/dashboard");
-                break;
-            case Message.NV_QUAN_LY:
-                //xu ly yeu cau
-                response.sendRedirect(redirect + "/request/allocation-list");
-                break;
-            case Message.TP_TAI_CHINH:
-                //quan ly tai san va thanh ly
-                response.sendRedirect(redirect + "/asset/list");
-                break;
-            case Message.TRUONG_BAN:
-                //theo doi lich su yeu cau
-                response.sendRedirect(redirect + "/request/my-requests");
-                break;
-            default:
-                request.getSession().invalidate();
-                response.sendRedirect(redirect + "/loginHome?error=invalidRole");
-                break;
-        }
-
-    }
+//    private void redirectBasedOnRole(HttpServletRequest request, HttpServletResponse response, UserDto user)
+//            throws IOException {
+//        //lay role name
+//        String roleName = user.getRoleName();
+//        String redirect = request.getContextPath();
+//
+//        //dieu huong dua vao vai tro
+//        switch (roleName) {
+//            case Message.ADMIN:
+//                //quan ly nguoi dung
+//                response.sendRedirect(redirect + "/admin/user-list");
+//                break;
+//            case Message.HIEU_TRUONG:
+//                //xem bao cao
+//                response.sendRedirect(redirect + "/report/dashboard");
+//                break;
+//            case Message.NV_QUAN_LY:
+//                //xu ly yeu cau
+//                response.sendRedirect(redirect + "/request/allocation-list");
+//                break;
+//            case Message.TP_TAI_CHINH:
+//                //quan ly tai san va thanh ly
+//                response.sendRedirect(redirect + "/asset/list");
+//                break;
+//            case Message.TRUONG_BAN:
+//                //theo doi lich su yeu cau
+//                response.sendRedirect(redirect + "/request/my-requests");
+//                break;
+//            default:
+//                request.getSession().invalidate();
+//                response.sendRedirect(redirect + "/loginHome?error=invalidRole");
+//                break;
+//        }
+//
+//    }
 }

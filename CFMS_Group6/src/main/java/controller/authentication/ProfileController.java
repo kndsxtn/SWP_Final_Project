@@ -5,6 +5,7 @@
 
 package controller.authentication;
 
+import dto.UserDto;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -18,21 +19,22 @@ import jakarta.servlet.http.HttpSession;
  *
  * @author Nguyen Dinh Giap
  */
-@WebServlet(name="LogoutAuthentication", urlPatterns={"/logout"})
-public class LogoutAuthentication extends HttpServlet {
- 
+@WebServlet(name="ProfileAuthentication", urlPatterns={"/profile"})
+public class ProfileController extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        //lay session hien tai
         HttpSession session = request.getSession(false);
-        
-        //neu session ton tai thi huy het session
-        if(session != null){
-            session.invalidate();
+        UserDto dtoUser = (session != null) ? 
+                (UserDto) session.getAttribute("user") : null;
+        if(dtoUser == null){
+            response.sendRedirect(request.getContextPath() + "/loginHome");
+            return;
         }
-        
-        //chuyen huong ve trang login
-        response.sendRedirect("loginHome");
+        // Đẩy thông tin user sang trang profile
+        request.setAttribute("user", dtoUser);
+        request.getRequestDispatcher("/views/auth/profile.jsp").forward(request, response);
     } 
+
 }
