@@ -18,8 +18,8 @@ import model.Category;
  *
  * @author quang
  */
-@WebServlet(name = "UpdateCategory", urlPatterns = {"/category/UpdateCategory"})
-public class UpdateCategory extends HttpServlet {
+@WebServlet(name = "UpdateCategoryController", urlPatterns = {"/category/UpdateCategoryController"})
+public class UpdateCategoryController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -45,20 +45,20 @@ public class UpdateCategory extends HttpServlet {
         String idStr = request.getParameter("id");
         int id;
         if(idStr == null || idStr.isBlank()) {
-            response.sendRedirect("ViewCategory");
+            response.sendRedirect("ViewCategoryController");
             return;
         }
         try{
             id = Integer.parseInt(idStr);
         }catch(NumberFormatException e){
-            response.sendRedirect("ViewCategory");
+            response.sendRedirect("ViewCategoryController");
             return;
         }
         
         CategoryDao cDao = new CategoryDao();
         Category category = cDao.findCategoryById(id);
         if(category == null){
-            response.sendRedirect("ViewCategory");
+            response.sendRedirect("ViewCategoryController");
             return;
         }
         request.setAttribute("category",category );
@@ -87,7 +87,7 @@ public class UpdateCategory extends HttpServlet {
         if (!checkUpdate) {
             return;
         }
-        response.sendRedirect("ViewCategory");
+        response.sendRedirect("ViewCategoryController");
     }
 
     /**
