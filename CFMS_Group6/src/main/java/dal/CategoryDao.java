@@ -8,6 +8,7 @@ import dto.CategoryDto;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import model.Category;
@@ -77,7 +78,6 @@ public class CategoryDao {
         String sql = "delete from categories where category_id = ? ";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, categoryId);
-            ps.executeUpdate();
             int rows = ps.executeUpdate();
             return rows > 0;
         } catch (Exception e) {
@@ -126,6 +126,17 @@ public class CategoryDao {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public boolean isAssetInCategoryEmpty(int id) throws SQLException, ClassNotFoundException {
+        String sql = "select count(*) from assets where category_id = ? ";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1) == 0;
+            }
+        }
     }
 
 }

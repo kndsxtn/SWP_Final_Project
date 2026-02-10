@@ -9,71 +9,80 @@
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Quản lý danh mục tài sản - CFMS</title>
-        <!-- Fonts -->
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Quản lý danh mục - CFMS</title>
 
-        <!-- Bootstrap -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-        <!-- Font Awesome -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-        <link href="${pageContext.request.contextPath}/css/user-list.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+        
+        <link href="${pageContext.request.contextPath}/css/page-header.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/css/table.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/css/filter.css" rel="stylesheet">
     </head>
-    <body>
+    <body class="d-flex flex-column">
 
-        <!-- Sidebar -->
-        <jsp:include page="/views/components/sidebar.jsp">
-            <jsp:param name="active" value="category"/>
-        </jsp:include>
+        <jsp:include page="../components/header.jsp"></jsp:include>
 
-        <div class="main">
-            <!-- Navbar -->
-            <jsp:include page="/views/components/navbar.jsp">
-                <jsp:param name="title" value="Hệ thống / Quản lý danh mục tài sản"/>
-            </jsp:include>
+            <div class="container-fluid flex-grow-1">
+                <div class="row h-100"> 
 
-            <div class="box">
-                <div class="card border-0 shadow-sm p-4">
+                <jsp:include page="../components/sidebar.jsp">
+                    <jsp:param name="page" value="category_list"/>
+                </jsp:include>
 
-                    <!-- Header -->
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <h3 class="fw-bold text-dark m-0">Danh sách danh mục tài sản</h3>
-                            <p class="text-muted small">Quản lý và phân loại tài sản trong hệ thống</p>
-                        </div>
-                        <a href="${pageContext.request.contextPath}/category/CreateCategory"
-                           class="btn btn-primary px-4 rounded-pill shadow-sm">
-                            <i class="fas fa-plus me-2"></i> Thêm danh mục
-                        </a>
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                    
+                    <!-- ===== Page Header ===== -->
+                    <div class="cfms-page-header">
+                        <h2><i class="bi bi-tags"></i> Danh sách danh mục tài sản</h2>
                     </div>
+                    <!-- ===== Filter & Search Bar ===== -->
+                    <form class="cfms-filter" method ="get"
+                          action="${pageContext.request.contextPath}/category/ViewCategoryController">
 
-                    <!-- Search / Filter -->
-                    <form action="${pageContext.request.contextPath}/category/ViewCategory" method="post" class="row g-2 mb-3">
-                        <div class="col-md-4">
-                            <input type="text" name="keyword" class="form-control"
-                                   placeholder="Tìm theo tên, mã hoặc mô tả..."
-                                   value="${param.keyword}">
+                        <!-- Search input -->
+                        <div class="filter-search">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="bi bi-search text-muted"></i>
+                                </span>
+                                <input type="text" name="keyword" class="form-control border-start-0"
+                                       placeholder="Tìm theo tên danh mục, mã hậu tố, mô tả..."
+                                       value="${keyword}">
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-outline-primary w-100">
-                                <i class="fas fa-search me-1"></i> Tìm kiếm
+
+                        <!-- Select -->
+<!--                        <div class="filter-select">
+                            <select name="prefix_keyword" class="form-select">
+                                <option value="">-- Mã tài sản --</option>
+
+                            </select>
+                        </div>-->
+
+                        <!-- Action buttons -->
+                        <div class="filter-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search me-1"></i>Tìm kiếm
                             </button>
+                            <a href="${pageContext.request.contextPath}/category/ViewCategoryController"
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>Xóa lọc
+                            </a>
                         </div>
                     </form>
-
-                    <!-- Table -->
-                    <div class="table-responsive">
+                    <!--Table-->
+                    <div class = "table-responsive">
                         <table class="table table-hover align-middle">
-                            <thead class="table-light">
+                            <thead class = "table-light">
                                 <tr>
                                     <th>ID</th>
                                     <th>Tên danh mục</th>
                                     <th>Mã hậu tố</th>
                                     <th>Mô tả</th>
                                     <th class="text-center">Hành động</th>
-                                </tr>
+                                </tr>     
                             </thead>
                             <tbody>
                                 <c:forEach items="${catList}" var="c">
@@ -87,15 +96,15 @@
                                         </td>
                                         <td>${c.description}</td>
                                         <td class="text-center">
-                                            <a href="${pageContext.request.contextPath}/category/UpdateCategory?id=${c.categoryId}"
+                                            <a href="${pageContext.request.contextPath}/category/UpdateCategoryController?id=${c.categoryId}"
                                                class="btn btn-sm btn-light me-1" title="Sửa">
-                                                <i class="fas fa-edit text-primary"></i>
+                                                <i class="bi bi-pencil-square text-primary"></i>
                                             </a>
-                                            <a href="${pageContext.request.contextPath}/category/DeleteCategory?id=${c.categoryId}"
+                                            <a href="${pageContext.request.contextPath}/category/DeleteCategoryController?id=${c.categoryId}"
                                                class="btn btn-sm btn-light"
                                                onclick="return confirm('Bạn có chắc muốn xóa?');"
                                                title="Xóa">
-                                                <i class="fas fa-trash text-danger"></i>
+                                                <i class="bi bi-trash text-danger"></i>
                                             </a>
                                         </td>
                                     </tr>
@@ -110,9 +119,15 @@
                                 </c:if>
                             </tbody>
                         </table>
+
                     </div>
-                </div>
+
+                </main>
+
             </div>
         </div>
+
+        <jsp:include page="../components/footer.jsp"></jsp:include>
+
     </body>
 </html>
