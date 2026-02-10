@@ -1,5 +1,10 @@
-build/ 
-nbproject/private/ 
-*.class 
-.netbeans_automatic_build
-/CFMS_Group6/target/
+# Bỏ qua tất cả file và thư mục (kể cả file ẩn)
+*
+.*
+
+# Ngoại lệ: Giữ lại thư mục CFMS_Group6 và nội dung bên trong
+!/CFMS_Group6/
+!/CFMS_Group6/**
+
+# Ngoại lệ: Giữ lại chính file .gitignore
+!.gitignore
