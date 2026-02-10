@@ -16,8 +16,8 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author quang
  */
-@WebServlet(name = "CreateCategory", urlPatterns = {"/category/CreateCategory"})
-public class CreateCategory extends HttpServlet {
+@WebServlet(name = "CreateCategoryController", urlPatterns = {"/category/CreateCategoryController"})
+public class CreateCategoryController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -45,21 +45,21 @@ public class CreateCategory extends HttpServlet {
             if(category_name.isBlank()){
                 status = "Tên danh mục không được để trống";
                 request.setAttribute("status", status);
-                response.sendRedirect("CreateCategory");
+                response.sendRedirect("CreateCategoryController");
                 return;
             }
             String prefix_code = request.getParameter("prefix_code");
             if(prefix_code.isBlank()){
                 status = "Tiền tố danh mục không được để trống";
                 request.setAttribute("status", status);
-                response.sendRedirect("CreateCategory");
+                response.sendRedirect("CreateCategoryController");
                 return;
             }
             String description = request.getParameter("description");
             if(description.isBlank()){
                 status = "Mô tả danh mục không được để trống";
                 request.setAttribute("status", status);
-                response.sendRedirect("CreateCategory");
+                response.sendRedirect("CreateCategoryController");
                 return;
             }
             cDao.createCategory(category_name, prefix_code, description);
@@ -69,7 +69,7 @@ public class CreateCategory extends HttpServlet {
             status = "Lỗi khi tạo danh mục.";
             request.setAttribute("status", status);
         }
-        response.sendRedirect("ViewCategory");
+        response.sendRedirect("ViewCategoryController");
 
     }
 
