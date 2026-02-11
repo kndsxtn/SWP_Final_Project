@@ -7,6 +7,7 @@ package dal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import model.Room;
@@ -113,31 +114,27 @@ public class TransferOrderDAO {
     }
 
     // Tạo phiếu điều chuyển mới
-//    public int create(TransferOrder t) {
-//        String sql = """
-//            INSERT INTO transfer_orders
-//            (created_by, source_room_id, dest_room_id, status, note)
-//            VALUES (?, ?, ?, ?, ?)
-//        """;
-//
-//        try (Connection con = new DBContext().getConnection();
-//             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-//
-//            ps.setInt(1, t.getCreatedBy());
-//            ps.setInt(2, t.getSourceRoomId());
-//            ps.setInt(3, t.getDestRoomId());
-//            ps.setString(4, t.getStatus());
-//            ps.setString(5, t.getNote());
-//
-//            ps.executeUpdate();
-//            ResultSet rs = ps.getGeneratedKeys();
-//            if (rs.next()) return rs.getInt(1);
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return -1;
-//    }
+    public int create(TransferOrder t) {
+        String sql = "INSERT INTO transfer_orders (created_by, source_room_id, dest_room_id, status, note) VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setInt(1, t.getCreatedBy());
+            ps.setInt(2, t.getSourceRoomId());
+            ps.setInt(3, t.getDestRoomId());
+            ps.setString(4, t.getStatus());
+            ps.setString(5, t.getNote());
+
+            ps.executeUpdate();
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) return rs.getInt(1);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
     // Update trạng thái (Approve, Reject, Complete)
     public void updateStatus(int transferId, String status) {
         String sql = "UPDATE transfer_orders SET status = ? WHERE transfer_id = ?";
