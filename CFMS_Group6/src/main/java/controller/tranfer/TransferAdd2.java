@@ -6,6 +6,8 @@ package controller.tranfer;
 
 import dal.AssetDao;
 import dal.RoomDao;
+import dal.TransferDao;
+import dto.UserDto;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -16,15 +18,19 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Asset;
 import model.Room;
+import model.TransferOrder;
+import model.User;
 
 /**
  *
- * @author Pham Van Tung
+ * @author Admin
  */
-@WebServlet(name = "TransferAdd", urlPatterns = {"/transfer/add"})
-public class TransferAdd extends HttpServlet {
+@WebServlet(name = "TransferAdd2", urlPatterns = {"/transfer/addstep2"})
+public class TransferAdd2 extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -43,10 +49,10 @@ public class TransferAdd extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet TransferAdd</title>");
+            out.println("<title>Servlet TransferAdd2</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet TransferAdd at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet TransferAdd2 at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -64,11 +70,17 @@ public class TransferAdd extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        HttpSession session = request.getSession();
+        Integer srcRoomId = Integer.parseInt(request.getParameter("sourceRoom"));
+        Integer destRoomId = Integer.parseInt(request.getParameter("destinationRoom"));
+        session.setAttribute("srcRoomId", srcRoomId);
+        session.setAttribute("destRoomId", destRoomId);
         RoomDao rDao = new RoomDao();
         List<Room> rooms = rDao.getAll();
         request.setAttribute("rooms", rooms);
-        
+        AssetDao aDao = new AssetDao();
+        List<Asset> assets = aDao.getByRoomId(srcRoomId);
+        request.setAttribute("assets", assets);
         request.getRequestDispatcher("/views/tranfer/transfer-add-step1.jsp").forward(request, response);
     }
 
@@ -83,7 +95,41 @@ public class TransferAdd extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        HttpSession session = request.getSession();
+        String[] assetIds = request.getParameterValues("assetIds");
+        List<Integer> selectedAssetIds = new ArrayList<>();
+        if (assetIds != null) {
+            for (String id : assetIds) {
+                selectedAssetIds.add(Integer.parseInt(id));
+            }
+        }
+        TransferDao tDao = new TransferDao();
+        TransferOrder t = new TransferOrder();
+
+        System.out.println("Selected assets: " + selectedAssetIds);
+        
+        UserDto u = (UserDto) session.getAttribute("user");
+
+        Integer src = (Integer) session.getAttribute("srcRoomId");
+        Integer dest = (Integer) session.getAttribute("destRoomId");
+        String note = request.getParameter("note");
+
+        if (u == null || src == null || dest == null || selectedAssetIds.isEmpty()) {
+            response.sendRedirect("transfer/add");
+            return;
+        }
+
+        t.setCreatedBy(u.getUserId());
+        t.setDestRoomId(dest);
+        t.setSourceRoomId(src);
+        t.setNote(note);
+        try {
+            int i = tDao.createTransfer(t, selectedAssetIds);
+        } catch (Exception ex) {
+            Logger.getLogger(TransferAdd2.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        response.sendRedirect("transfer/list");
     }
 
     /**

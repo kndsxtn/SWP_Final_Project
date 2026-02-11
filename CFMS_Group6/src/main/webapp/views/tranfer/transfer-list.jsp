@@ -30,8 +30,6 @@
                 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">đây là trang xem list TO</h1>
-                        <h3>Size: ${list.size()}</h3>
                         <table class="table table-bordered table-hover">
                             <thead class="table-dark">
                                 <tr>
@@ -66,20 +64,28 @@
                                                 <c:when test="${t.status == 'Rejected'}">
                                                     <span class="badge bg-danger">Từ chối</span>
                                                 </c:when>
+                                                <c:when test="${t.status == 'Completed'}">
+                                                    <span class="badge bg-success">Đã hoàn thành</span>
+                                                </c:when>
                                             </c:choose>
                                         </td>
 
                                         <td>
-                                            <a href="transfer-detail?id=${t.transferId}" class="btn btn-sm btn-primary">
+                                            <a href="${pageContext.request.contextPath}/transfer/detail?id=${t.transferId}" class="btn btn-sm btn-primary">
                                                 <i class="bi bi-eye"></i> Xem
                                             </a>
 
-                                            <c:if test="${t.status == 'Pending'}">
-                                                <a href="transfer-approve?id=${t.transferId}" class="btn btn-sm btn-success">
-                                                    <i class="bi bi-check"></i>
-                                                </a>
+                                            <c:if test="${sessionScope.user.roleName== 'Asset Staff' && t.status == 'Pending'}">
                                                 <a href="transfer-reject?id=${t.transferId}" class="btn btn-sm btn-danger">
-                                                    <i class="bi bi-x"></i>
+                                                    <i class="bi bi-x">Huỷ đơn</i>
+                                                </a>
+                                            </c:if>
+                                            <c:if test="${sessionScope.user.roleName== 'Finance Head' && t.status == 'Pending'}">
+                                                <a href="transfer-reject?id=${t.transferId}" class="btn btn-sm btn-success">
+                                                    <i class="bi bi-x">Duyệt đơn</i>
+                                                </a>
+                                                <a href="transfer-reject?id=${t.transferId}" class="btn btn-sm btn-warning">
+                                                    <i class="bi bi-x">Từ chối đơn</i>
                                                 </a>
                                             </c:if>
                                         </td>
