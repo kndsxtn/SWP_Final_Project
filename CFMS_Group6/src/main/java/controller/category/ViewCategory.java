@@ -20,6 +20,12 @@ public class ViewCategoryController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String status = (String) request.getSession().getAttribute("status");
+        if (status != null) {
+            request.setAttribute("status", status);
+            request.getSession().removeAttribute("status");
+        }
+        
         String keyword = request.getParameter("keyword");
         CategoryDao cDao = new CategoryDao();
         List<Category> catList;

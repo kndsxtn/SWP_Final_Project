@@ -21,6 +21,7 @@
         <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/table.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/filter.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/css/message.css" rel="stylesheet">
     </head>
     <body class="d-flex flex-column">
         <jsp:include page="../components/header.jsp"></jsp:include>
@@ -52,37 +53,85 @@
                             <h2><i class="bi bi-tag"></i> Cập nhật danh mục tài sản</h2>
                         </div>
                     </c:if>
-                    <div>
+
+
+
+                    <div class="card-body p-4">
                         <c:if test="${categoryForm == 'create'}">
                             <form action="${pageContext.request.contextPath}/category/CreateCategoryController" method = post>
-                                Tên<input type="text" name="category_name" class="form-control" placeholder="Nhập tên danh mục..." required/>
-                                Mã Tiền Tố<input type="text" name="prefix_code" class="form-control" placeholder="VD: PC, LAP..."/>
-                                Mô tả<input type="text" name="description" class="form-control" placeholder="Nhập mô tả ngắn gọn..."/>
-                                <button type="submit">
-                                    Tạo mới
-                                </button>         
+                                <div class="row">
+                                    <div class="col-md-8 mb-3">
+                                        <label for="catName" class="form-label fw-semibold">Tên danh mục <span class="text-danger">*</span></label>
+                                        <input type="text" id="catName" name="category_name" class="form-control" placeholder="Ví dụ: Máy tính xách tay..." required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="preCode" class="form-label fw-semibold">Mã Tiền Tố <span class="text-danger">*</span></label>
+                                        <input type="text" id="preCode" name="prefix_code" class="form-control text-uppercase" placeholder="VD: LAP">
+                                        <div class="form-text">Mã dùng để sinh ID tài sản (VD: LAP001)</div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="desc" class="form-label fw-semibold">Mô tả</label>
+                                    <textarea id="desc" name="description" class="form-control" rows="3" placeholder="Nhập mô tả ngắn gọn về danh mục này..."></textarea>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button type="reset" class="btn btn-light border">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Nhập lại
+                                    </button>
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="bi bi-plus-lg"></i> Tạo mới
+                                    </button>
+                                </div>
                             </form>
-
                         </c:if>
                         <c:if test="${categoryForm == 'update'}">
                             <form action="${pageContext.request.contextPath}/category/UpdateCategoryController" method = post>
-                                Id<input type="text"value="${category.categoryId}" class="form-control bg-light" disabled/>
                                 <input type="hidden" name="category_id" value="${category.categoryId}" />
-                                Tên<input type="text" name="category_name" class="form-control" value="${category.categoryName}" required/>
-                                Mã Tiền Tố<input type="text" name="prefix_code" class="form-control" value="${category.prefixCode}"/>
-                                Mô tả<input type="text" name="description" class="form-control" value="${category.description}"/>
-                                <button type="submit">
-                                    Cập nhật
-                                </button>                
-                            </form>
 
+                                <div class="row">
+                                    <div class="col-md-2 mb-3">
+                                        <label class="form-label fw-semibold">ID</label>
+                                        <input type="text" value="${category.categoryId}" class="form-control bg-light text-secondary" disabled>
+                                    </div>
+
+                                    <div class="col-md-7 mb-3">
+                                        <label for="upName" class="form-label fw-semibold">Tên danh mục <span class="text-danger">*</span></label>
+                                        <input type="text" id="upName" name="category_name" class="form-control" value="${category.categoryName}" required>
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label for="upCode" class="form-label fw-semibold">Mã Tiền Tố</label>
+                                        <input type="text" id="upCode" name="prefix_code" class="form-control text-uppercase" value="${category.prefixCode}">
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="upDesc" class="form-label fw-semibold">Mô tả</label>
+                                    <textarea id="upDesc" name="description" class="form-control" rows="3">${category.description}</textarea>
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="${pageContext.request.contextPath}/category/ViewCategoryController" class="btn btn-secondary">
+                                        Hủy bỏ
+                                    </a>
+                                    <button type="submit" class="btn btn-warning text-white px-4">
+                                        <i class="bi bi-save"></i> Cập nhật
+                                    </button>
+                                </div>         
+                            </form>
                         </c:if>
                     </div>
 
                 </main>
-
             </div>
+
         </div>
+
         <jsp:include page="../components/footer.jsp"></jsp:include>
+        <c:if test ="${not empty status}">
+            <div class="col-md-8 ms-auto mb-3 cfms-msg text-end">
+                ${status}
+            </div>
+        </c:if>
     </body>
 </html>
