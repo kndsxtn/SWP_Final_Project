@@ -7,6 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -40,6 +41,8 @@
             </jsp:include>
 
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+                <c:set var="isHeadOfDept" value="${sessionScope.user.roleName == 'Head of Dept'}"/>
 
                 <!-- ===== Page Header ===== -->
                 <div class="cfms-page-header">
@@ -126,7 +129,9 @@
                                 <th>Số lượng</th>
                                 <th>Tài sản</th>
                                 <th>Loại tài sản</th>
-                                <th>Tồn kho</th>
+                                <c:if test="${!isHeadOfDept}">
+                                    <th>Tồn kho</th>
+                                </c:if>
                                 <th>Ghi chú</th>
                                 <th>Trạng thái</th>
                                 <th class="col-action">Thao tác</th>
@@ -136,7 +141,7 @@
                             <c:choose>
                                 <c:when test="${empty list}">
                                     <tr>
-                                        <td colspan="10">
+                                        <td colspan="${isHeadOfDept ? 10 : 11}">
                                             <div class="cfms-table-empty">
                                                 <i class="bi bi-inbox"></i>
                                                 <c:choose>
@@ -194,39 +199,41 @@
                                                 </c:forEach>
                                             </td>
 
-                                            <!-- Stock status (UC13) - chỉ ý nghĩa cho yêu cầu đang chờ duyệt -->
-                                            <td>
-                                                <c:choose>
-                                                    <c:when test="${req.status == 'Pending'}">
-                                                        <c:choose>
-                                                            <c:when test="${req.stockStatus == 'FULL'}">
-                                                                <span class="cfms-badge cfms-badge-stock-full"
-                                                                      title="Tồn kho hiện tại đáp ứng đủ yêu cầu này">
-                                                                    Đủ hàng (${req.totalAvailableInStock}/${req.totalRequestedAssets})
-                                                                </span>
-                                                            </c:when>
-                                                            <c:when test="${req.stockStatus == 'PARTIAL'}">
-                                                                <span class="cfms-badge cfms-badge-stock-partial"
-                                                                      title="Tồn kho hiện tại chỉ đáp ứng được một phần yêu cầu này">
-                                                                    Thiếu hàng (${req.totalAvailableInStock}/${req.totalRequestedAssets})
-                                                                </span>
-                                                            </c:when>
-                                                            <c:when test="${req.stockStatus == 'NONE'}">
-                                                                <span class="cfms-badge cfms-badge-stock-none"
-                                                                      title="Tồn kho hiện tại không còn tài sản phù hợp với yêu cầu này">
-                                                                    Hết hàng (0/${req.totalRequestedAssets})
-                                                                </span>
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                <span class="text-muted small">–</span>
-                                                            </c:otherwise>
-                                                        </c:choose>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <span class="text-muted small">Không áp dụng</span>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </td>
+                                            <!-- Stock status (UC13) - chỉ ý nghĩa cho yêu cầu đang chờ duyệt, ẩn với Trưởng bộ môn -->
+                                            <c:if test="${!isHeadOfDept}">
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${req.status == 'Pending'}">
+                                                            <c:choose>
+                                                                <c:when test="${req.stockStatus == 'FULL'}">
+                                                                    <span class="cfms-badge cfms-badge-stock-full"
+                                                                          title="Tồn kho hiện tại đáp ứng đủ yêu cầu này">
+                                                                        Đủ hàng (${req.totalAvailableInStock}/${req.totalRequestedAssets})
+                                                                    </span>
+                                                                </c:when>
+                                                                <c:when test="${req.stockStatus == 'PARTIAL'}">
+                                                                    <span class="cfms-badge cfms-badge-stock-partial"
+                                                                          title="Tồn kho hiện tại chỉ đáp ứng được một phần yêu cầu này">
+                                                                        Thiếu hàng (${req.totalAvailableInStock}/${req.totalRequestedAssets})
+                                                                    </span>
+                                                                </c:when>
+                                                                <c:when test="${req.stockStatus == 'NONE'}">
+                                                                    <span class="cfms-badge cfms-badge-stock-none"
+                                                                          title="Tồn kho hiện tại không còn tài sản phù hợp với yêu cầu này">
+                                                                        Hết hàng (0/${req.totalRequestedAssets})
+                                                                    </span>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <span class="text-muted small">–</span>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span class="text-muted small">Không áp dụng</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </td>
+                                            </c:if>
 
                                             <!-- Notes -->
                                             <td>
@@ -251,7 +258,14 @@
                                                     </c:when>
                                                     <c:when test="${req.status == 'Rejected'}">
                                                         <span class="d-inline-flex align-items-center">
-                                                            <span class="cfms-badge cfms-badge-rejected">Từ chối</span>
+                                                            <c:choose>
+                                                                <c:when test="${fn:startsWith(req.reasonReject, '[CANCELLED]')}">
+                                                                    <span class="cfms-badge cfms-badge-rejected">Đã hủy</span>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <span class="cfms-badge cfms-badge-rejected">Từ chối</span>
+                                                                </c:otherwise>
+                                                            </c:choose>
                                                             <c:if test="${not empty req.reasonReject}">
                                                                 <i class="bi bi-info-circle text-danger ms-1"
                                                                    data-bs-toggle="tooltip"
@@ -276,6 +290,7 @@
                                                     <i class="bi bi-eye"></i>
                                                 </a>
 
+                                                <!-- Approve / Reject for Asset Staff -->
                                                 <c:if test="${req.status == 'Pending' && sessionScope.user.roleName == 'Asset Staff'}">
                                                     <button type="button"
                                                             class="btn btn-sm btn-success ms-1 btn-alloc-approve"
@@ -293,6 +308,16 @@
                                                         <i class="bi bi-x-circle"></i>
                                                     </button>
                                                 </c:if>
+
+                                                <!-- Cancel for Head of Dept (creator) when Pending -->
+                                                <c:if test="${req.status == 'Pending' && sessionScope.user.roleName == 'Head of Dept'}">
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-outline-danger ms-1 btn-alloc-cancel"
+                                                            data-req-id="${req.requestId}"
+                                                            title="Hủy yêu cầu này">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </c:if>
                                             </td>
                                         </tr>
                                     </c:forEach>
@@ -308,6 +333,12 @@
                     <input type="hidden" name="id" id="listActionRequestId">
                     <input type="hidden" name="action" id="listActionType">
                     <input type="hidden" name="reasonReject" id="listActionReason">
+                </form>
+
+                <!-- Hidden form for cancel (Head of Dept) -->
+                <form id="allocationCancelForm" method="post"
+                      action="${pageContext.request.contextPath}/request/cancel" class="d-none">
+                    <input type="hidden" name="id" id="cancelRequestId">
                 </form>
 
                 <!-- ===== Pagination ===== -->
@@ -468,6 +499,36 @@
                         }
                     });
                 });
+
+                // Cancel buttons (Head of Dept)
+                var cancelForm = document.getElementById('allocationCancelForm');
+                var cancelIdInput = document.getElementById('cancelRequestId');
+                if (cancelForm && cancelIdInput) {
+                    document.querySelectorAll('.btn-alloc-cancel').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            var reqId = btn.getAttribute('data-req-id');
+                            var message = 'Bạn có chắc chắn muốn hủy yêu cầu REQ-' + reqId + ' ?';
+
+                            if (window.CFMS_CONFIRM) {
+                                CFMS_CONFIRM({
+                                    title: 'Xác nhận hủy yêu cầu',
+                                    message: message,
+                                    danger: true,
+                                    requireReason: false,
+                                    onConfirm: function () {
+                                        cancelIdInput.value = reqId;
+                                        cancelForm.submit();
+                                    }
+                                });
+                            } else {
+                                if (confirm(message)) {
+                                    cancelIdInput.value = reqId;
+                                    cancelForm.submit();
+                                }
+                            }
+                        });
+                    });
+                }
             })();
         });
     </script>
