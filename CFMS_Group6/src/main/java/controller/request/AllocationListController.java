@@ -58,10 +58,11 @@ public class AllocationListController extends HttpServlet {
         AllocationRequestDao dao = new AllocationRequestDao();
         List<AllocationRequest> list = dao.getRequests(statusFilter, keyword, page, PAGE_SIZE);
 
-        // Load details for each request
+        // Load details + computed stock info for each request
         for (AllocationRequest req : list) {
             List<AllocationDetail> details = dao.getDetailsByRequestId(req.getRequestId());
             req.setDetails(details);
+            dao.populateStockInfo(req);
         }
 
         int totalRecords = dao.countRequests(statusFilter, keyword);

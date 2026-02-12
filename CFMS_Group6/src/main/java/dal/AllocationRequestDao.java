@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import model.AllocationDetail;
 import model.AllocationRequest;
 import model.Asset;
@@ -159,6 +161,112 @@ public class AllocationRequestDao {
         return list;
     }
 
+    public void populateStockInfo(AllocationRequest req) {
+        if (req == null) {
+            return;
+        }
+
+        int requestId = req.getRequestId();
+
+        String sqlRequested = "SELECT ad.asset_id "
+                + "FROM allocation_details ad "
+                + "WHERE ad.request_id = ? "
+                + "ORDER BY ad.detail_id";
+
+        // Asset is considered "available in stock" only when it is New and not assigned to any room yet.
+        // (Seed data uses room_id = NULL for assets in stock.)
+        String sqlAvailable = "SELECT COUNT(*) AS ok "
+                + "FROM assets "
+                + "WHERE asset_id = ? AND status = 'New' AND room_id IS NULL";
+
+        int totalRequested = 0;
+        int totalAvailable = 0;
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement psReq = con.prepareStatement(sqlRequested);
+             PreparedStatement psAvail = con.prepareStatement(sqlAvailable)) {
+
+            psReq.setInt(1, requestId);
+            try (ResultSet rsReq = psReq.executeQuery()) {
+                while (rsReq.next()) {
+                    totalRequested++;
+                    int assetId = rsReq.getInt("asset_id");
+
+                    psAvail.setInt(1, assetId);
+                    try (ResultSet rsAvail = psAvail.executeQuery()) {
+                        if (rsAvail.next() && rsAvail.getInt("ok") > 0) {
+                            totalAvailable++;
+                        }
+                    }
+                }
+            }
+
+            req.setTotalRequestedAssets(totalRequested);
+            req.setTotalAvailableInStock(totalAvailable);
+
+            String stockStatus;
+            if (totalRequested == 0) {
+                stockStatus = "NONE";
+            } else if (totalAvailable == totalRequested) {
+                stockStatus = "FULL";
+            } else if (totalAvailable == 0) {
+                stockStatus = "NONE";
+            } else {
+                stockStatus = "PARTIAL";
+            }
+
+            req.setStockStatus(stockStatus);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            req.setStockStatus("NONE");
+        }
+    }
+
+    public Map<Integer, Integer> getMissingQuantitiesByAsset(int requestId) {
+        Map<Integer, Integer> missing = new HashMap<>();
+
+        String sqlRequestedAssets = "SELECT ad.asset_id, COUNT(*) AS requested_qty "
+                + "FROM allocation_details ad "
+                + "WHERE ad.request_id = ? "
+                + "GROUP BY ad.asset_id";
+
+        String sqlIsAvailable = "SELECT COUNT(*) AS ok "
+                + "FROM assets "
+                + "WHERE asset_id = ? AND status = 'New' AND room_id IS NULL";
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement psReq = con.prepareStatement(sqlRequestedAssets);
+             PreparedStatement psAvail = con.prepareStatement(sqlIsAvailable)) {
+
+            psReq.setInt(1, requestId);
+            try (ResultSet rs = psReq.executeQuery()) {
+                while (rs.next()) {
+                    int assetId = rs.getInt("asset_id");
+                    int requestedQty = rs.getInt("requested_qty");
+
+                    psAvail.setInt(1, assetId);
+                    int ok = 0;
+                    try (ResultSet rsAvail = psAvail.executeQuery()) {
+                        if (rsAvail.next()) {
+                            ok = rsAvail.getInt("ok"); // 0 or 1
+                        }
+                    }
+
+                    int shortage = requestedQty - ok;
+                    if (shortage > 0) {
+                        missing.put(assetId, shortage);
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return missing;
+    }
+
     // ─── Get single request by ID (for detail page) ───
     public AllocationRequest getRequestById(int requestId) {
         String sql = "SELECT ar.*, u.full_name AS creator_name "
@@ -217,6 +325,32 @@ public class AllocationRequestDao {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public boolean updateStatus(int requestId, String newStatus, String reasonReject) {
+        String sql = "UPDATE allocation_requests "
+                + "SET status = ?, reason_reject = ? "
+                + "WHERE request_id = ?";
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, newStatus);
+
+            if (reasonReject == null || reasonReject.trim().isEmpty()) {
+                ps.setNull(2, java.sql.Types.NVARCHAR);
+            } else {
+                ps.setString(2, reasonReject.trim());
+            }
+
+            ps.setInt(3, requestId);
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     // ─── Get images for an asset (reuses existing connection) ───

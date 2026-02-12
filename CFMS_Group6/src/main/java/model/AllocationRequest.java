@@ -14,6 +14,18 @@ public class AllocationRequest {
     private String status;
     private String reasonReject;
 
+    
+    private int totalRequestedAssets;   // how many assets are requested in this allocation
+    private int totalAvailableInStock;  // how many assets can be served from current stock
+    /**
+     * Stock status level for this request.
+     * Possible values:
+     *  - "FULL"    : stock can fully satisfy the request
+     *  - "PARTIAL" : stock can only partially satisfy the request
+     *  - "NONE"    : stock cannot satisfy any part of the request
+     */
+    private String stockStatus;
+
     // Relationships
     private User creator;
     private List<AllocationDetail> details;
@@ -67,6 +79,30 @@ public class AllocationRequest {
 
     public void setReasonReject(String reasonReject) {
         this.reasonReject = reasonReject;
+    }
+
+    public int getTotalRequestedAssets() {
+        return totalRequestedAssets;
+    }
+
+    public void setTotalRequestedAssets(int totalRequestedAssets) {
+        this.totalRequestedAssets = totalRequestedAssets;
+    }
+
+    public int getTotalAvailableInStock() {
+        return totalAvailableInStock;
+    }
+
+    public void setTotalAvailableInStock(int totalAvailableInStock) {
+        this.totalAvailableInStock = totalAvailableInStock;
+    }
+
+    public String getStockStatus() {
+        return stockStatus;
+    }
+
+    public void setStockStatus(String stockStatus) {
+        this.stockStatus = stockStatus;
     }
 
     public User getCreator() {
