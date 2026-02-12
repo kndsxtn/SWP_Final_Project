@@ -14,11 +14,12 @@
 
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-        
+
         <link href="${pageContext.request.contextPath}/css/page-header.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/table.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/filter.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/css/message.css" rel="stylesheet">
     </head>
     <body class="d-flex flex-column">
 
@@ -32,7 +33,7 @@
                 </jsp:include>
 
                 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                    
+
                     <!-- ===== Page Header ===== -->
                     <div class="cfms-page-header">
                         <h2><i class="bi bi-tags"></i> Danh sách danh mục tài sản</h2>
@@ -54,12 +55,12 @@
                         </div>
 
                         <!-- Select -->
-<!--                        <div class="filter-select">
-                            <select name="prefix_keyword" class="form-select">
-                                <option value="">-- Mã tài sản --</option>
-
-                            </select>
-                        </div>-->
+                        <!--                        <div class="filter-select">
+                                                    <select name="prefix_keyword" class="form-select">
+                                                        <option value="">-- Mã tài sản --</option>
+                        
+                                                    </select>
+                                                </div>-->
 
                         <!-- Action buttons -->
                         <div class="filter-actions">
@@ -126,7 +127,11 @@
 
             </div>
         </div>
-
+        <c:if test ="${not empty status}">
+            <div class="col-md-8 ms-auto mb-3 cfms-msg text-end">
+                ${status}
+            </div>
+        </c:if>
         <jsp:include page="../components/footer.jsp"></jsp:include>
 
     </body>
