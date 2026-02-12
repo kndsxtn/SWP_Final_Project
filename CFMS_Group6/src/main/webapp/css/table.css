@@ -71,8 +71,9 @@
 
 /* --- Action column --- */
 .cfms-table .col-action {
-    width: 120px;
+    width: 170px;
     text-align: center;
+    white-space: nowrap;
 }
 
 .cfms-table .col-action a,
@@ -80,4 +81,7 @@
     padding: 3px 8px;
     font-size: 0.78rem;
     border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
