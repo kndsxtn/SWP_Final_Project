@@ -4,7 +4,9 @@
 USE master;
 GO
 create database swp_draft
+GO
 use swp_draft
+GO
 
 
 -- ==========================================================
@@ -212,6 +214,34 @@ CREATE TABLE maintenance_requests (
     FOREIGN KEY (reported_by_user_id) REFERENCES users(user_id) ON DELETE SET NULL,
 
     CONSTRAINT CHK_MaintStatus CHECK (status IN (N'Reported', N'Verified', N'In_Progress', N'Fixed', N'Cannot_Fix'))
+);
+GO
+
+-- D. Mua sắm (Procurement / Purchasing)
+CREATE TABLE procurement_requests (
+    procurement_id INT IDENTITY(1,1) PRIMARY KEY,
+    created_by INT NOT NULL,
+    created_date DATETIME DEFAULT GETDATE(),
+    status NVARCHAR(50) DEFAULT N'Pending',
+    reason NVARCHAR(MAX),
+    allocation_request_id INT NULL,
+    
+    FOREIGN KEY (created_by) REFERENCES users(user_id),
+    FOREIGN KEY (allocation_request_id) REFERENCES allocation_requests(request_id),
+    
+    CONSTRAINT CHK_ProcStatus CHECK (status IN (N'Pending', N'Approved', N'Rejected', N'Cancelled', N'Completed'))
+);
+GO
+
+CREATE TABLE procurement_details (
+    detail_id INT IDENTITY(1,1) PRIMARY KEY,
+    procurement_id INT NOT NULL,
+    asset_id INT NOT NULL,
+    quantity INT NOT NULL,
+    note NVARCHAR(255),
+    
+    FOREIGN KEY (procurement_id) REFERENCES procurement_requests(procurement_id) ON DELETE CASCADE,
+    FOREIGN KEY (asset_id) REFERENCES assets(asset_id)
 );
 GO
 
@@ -474,7 +504,10 @@ INSERT INTO allocation_requests (created_by, created_date, status, reason_reject
 (14, '2025-01-15 10:00:00', N'Approved_By_Staff', NULL),
 (15, '2024-11-20 14:00:00', N'Rejected', N'Ngân sách năm 2024 đã hết, vui lòng gửi lại đầu năm 2025'),
 (16, '2024-06-01 08:00:00', N'Completed', NULL),
-(13, '2025-01-28 09:00:00', N'Approved_By_Principal', NULL);
+(13, '2025-01-28 09:00:00', N'Approved_By_Principal', NULL),
+(11, '2025-02-10 09:00:00', N'Pending', NULL),   
+(12, '2025-02-10 09:30:00', N'Pending', NULL),   
+(13, '2025-02-10 10:00:00', N'Pending', NULL);   
 GO
 
 -- ===================== ALLOCATION DETAILS =====================
@@ -494,7 +527,11 @@ INSERT INTO allocation_details (request_id, asset_id, note) VALUES
 (5, 34, N'Điều hòa Daikin 1.5HP cho phòng 301'),
 (5, 35, N'Điều hòa Daikin 1.5HP cho phòng 302 - chưa có trong kho, sẽ mua thêm'),
 (6, 52, N'Bảng trắng thay thế cho phòng 103'),
-(6, 53, N'Bảng trắng thay thế cho phòng 104');
+(6, 53, N'Bảng trắng thay thế cho phòng 104'),
+(7, 8, N'Laptop mới cấp cho phòng IT'),      
+(7, 9, N'Laptop mới cấp cho phòng IT'),      
+(8, 10, N'Laptop mới cấp cho phòng Hành Chính'), 
+(9, 1, N'Yêu cầu thêm laptop giống LAP-001 cho phòng 101');
 GO
 
 -- ===================== TRANSFER ORDERS =====================
@@ -522,4 +559,18 @@ INSERT INTO maintenance_requests (asset_id, reported_by_guest, reported_by_user_
 (49, NULL, 7, '2025-02-05 10:00:00', N'Máy tính không khởi động được, nghi hỏng nguồn (PSU)', '/images/maintenance_requests/DES-006_psu.jpg', N'Reported', 0, NULL),
 (NULL, N'Nguyễn Minh Tú - Sinh viên K68', NULL, '2025-02-03 15:30:00', N'Điều hòa phòng 201 không mát, chạy có tiếng ồn lớn', NULL, N'Reported', 0, NULL),
 (32, NULL, 6, '2024-08-15 11:00:00', N'Máy in ra giấy bị nhòe và có vạch kẻ, đầu in hỏng', '/images/maintenance_requests/PRT-004_head.jpg', N'Cannot_Fix', 0, N'Đầu in hỏng không thể sửa, hết bảo hành. Đề xuất thanh lý');
+GO
+
+-- ===================== PROCUREMENT REQUESTS =====================
+INSERT INTO procurement_requests (created_by, created_date, status, reason, allocation_request_id) VALUES
+(6, '2025-02-02 10:00:00', N'Pending',
+ N'Mua bổ sung điều hòa cho phòng 302 do thiếu từ yêu cầu cấp phát REQ-5.', 5),
+(6, '2025-02-03 09:00:00', N'Pending',
+ N'Mua mới 2 máy chiếu dự phòng cho hội trường.', NULL);
+GO
+
+-- ===================== PROCUREMENT DETAILS =====================
+INSERT INTO procurement_details (procurement_id, asset_id, quantity, note) VALUES
+(1, 38, 1, N'Bổ sung 1 điều hòa Daikin 1.5HP (mẫu AIR-006) cho phòng 302, thiếu từ yêu cầu REQ-5.'),
+(2, 11, 2, N'2 máy chiếu (mẫu PRO-001) dùng dự phòng cho hội trường A và B.');
 GO
