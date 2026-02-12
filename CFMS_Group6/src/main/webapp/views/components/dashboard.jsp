@@ -494,7 +494,7 @@
                                         </a>
                                     </div>
                                     <div class="col-md-4">
-                                        <a href="${pageContext.request.contextPath}/request/my-requests"
+                                        <a href="${pageContext.request.contextPath}/request/allocation-list"
                                             class="quick-link">
                                             <i class="bi bi-send"></i>
                                             <span>Yêu cầu của tôi</span>

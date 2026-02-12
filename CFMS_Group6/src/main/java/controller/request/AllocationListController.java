@@ -1,6 +1,7 @@
 package controller.request;
 
 import dal.AllocationRequestDao;
+import dto.UserDto;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -31,6 +32,8 @@ public class AllocationListController extends HttpServlet {
             return;
         }
 
+        UserDto user = (UserDto) session.getAttribute("user");
+
         // --- Filter param ---
         String statusFilter = request.getParameter("status");
         if (statusFilter != null && statusFilter.isEmpty()) {
@@ -56,16 +59,28 @@ public class AllocationListController extends HttpServlet {
 
         // --- Query data ---
         AllocationRequestDao dao = new AllocationRequestDao();
-        List<AllocationRequest> list = dao.getRequests(statusFilter, keyword, page, PAGE_SIZE);
+        List<AllocationRequest> list;
+        int totalRecords;
 
-        // Load details + computed stock info for each request
+        // Asset Staff, Finance Head, Principal, Admin... xem tất cả
+        // Trưởng bộ môn (Head of Dept) chỉ xem các yêu cầu do chính mình tạo
+        String roleName = user.getRoleName();
+        boolean isHeadOfDept = "Head of Dept".equals(roleName);
+
+        if (isHeadOfDept) {
+            list = dao.getRequestsByCreator(user.getUserId(), statusFilter, keyword, page, PAGE_SIZE);
+            totalRecords = dao.countRequestsByCreator(user.getUserId(), statusFilter, keyword);
+        } else {
+            list = dao.getRequests(statusFilter, keyword, page, PAGE_SIZE);
+            totalRecords = dao.countRequests(statusFilter, keyword);
+        }
+
+        // Load details + computed stock info cho từng yêu cầu
         for (AllocationRequest req : list) {
             List<AllocationDetail> details = dao.getDetailsByRequestId(req.getRequestId());
             req.setDetails(details);
             dao.populateStockInfo(req);
         }
-
-        int totalRecords = dao.countRequests(statusFilter, keyword);
         int totalPages = (int) Math.ceil((double) totalRecords / PAGE_SIZE);
         if (page > totalPages && totalPages > 0) {
             page = totalPages;

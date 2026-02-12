@@ -3,6 +3,8 @@ package dal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +17,6 @@ import model.Category;
 import model.User;
 
 /**
- * Data Access Object for allocation_requests & allocation_details.
  *
  * @author Nguyen Dang Khang
  */
@@ -133,6 +134,148 @@ public class AllocationRequestDao {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    // ─── List requests of a specific creator (\"Yêu cầu của tôi\") ───
+    public List<AllocationRequest> getRequestsByCreator(int creatorUserId, String statusFilter,
+                                                        String keyword, int page, int pageSize) {
+        List<AllocationRequest> list = new ArrayList<>();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT ar.*, u.full_name AS creator_name ");
+        sb.append("FROM allocation_requests ar ");
+        sb.append("JOIN users u ON ar.created_by = u.user_id ");
+
+        List<String> conditions = new ArrayList<>();
+        conditions.add("ar.created_by = ?");
+
+        if (statusFilter != null && !statusFilter.isEmpty()) {
+            conditions.add("ar.status = ?");
+        }
+        if (keyword != null && !keyword.isEmpty()) {
+            conditions.add("(CAST(ar.request_id AS VARCHAR) LIKE ? "
+                    + "OR ('REQ-' + CAST(ar.request_id AS VARCHAR)) LIKE ? "
+                    + "OR EXISTS (SELECT 1 FROM allocation_details ad "
+                    + "JOIN assets a ON ad.asset_id = a.asset_id "
+                    + "JOIN categories c ON a.category_id = c.category_id "
+                    + "WHERE ad.request_id = ar.request_id "
+                    + "AND (a.asset_name LIKE ? OR a.asset_code LIKE ? "
+                    + "OR c.category_name LIKE ? OR ad.note LIKE ?)))");
+        }
+
+        sb.append("WHERE ").append(String.join(" AND ", conditions)).append(" ");
+        sb.append("ORDER BY ar.created_date DESC ");
+        sb.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sb.toString())) {
+
+            int idx = 1;
+            ps.setInt(idx++, creatorUserId);
+
+            if (statusFilter != null && !statusFilter.isEmpty()) {
+                ps.setString(idx++, statusFilter);
+            }
+            if (keyword != null && !keyword.isEmpty()) {
+                String kw = "%" + keyword + "%";
+                ps.setString(idx++, kw); // request_id (numeric)
+                ps.setString(idx++, kw); // REQ-request_id (formatted)
+                ps.setString(idx++, kw); // asset_name
+                ps.setString(idx++, kw); // asset_code
+                ps.setString(idx++, kw); // category_name
+                ps.setString(idx++, kw); // note
+            }
+
+            ps.setInt(idx++, (page - 1) * pageSize);
+            ps.setInt(idx, pageSize);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRequest(rs));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    // ─── Count requests of a specific creator (for paging \"Yêu cầu của tôi\") ───
+    public int countRequestsByCreator(int creatorUserId, String statusFilter, String keyword) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT COUNT(*) FROM allocation_requests ar ");
+        sb.append("JOIN users u ON ar.created_by = u.user_id ");
+
+        List<String> conditions = new ArrayList<>();
+        conditions.add("ar.created_by = ?");
+
+        if (statusFilter != null && !statusFilter.isEmpty()) {
+            conditions.add("ar.status = ?");
+        }
+        if (keyword != null && !keyword.isEmpty()) {
+            conditions.add("(CAST(ar.request_id AS VARCHAR) LIKE ? "
+                    + "OR ('REQ-' + CAST(ar.request_id AS VARCHAR)) LIKE ? "
+                    + "OR EXISTS (SELECT 1 FROM allocation_details ad "
+                    + "JOIN assets a ON ad.asset_id = a.asset_id "
+                    + "JOIN categories c ON a.category_id = c.category_id "
+                    + "WHERE ad.request_id = ar.request_id "
+                    + "AND (a.asset_name LIKE ? OR a.asset_code LIKE ? "
+                    + "OR c.category_name LIKE ? OR ad.note LIKE ?)))");
+        }
+
+        sb.append("WHERE ").append(String.join(" AND ", conditions)).append(" ");
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sb.toString())) {
+
+            int idx = 1;
+            ps.setInt(idx++, creatorUserId);
+
+            if (statusFilter != null && !statusFilter.isEmpty()) {
+                ps.setString(idx++, statusFilter);
+            }
+            if (keyword != null && !keyword.isEmpty()) {
+                String kw = "%" + keyword + "%";
+                ps.setString(idx++, kw); // request_id (numeric)
+                ps.setString(idx++, kw); // REQ-request_id (formatted)
+                ps.setString(idx++, kw); // asset_name
+                ps.setString(idx++, kw); // asset_code
+                ps.setString(idx++, kw); // category_name
+                ps.setString(idx, kw);   // note
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    // ─── Delete a pending request created by specific user (for UC15) ───
+    public boolean deletePendingRequest(int requestId, int creatorUserId) {
+        String sql = "DELETE FROM allocation_requests "
+                + "WHERE request_id = ? AND created_by = ? AND status = 'Pending' "
+                + "AND NOT EXISTS (SELECT 1 FROM procurement_requests pr "
+                + "WHERE pr.allocation_request_id = allocation_requests.request_id)";
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, requestId);
+            ps.setInt(2, creatorUserId);
+
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     // ─── Get details for a specific request ───
@@ -265,6 +408,96 @@ public class AllocationRequestDao {
         }
 
         return missing;
+    }
+
+    public int createRequest(int createdByUserId, int[] assetIds, int[] quantities, String[] notes) {
+        if (assetIds == null || quantities == null || assetIds.length == 0 || assetIds.length != quantities.length) {
+            return -1;
+        }
+
+        Connection con = null;
+        try {
+            con = new DBContext().getConnection();
+            con.setAutoCommit(false);
+
+            // 1) Insert master row into allocation_requests
+            String insertReqSql = "INSERT INTO allocation_requests "
+                    + "(created_by, created_date, status, reason_reject) "
+                    + "VALUES (?, GETDATE(), N'Pending', NULL)";
+
+            int requestId = -1;
+            try (PreparedStatement psReq = con.prepareStatement(insertReqSql, Statement.RETURN_GENERATED_KEYS)) {
+                psReq.setInt(1, createdByUserId);
+                psReq.executeUpdate();
+
+                try (ResultSet rs = psReq.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        requestId = rs.getInt(1);
+                    }
+                }
+            }
+
+            if (requestId <= 0) {
+                con.rollback();
+                return -1;
+            }
+
+            // 2) Insert detail rows (one row per requested asset unit)
+            String insertDetailSql = "INSERT INTO allocation_details (request_id, asset_id, note) "
+                    + "VALUES (?, ?, ?)";
+
+            try (PreparedStatement psDet = con.prepareStatement(insertDetailSql)) {
+
+                for (int i = 0; i < assetIds.length; i++) {
+                    int assetId = assetIds[i];
+                    int qty = quantities[i];
+
+                    if (assetId <= 0 || qty <= 0) {
+                        continue;
+                    }
+
+                    String note = (notes != null && i < notes.length) ? notes[i] : null;
+                    String trimmedNote = (note != null) ? note.trim() : null;
+
+                    for (int j = 0; j < qty; j++) {
+                        psDet.setInt(1, requestId);
+                        psDet.setInt(2, assetId);
+                        if (trimmedNote == null || trimmedNote.isEmpty()) {
+                            psDet.setNull(3, java.sql.Types.NVARCHAR);
+                        } else {
+                            psDet.setString(3, trimmedNote);
+                        }
+                        psDet.addBatch();
+                    }
+                }
+
+                psDet.executeBatch();
+            }
+
+            con.commit();
+            return requestId;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (con != null) {
+                try {
+                    con.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } finally {
+            if (con != null) {
+                try {
+                    con.setAutoCommit(true);
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return -1;
     }
 
     // ─── Get single request by ID (for detail page) ───

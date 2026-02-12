@@ -183,8 +183,8 @@
             <c:if test="${role == 'Head of Dept'}">
                 <h6 class="sidebar-heading">Yêu cầu</h6>
                 <li class="nav-item">
-                    <a class="nav-link ${param.page == 'my_requests' ? 'active' : ''}"
-                       href="${pageContext.request.contextPath}/request/my-requests">
+                    <a class="nav-link ${param.page == 'allocation_list' ? 'active' : ''}"
+                       href="${pageContext.request.contextPath}/request/allocation-list">
                         <i class="bi bi-send"></i> Yêu cầu của tôi
                     </a>
                 </li>
