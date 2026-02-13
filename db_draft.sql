@@ -180,7 +180,7 @@ CREATE TABLE transfer_orders (
     FOREIGN KEY (dest_room_id) REFERENCES rooms(room_id),
     FOREIGN KEY (approved_by) REFERENCES users(user_id), -- SQL Server mặc định NO ACTION (tương tự RESTRICT)
     
-    CONSTRAINT CHK_TransferStatus CHECK (status IN (N'Pending', N'Approved', N'Rejected', N'Completed'))
+    CONSTRAINT CHK_TransferStatus CHECK (status IN (N'Pending', N'Ongoing', N'Completed', N'Cancelled', N'Rejected'))
 );
 GO
 
