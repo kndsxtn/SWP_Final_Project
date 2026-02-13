@@ -28,7 +28,7 @@ public class UpdateCategoryController extends HttpServlet {
         String idStr = request.getParameter("id");
         int id;
         if (idStr == null || idStr.isBlank()) {
-            status = "Id Trống";
+            status = "Lỗi: Id Trống";
             request.getSession().setAttribute("status", status);
             response.sendRedirect("ViewCategoryController");
             return;
@@ -36,7 +36,7 @@ public class UpdateCategoryController extends HttpServlet {
         try {
             id = Integer.parseInt(idStr);
         } catch (NumberFormatException e) {
-            status = e.getMessage();
+            status = "Lỗi: "+ e.getMessage();
             request.getSession().setAttribute("status", status);
             response.sendRedirect("ViewCategoryController");
             return;
@@ -45,7 +45,7 @@ public class UpdateCategoryController extends HttpServlet {
         CategoryDao cDao = new CategoryDao();
         Category category = cDao.findCategoryById(id);
         if (category == null) {
-            status = "Không tìm thấy danh mục";
+            status = "Lỗi: Không tìm thấy danh mục";
             request.getSession().setAttribute("status", status);
             response.sendRedirect("ViewCategoryController");
             return;
