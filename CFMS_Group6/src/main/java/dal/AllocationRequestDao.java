@@ -311,7 +311,7 @@ public class AllocationRequestDao {
 
         int requestId = req.getRequestId();
 
-        String sqlRequested = "SELECT ad.asset_id "
+        String sqlRequested = "SELECT ad.asset_id, ad.quantity "
                 + "FROM allocation_details ad "
                 + "WHERE ad.request_id = ? "
                 + "ORDER BY ad.detail_id";
@@ -332,13 +332,15 @@ public class AllocationRequestDao {
             psReq.setInt(1, requestId);
             try (ResultSet rsReq = psReq.executeQuery()) {
                 while (rsReq.next()) {
-                    totalRequested++;
                     int assetId = rsReq.getInt("asset_id");
+                    int qty = rsReq.getInt("quantity");
+                    totalRequested += qty;
 
                     psAvail.setInt(1, assetId);
                     try (ResultSet rsAvail = psAvail.executeQuery()) {
-                        if (rsAvail.next() && rsAvail.getInt("ok") > 0) {
-                            totalAvailable++;
+                        if (rsAvail.next()) {
+                            int availableCount = rsAvail.getInt("ok");
+                            totalAvailable += Math.min(qty, availableCount);
                         }
                     }
                 }
@@ -369,7 +371,7 @@ public class AllocationRequestDao {
     public Map<Integer, Integer> getMissingQuantitiesByAsset(int requestId) {
         Map<Integer, Integer> missing = new HashMap<>();
 
-        String sqlRequestedAssets = "SELECT ad.asset_id, COUNT(*) AS requested_qty "
+        String sqlRequestedAssets = "SELECT ad.asset_id, SUM(ad.quantity) AS requested_qty "
                 + "FROM allocation_details ad "
                 + "WHERE ad.request_id = ? "
                 + "GROUP BY ad.asset_id";
@@ -389,14 +391,14 @@ public class AllocationRequestDao {
                     int requestedQty = rs.getInt("requested_qty");
 
                     psAvail.setInt(1, assetId);
-                    int ok = 0;
+                    int availableCount = 0;
                     try (ResultSet rsAvail = psAvail.executeQuery()) {
                         if (rsAvail.next()) {
-                            ok = rsAvail.getInt("ok"); // 0 or 1
+                            availableCount = rsAvail.getInt("ok");
                         }
                     }
 
-                    int shortage = requestedQty - ok;
+                    int shortage = requestedQty - availableCount;
                     if (shortage > 0) {
                         missing.put(assetId, shortage);
                     }
@@ -442,9 +444,9 @@ public class AllocationRequestDao {
                 return -1;
             }
 
-            // 2) Insert detail rows (one row per requested asset unit)
-            String insertDetailSql = "INSERT INTO allocation_details (request_id, asset_id, note) "
-                    + "VALUES (?, ?, ?)";
+            // 2) Insert detail rows (one row per asset with quantity)
+            String insertDetailSql = "INSERT INTO allocation_details (request_id, asset_id, quantity, note) "
+                    + "VALUES (?, ?, ?, ?)";
 
             try (PreparedStatement psDet = con.prepareStatement(insertDetailSql)) {
 
@@ -459,16 +461,15 @@ public class AllocationRequestDao {
                     String note = (notes != null && i < notes.length) ? notes[i] : null;
                     String trimmedNote = (note != null) ? note.trim() : null;
 
-                    for (int j = 0; j < qty; j++) {
-                        psDet.setInt(1, requestId);
-                        psDet.setInt(2, assetId);
-                        if (trimmedNote == null || trimmedNote.isEmpty()) {
-                            psDet.setNull(3, java.sql.Types.NVARCHAR);
-                        } else {
-                            psDet.setString(3, trimmedNote);
-                        }
-                        psDet.addBatch();
+                    psDet.setInt(1, requestId);
+                    psDet.setInt(2, assetId);
+                    psDet.setInt(3, qty);
+                    if (trimmedNote == null || trimmedNote.isEmpty()) {
+                        psDet.setNull(4, java.sql.Types.NVARCHAR);
+                    } else {
+                        psDet.setString(4, trimmedNote);
                     }
+                    psDet.addBatch();
                 }
 
                 psDet.executeBatch();
@@ -586,6 +587,103 @@ public class AllocationRequestDao {
         return false;
     }
 
+    // ─── Update request (only allowed when status is Pending) ───
+    public boolean updateRequest(int requestId, int createdByUserId, int[] assetIds, int[] quantities, String[] notes) {
+        if (assetIds == null || quantities == null || assetIds.length == 0 || assetIds.length != quantities.length) {
+            return false;
+        }
+
+        Connection con = null;
+        try {
+            con = new DBContext().getConnection();
+            con.setAutoCommit(false);
+
+            // 1) Verify request exists, is Pending, and belongs to the user
+            String checkSql = "SELECT status, created_by FROM allocation_requests WHERE request_id = ?";
+            try (PreparedStatement psCheck = con.prepareStatement(checkSql)) {
+                psCheck.setInt(1, requestId);
+                try (ResultSet rs = psCheck.executeQuery()) {
+                    if (!rs.next()) {
+                        con.rollback();
+                        return false; // Request not found
+                    }
+                    String status = rs.getString("status");
+                    int createdBy = rs.getInt("created_by");
+                    
+                    if (!"Pending".equals(status)) {
+                        con.rollback();
+                        return false; // Can only edit Pending requests
+                    }
+                    if (createdBy != createdByUserId) {
+                        con.rollback();
+                        return false; // User must be the creator
+                    }
+                }
+            }
+
+            // 2) Delete existing details
+            String deleteDetailsSql = "DELETE FROM allocation_details WHERE request_id = ?";
+            try (PreparedStatement psDelete = con.prepareStatement(deleteDetailsSql)) {
+                psDelete.setInt(1, requestId);
+                psDelete.executeUpdate();
+            }
+
+            // 3) Insert new details
+            String insertDetailSql = "INSERT INTO allocation_details (request_id, asset_id, quantity, note) "
+                    + "VALUES (?, ?, ?, ?)";
+
+            try (PreparedStatement psDet = con.prepareStatement(insertDetailSql)) {
+                for (int i = 0; i < assetIds.length; i++) {
+                    int assetId = assetIds[i];
+                    int qty = quantities[i];
+
+                    if (assetId <= 0 || qty <= 0) {
+                        continue;
+                    }
+
+                    String note = (notes != null && i < notes.length) ? notes[i] : null;
+                    String trimmedNote = (note != null) ? note.trim() : null;
+
+                    psDet.setInt(1, requestId);
+                    psDet.setInt(2, assetId);
+                    psDet.setInt(3, qty);
+                    if (trimmedNote == null || trimmedNote.isEmpty()) {
+                        psDet.setNull(4, java.sql.Types.NVARCHAR);
+                    } else {
+                        psDet.setString(4, trimmedNote);
+                    }
+                    psDet.addBatch();
+                }
+
+                psDet.executeBatch();
+            }
+
+            con.commit();
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (con != null) {
+                try {
+                    con.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } finally {
+            if (con != null) {
+                try {
+                    con.setAutoCommit(true);
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return false;
+    }
+
     // ─── Get images for an asset (reuses existing connection) ───
     private List<AssetImage> getImagesByAssetId(Connection con, int assetId) throws Exception {
         List<AssetImage> images = new ArrayList<>();
@@ -632,6 +730,7 @@ public class AllocationRequestDao {
         d.setDetailId(rs.getInt("detail_id"));
         d.setRequestId(rs.getInt("request_id"));
         d.setAssetId(rs.getInt("asset_id"));
+        d.setQuantity(rs.getInt("quantity"));
         d.setNote(rs.getString("note"));
 
         // Attach asset with its category

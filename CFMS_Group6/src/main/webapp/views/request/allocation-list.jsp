@@ -126,8 +126,8 @@
                                 <th>Mã yêu cầu</th>
                                 <th>Người tạo</th>
                                 <th>Ngày tạo</th>
-                                <th>Số lượng</th>
-                                <th>Tài sản</th>
+                                <th class="text-center">Tổng số lượng</th>
+                                <th>Tài sản & Số lượng</th>
                                 <th>Loại tài sản</th>
                                 <c:if test="${!isHeadOfDept}">
                                     <th>Tồn kho</th>
@@ -178,17 +178,28 @@
                                                                 pattern="dd/MM/yyyy HH:mm"/>
                                             </td>
 
-                                            <!-- Quantity (number of assets in this request) -->
+                                            <!-- Total Quantity (sum of all assets in this request) -->
                                             <td class="text-center">
-                                                <strong>${req.details.size()}</strong>
+                                                <c:set var="totalQty" value="0" />
+                                                <c:forEach items="${req.details}" var="d">
+                                                    <c:set var="totalQty" value="${totalQty + d.quantity}" />
+                                                </c:forEach>
+                                                <span class="badge bg-primary" style="font-size: 0.85rem; padding: 0.35rem 0.6rem;">
+                                                    <i class="bi bi-box-seam me-1"></i>${totalQty}
+                                                </span>
                                             </td>
 
-                                            <!-- Assets -->
+                                            <!-- Assets with Quantity -->
                                             <td>
                                                 <c:forEach items="${req.details}" var="d">
-                                                    <span class="d-block small">
-                                                        <strong>${d.asset.assetCode}</strong> – ${d.asset.assetName}
-                                                    </span>
+                                                    <div class="d-flex align-items-center mb-1" style="gap: 0.5rem;">
+                                                        <span class="small flex-grow-1">
+                                                            <strong>${d.asset.assetCode}</strong> – ${d.asset.assetName}
+                                                        </span>
+                                                        <span class="badge bg-secondary" style="font-size: 0.7rem; padding: 0.25rem 0.5rem; min-width: 2.5rem;">
+                                                            <i class="bi bi-hash me-1"></i>${d.quantity}
+                                                        </span>
+                                                    </div>
                                                 </c:forEach>
                                             </td>
 
@@ -309,8 +320,13 @@
                                                     </button>
                                                 </c:if>
 
-                                                <!-- Cancel for Head of Dept (creator) when Pending -->
-                                                <c:if test="${req.status == 'Pending' && sessionScope.user.roleName == 'Head of Dept'}">
+                                                <!-- Edit and Cancel for Head of Dept (creator) when Pending -->
+                                                <c:if test="${req.status == 'Pending' && sessionScope.user.roleName == 'Head of Dept' && req.createdBy == sessionScope.user.userId}">
+                                                    <a href="${pageContext.request.contextPath}/request/allocation-edit?id=${req.requestId}"
+                                                       class="btn btn-sm btn-outline-warning ms-1"
+                                                       title="Chỉnh sửa yêu cầu">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
                                                     <button type="button"
                                                             class="btn btn-sm btn-outline-danger ms-1 btn-alloc-cancel"
                                                             data-req-id="${req.requestId}"

@@ -44,6 +44,13 @@
                 <div class="cfms-page-header">
                     <h2><i class="bi bi-file-earmark-text me-2"></i>Chi tiết yêu cầu REQ-${req.requestId}</h2>
                     <div class="page-header-actions">
+                        <!-- Edit button for creator when status is Pending -->
+                        <c:if test="${req.status == 'Pending' && sessionScope.user.userId == req.createdBy}">
+                            <a href="${pageContext.request.contextPath}/request/allocation-edit?id=${req.requestId}"
+                               class="btn btn-warning me-2">
+                                <i class="bi bi-pencil me-1"></i>Chỉnh sửa
+                            </a>
+                        </c:if>
                         <a href="${pageContext.request.contextPath}/request/allocation-list"
                            class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
@@ -170,32 +177,51 @@
 
                 <!-- ===== Asset Details ===== -->
                 <div class="detail-card">
-                    <h5><i class="bi bi-box-seam me-2"></i>Danh sách tài sản (${req.details.size()})</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="bi bi-box-seam me-2"></i>Danh sách tài sản yêu cầu</h5>
+                        <c:set var="totalQty" value="0" />
+                        <c:forEach items="${req.details}" var="d">
+                            <c:set var="totalQty" value="${totalQty + d.quantity}" />
+                        </c:forEach>
+                        <span class="badge bg-primary" style="font-size: 0.9rem; padding: 0.4rem 0.8rem;">
+                            <i class="bi bi-calculator me-1"></i>Tổng: <strong>${totalQty}</strong> tài sản
+                        </span>
+                    </div>
 
                     <c:forEach items="${req.details}" var="d" varStatus="loop">
                         <div class="asset-card">
                             <div class="asset-card-header">
-                                <h6>${loop.count}. ${d.asset.assetCode} – ${d.asset.assetName}</h6>
-                                <c:choose>
-                                    <c:when test="${d.asset.status == 'New'}">
-                                        <span class="cfms-badge cfms-badge-new">${d.asset.status}</span>
-                                    </c:when>
-                                    <c:when test="${d.asset.status == 'In_Use'}">
-                                        <span class="cfms-badge cfms-badge-in-use">Đang dùng</span>
-                                    </c:when>
-                                    <c:when test="${d.asset.status == 'Maintenance'}">
-                                        <span class="cfms-badge cfms-badge-maintenance">Bảo trì</span>
-                                    </c:when>
-                                    <c:when test="${d.asset.status == 'Broken'}">
-                                        <span class="cfms-badge cfms-badge-broken">Hỏng</span>
-                                    </c:when>
-                                    <c:when test="${d.asset.status == 'Lost'}">
-                                        <span class="cfms-badge cfms-badge-lost">Thất lạc</span>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <span class="cfms-badge">${d.asset.status}</span>
-                                    </c:otherwise>
-                                </c:choose>
+                                <div class="d-flex align-items-center" style="gap: 0.75rem;">
+                                    <span class="badge bg-light text-dark" style="font-size: 0.75rem; padding: 0.3rem 0.5rem; min-width: 2rem;">
+                                        ${loop.count}
+                                    </span>
+                                    <h6 class="mb-0 flex-grow-1">${d.asset.assetCode} – ${d.asset.assetName}</h6>
+                                    <span class="badge bg-info text-dark" style="font-size: 0.85rem; padding: 0.4rem 0.7rem;">
+                                        <i class="bi bi-hash me-1"></i>Số lượng: <strong>${d.quantity}</strong>
+                                    </span>
+                                </div>
+                                <div class="mt-2">
+                                    <c:choose>
+                                        <c:when test="${d.asset.status == 'New'}">
+                                            <span class="cfms-badge cfms-badge-new">${d.asset.status}</span>
+                                        </c:when>
+                                        <c:when test="${d.asset.status == 'In_Use'}">
+                                            <span class="cfms-badge cfms-badge-in-use">Đang dùng</span>
+                                        </c:when>
+                                        <c:when test="${d.asset.status == 'Maintenance'}">
+                                            <span class="cfms-badge cfms-badge-maintenance">Bảo trì</span>
+                                        </c:when>
+                                        <c:when test="${d.asset.status == 'Broken'}">
+                                            <span class="cfms-badge cfms-badge-broken">Hỏng</span>
+                                        </c:when>
+                                        <c:when test="${d.asset.status == 'Lost'}">
+                                            <span class="cfms-badge cfms-badge-lost">Thất lạc</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="cfms-badge">${d.asset.status}</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
                             </div>
 
                             <div class="asset-info-grid">
