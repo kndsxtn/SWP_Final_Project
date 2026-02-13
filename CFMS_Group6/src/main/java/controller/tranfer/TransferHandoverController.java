@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package controller.tranfer;
 
 import dal.TransferOrderDAO;
@@ -21,38 +20,41 @@ import model.TransferOrder;
 
 /**
  *
- * @author Pham Van Tung
+ * @author Admin
  */
-@WebServlet(name="TransferListController", urlPatterns={"/transfer/list"})
-public class TransferListController extends HttpServlet {
-   
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+@WebServlet(name = "TransferHandoverController", urlPatterns = {"/transfer/handover"})
+public class TransferHandoverController extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet TransferListController</title>");  
+            out.println("<title>Servlet TransferHandoverController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet TransferListController at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet TransferHandoverController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
-    } 
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
+    /**
      * Handles the HTTP <code>GET</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -60,19 +62,20 @@ public class TransferListController extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         HttpSession session = request.getSession();
         TransferOrderDAO tdao = new TransferOrderDAO();
         List<TransferOrder> list = new ArrayList<>();
-        UserDto u = (UserDto)session.getAttribute("user");
-        if (u.getRoleId() == 4) list = tdao.getByStaff(u.getUserId());
-        else list = tdao.getAll();
+        UserDto user = (UserDto) session.getAttribute("user");
+        int deptId = user.getDeptId();
+        list = tdao.selectByDeptId(deptId);
         request.setAttribute("list", list);
-        request.getRequestDispatcher("/views/tranfer/transfer-list.jsp").forward(request, response);
-    } 
+        request.getRequestDispatcher("/views/tranfer/transfer-handover.jsp").forward(request, response);
+    }
 
-    /** 
+    /**
      * Handles the HTTP <code>POST</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -80,12 +83,13 @@ public class TransferListController extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /** 
+    /**
      * Returns a short description of the servlet.
+     *
      * @return a String containing servlet description
      */
     @Override
