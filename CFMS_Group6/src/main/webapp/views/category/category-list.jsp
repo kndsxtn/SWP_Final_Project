@@ -38,6 +38,11 @@
                     <div class="cfms-page-header">
                         <h2><i class="bi bi-tags"></i> Danh sách danh mục tài sản</h2>
                     </div>
+                    <c:if test ="${not empty status}">
+                        <div class="col-md-8 ms-auto mb-3 cfms-msg text-end">
+                            ${status}
+                        </div>
+                    </c:if>
                     <!-- ===== Filter & Search Bar ===== -->
                     <form class="cfms-filter" method ="get"
                           action="${pageContext.request.contextPath}/category/ViewCategoryController">
@@ -127,11 +132,6 @@
 
             </div>
         </div>
-        <c:if test ="${not empty status}">
-            <div class="col-md-8 ms-auto mb-3 cfms-msg text-end">
-                ${status}
-            </div>
-        </c:if>
         <jsp:include page="../components/footer.jsp"></jsp:include>
 
     </body>
