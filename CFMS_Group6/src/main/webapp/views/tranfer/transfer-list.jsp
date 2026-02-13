@@ -62,10 +62,13 @@
                                                     <span class="badge bg-success">Đã duyệt</span>
                                                 </c:when>
                                                 <c:when test="${t.status == 'Rejected'}">
-                                                    <span class="badge bg-danger">Từ chối</span>
+                                                    <span class="badge bg-danger">Từ chối duyệt</span>
                                                 </c:when>
                                                 <c:when test="${t.status == 'Completed'}">
                                                     <span class="badge bg-success">Đã hoàn thành</span>
+                                                </c:when>
+                                                <c:when test="${t.status == 'Cancelled'}">
+                                                    <span class="badge bg-danger">Đã huỷ</span>
                                                 </c:when>
                                             </c:choose>
                                         </td>
@@ -76,7 +79,7 @@
                                             </a>
 
                                             <c:if test="${sessionScope.user.roleName== 'Asset Staff' && t.status == 'Pending'}">
-                                                <a href="transfer-reject?id=${t.transferId}" class="btn btn-sm btn-danger">
+                                                <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Cancelled" class="btn btn-sm btn-danger">
                                                     <i class="bi bi-x">Huỷ đơn</i>
                                                 </a>
                                             </c:if>

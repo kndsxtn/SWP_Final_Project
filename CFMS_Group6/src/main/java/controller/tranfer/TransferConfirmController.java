@@ -5,8 +5,6 @@
 
 package controller.tranfer;
 
-import dal.TransferOrderDAO;
-import dto.UserDto;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,17 +12,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.List;
-import model.TransferOrder;
 
 /**
  *
- * @author Pham Van Tung
+ * @author Admin
  */
-@WebServlet(name="TransferListController", urlPatterns={"/transfer/list"})
-public class TransferListController extends HttpServlet {
+@WebServlet(name="TransferConfirmController", urlPatterns={"/transfer/confirm"})
+public class TransferConfirmController extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -41,10 +35,10 @@ public class TransferListController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet TransferListController</title>");  
+            out.println("<title>Servlet TransferConfirmController</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet TransferListController at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet TransferConfirmController at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -61,14 +55,7 @@ public class TransferListController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        TransferOrderDAO tdao = new TransferOrderDAO();
-        List<TransferOrder> list = new ArrayList<>();
-        UserDto u = (UserDto)session.getAttribute("user");
-        if (u.getRoleId() == 4) list = tdao.getByStaff(u.getUserId());
-        else list = tdao.getAll();
-        request.setAttribute("list", list);
-        request.getRequestDispatcher("/views/tranfer/transfer-list.jsp").forward(request, response);
+        request.getRequestDispatcher("/views/tranfer/transfer-confirm.jsp").forward(request, response);
     } 
 
     /** 
