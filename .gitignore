@@ -8,3 +8,14 @@
 
 # Ngoại lệ: Giữ lại chính file .gitignore
 !.gitignore
+
+# Bỏ qua các file build và các file ảnh
+*.war
+target/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.svg
+*.webp
