@@ -53,7 +53,11 @@
                             <h2><i class="bi bi-tag"></i> Cập nhật danh mục tài sản</h2>
                         </div>
                     </c:if>
-
+                    <c:if test ="${not empty status}">
+                        <div class="col-md-8 ms-auto mb-3 cfms-msg">
+                            ${status}
+                        </div>
+                    </c:if>
 
 
                     <div class="card-body p-4">
@@ -128,10 +132,5 @@
         </div>
 
         <jsp:include page="../components/footer.jsp"></jsp:include>
-        <c:if test ="${not empty status}">
-            <div class="col-md-8 ms-auto mb-3 cfms-msg text-end">
-                ${status}
-            </div>
-        </c:if>
     </body>
 </html>

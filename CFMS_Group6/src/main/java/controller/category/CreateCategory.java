@@ -33,7 +33,7 @@ public class CreateCategoryController extends HttpServlet {
         try {
             String category_name = request.getParameter("category_name");
             if(category_name.isBlank()){
-                status = "Tên danh mục không được để trống";
+                status = "Lỗi: Tên danh mục không được để trống";
                 request.setAttribute("status", status);
                 request.setAttribute("categoryForm", "create");
                 request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
@@ -41,7 +41,7 @@ public class CreateCategoryController extends HttpServlet {
             }
             String prefix_code = request.getParameter("prefix_code");
             if(prefix_code.isBlank()){
-                status = "Tiền tố danh mục không được để trống";
+                status = "Lỗi: Tiền tố danh mục không được để trống";
                 request.setAttribute("status", status);
                 request.setAttribute("categoryForm", "create");
                 request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
@@ -49,7 +49,7 @@ public class CreateCategoryController extends HttpServlet {
             }
             String description = request.getParameter("description");
             if(description.isBlank()){
-                status = "Mô tả danh mục không được để trống";
+                status = "Lỗi: Mô tả danh mục không được để trống";
                 request.setAttribute("status", status);
                 request.setAttribute("categoryForm", "create");
                 request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
@@ -61,7 +61,7 @@ public class CreateCategoryController extends HttpServlet {
             request.setAttribute("categoryForm", "create");
             request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
         } catch (IOException e) {
-            status = "Lỗi khi tạo danh mục.";
+            status = "Lỗi khi tạo danh mục: "+ e.getMessage();
             request.setAttribute("status", status);
             request.setAttribute("categoryForm", "create");
             request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
