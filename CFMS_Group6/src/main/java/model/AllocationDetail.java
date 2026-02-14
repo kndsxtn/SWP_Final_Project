@@ -12,6 +12,9 @@ public class AllocationDetail {
     private int quantity;
     private String note;
 
+    /** Số lượng tồn kho hiện có cho asset này (dùng khi hiển thị cột Tồn kho). */
+    private int availableInStock;
+
     // Relationships
     private Asset asset;
 
@@ -64,6 +67,14 @@ public class AllocationDetail {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public int getAvailableInStock() {
+        return availableInStock;
+    }
+
+    public void setAvailableInStock(int availableInStock) {
+        this.availableInStock = availableInStock;
     }
 
     public Asset getAsset() {
