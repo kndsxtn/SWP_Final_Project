@@ -19,6 +19,7 @@ public class Asset {
     private Date purchaseDate;
     private Date warrantyExpiryDate;
     private String status;
+    private int quantity = 1;
     private String description;
     private Date createdAt;
 
@@ -127,6 +128,14 @@ public class Asset {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public String getDescription() {

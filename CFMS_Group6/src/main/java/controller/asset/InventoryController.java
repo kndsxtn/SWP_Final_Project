@@ -3,6 +3,7 @@ package controller.asset;
 import dal.InventoryDao;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -53,6 +54,8 @@ public class InventoryController extends HttpServlet {
             page = totalPages;
         }
 
+        Map<String, Integer> statusCounts = dao.getInventoryCountByStatus();
+
         request.setAttribute("inventoryList", inventoryList);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
@@ -60,6 +63,7 @@ public class InventoryController extends HttpServlet {
         request.setAttribute("pageSize", PAGE_SIZE);
         request.setAttribute("statusFilter", statusFilter);
         request.setAttribute("keyword", keyword);
+        request.setAttribute("statusCounts", statusCounts);
 
         request.getRequestDispatcher("/views/asset/inventory-list.jsp")
                 .forward(request, response);

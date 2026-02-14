@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import model.Asset;
 import model.AssetImage;
 import model.Category;
@@ -80,6 +82,7 @@ public class InventoryDao {
                     asset.setPurchaseDate(rs.getDate("purchase_date"));
                     asset.setWarrantyExpiryDate(rs.getDate("warranty_expiry_date"));
                     asset.setStatus(rs.getString("status"));
+                    asset.setQuantity(rs.getInt("quantity"));
                     asset.setDescription(rs.getString("description"));
                     asset.setCreatedAt(rs.getTimestamp("created_at"));
 
@@ -113,6 +116,24 @@ public class InventoryDao {
         }
 
         return list;
+    }
+
+    public Map<String, Integer> getInventoryCountByStatus() {
+        Map<String, Integer> counts = new HashMap<>();
+        String sql = "SELECT status, COUNT(*) AS cnt FROM assets GROUP BY status";
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String status = rs.getString("status");
+                int cnt = rs.getInt("cnt");
+                counts.put(status != null ? status : "Unknown", cnt);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return counts;
     }
 
     // ─── Count for paging ───

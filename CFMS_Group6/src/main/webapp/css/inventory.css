@@ -1,0 +1,81 @@
+.inventory-summary {
+    width: calc(100% + 3rem);
+    max-width: none;
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    box-sizing: border-box;
+}
+
+.inventory-summary .inv-card {
+    flex: 1 1 0;
+    min-width: 6rem;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.inventory-summary .inv-card.available {
+    border-color: #c4e1c4;
+    background: #f0f9f0;
+}
+
+.inventory-summary .inv-card .inv-num {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.inventory-summary .inv-card .inv-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.inv-quick-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    border-left: 4px solid #198754;
+}
+
+.inv-quick-filter .btn-outline-success {
+    font-weight: 600;
+    padding: 0.4rem 1rem;
+    border-width: 2px;
+}
+
+.inv-quick-filter .btn-outline-success:hover {
+    background: #198754;
+    color: #fff;
+    border-color: #198754;
+}
+
+.inv-quick-filter .badge {
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+}
+
+.inv-quick-filter .btn-link {
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.35rem 0.5rem;
+    border-radius: 6px;
+}
+
+.inv-quick-filter .btn-link:hover {
+    background: #e9ecef;
+}
