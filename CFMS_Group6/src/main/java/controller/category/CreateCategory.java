@@ -1,13 +1,14 @@
-
 package controller.category;
 
 import dal.CategoryDao;
+import dto.UserDto;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
@@ -19,11 +20,16 @@ public class CreateCategoryController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        UserDto user = (UserDto) session.getAttribute("user");
+        if (user == null || (!user.getRoleName().equals("Asset Staff") && !user.getRoleName().equals("Finance Head"))) {
+            request.getSession().setAttribute("status", "Hành động thực hiện không hợp lệ!");
+            response.sendRedirect("ViewCategoryController");
+            return;
+        }
         request.setAttribute("categoryForm", "create");
         request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
     }
-
-    
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -32,7 +38,7 @@ public class CreateCategoryController extends HttpServlet {
         CategoryDao cDao = new CategoryDao();
         try {
             String category_name = request.getParameter("category_name");
-            if(category_name.isBlank()){
+            if (category_name.isBlank()) {
                 status = "Lỗi: Tên danh mục không được để trống";
                 request.setAttribute("status", status);
                 request.setAttribute("categoryForm", "create");
@@ -40,7 +46,7 @@ public class CreateCategoryController extends HttpServlet {
                 return;
             }
             String prefix_code = request.getParameter("prefix_code");
-            if(prefix_code.isBlank()){
+            if (prefix_code.isBlank()) {
                 status = "Lỗi: Tiền tố danh mục không được để trống";
                 request.setAttribute("status", status);
                 request.setAttribute("categoryForm", "create");
@@ -48,7 +54,7 @@ public class CreateCategoryController extends HttpServlet {
                 return;
             }
             String description = request.getParameter("description");
-            if(description.isBlank()){
+            if (description.isBlank()) {
                 status = "Lỗi: Mô tả danh mục không được để trống";
                 request.setAttribute("status", status);
                 request.setAttribute("categoryForm", "create");
@@ -61,7 +67,7 @@ public class CreateCategoryController extends HttpServlet {
             request.setAttribute("categoryForm", "create");
             request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
         } catch (IOException e) {
-            status = "Lỗi khi tạo danh mục: "+ e.getMessage();
+            status = "Lỗi khi tạo danh mục: " + e.getMessage();
             request.setAttribute("status", status);
             request.setAttribute("categoryForm", "create");
             request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);

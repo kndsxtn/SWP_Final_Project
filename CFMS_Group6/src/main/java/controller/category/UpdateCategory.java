@@ -5,6 +5,7 @@
 package controller.category;
 
 import dal.CategoryDao;
+import dto.UserDto;
 import java.io.IOException;
 
 import jakarta.servlet.ServletException;
@@ -12,6 +13,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import model.Category;
 
 /**
@@ -25,6 +27,13 @@ public class UpdateCategoryController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String status;
+        HttpSession session = request.getSession(false);
+        UserDto user = (UserDto) session.getAttribute("user");
+        if (user == null || (!user.getRoleName().equals("Asset Staff") && !user.getRoleName().equals("Finance Head"))) {
+            request.setAttribute("status", "Bạn không có quyền thực hiện hành động này!");
+            request.getRequestDispatcher("/category/ViewCategoryController").forward(request, response);
+            return;
+        }
         String idStr = request.getParameter("id");
         int id;
         if (idStr == null || idStr.isBlank()) {
@@ -36,7 +45,7 @@ public class UpdateCategoryController extends HttpServlet {
         try {
             id = Integer.parseInt(idStr);
         } catch (NumberFormatException e) {
-            status = "Lỗi: "+ e.getMessage();
+            status = "Lỗi: " + e.getMessage();
             request.getSession().setAttribute("status", status);
             response.sendRedirect("ViewCategoryController");
             return;
