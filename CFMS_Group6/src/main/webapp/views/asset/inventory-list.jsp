@@ -75,7 +75,7 @@
                         <div class="filter-select">
                             <select name="status" class="form-select">
                                 <option value="">-- Tất cả trạng thái --</option>
-                                <option value="New" ${statusFilter == 'New' ? 'selected' : ''}>Mới (Trong kho)</option>
+                                <option value="New" ${statusFilter == 'New' ? 'selected' : ''}>Khả dụng</option>
                                 <option value="In_Use" ${statusFilter == 'In_Use' ? 'selected' : ''}>Đang sử dụng</option>
                                 <option value="Maintenance" ${statusFilter == 'Maintenance' ? 'selected' : ''}>Bảo trì</option>
                                 <option value="Broken" ${statusFilter == 'Broken' ? 'selected' : ''}>Hỏng</option>
@@ -132,7 +132,7 @@
                                                     <c:choose>
                                                         <c:when test="${not empty inv.images}">
                                                             <c:set var="firstImg" value="${inv.images[0]}"/>
-                                                            <img src="${pageContext.request.contextPath}${firstImg.imageUrl}"
+                                                            <img src="${pageContext.request.contextPath}/${firstImg.imageUrl}"
                                                                  alt="${firstImg.description}"
                                                                  class="img-thumbnail"
                                                                  style="width: 60px; height: 60px; object-fit: cover;">
@@ -176,7 +176,7 @@
                                                 <td>
                                                     <c:choose>
                                                         <c:when test="${inv.status == 'New'}">
-                                                            <span class="cfms-badge cfms-badge-new">Mới (Trong kho)</span>
+                                                            <span class="cfms-badge cfms-badge-new">Khả dụng</span>
                                                         </c:when>
                                                         <c:when test="${inv.status == 'In_Use'}">
                                                             <span class="cfms-badge cfms-badge-in-use">Đang sử dụng</span>
