@@ -73,13 +73,14 @@ public class AllocationCreateController extends HttpServlet {
                               HttpSession session, UserDto user)
             throws IOException, ServletException {
 
-        String globalReason = request.getParameter("globalReason");
+        String reason = request.getParameter("reason");
         String[] assetIdsStr = request.getParameterValues("assetId");
         String[] qtyStrs = request.getParameterValues("quantity");
         String[] notes = request.getParameterValues("note");
 
         if (assetIdsStr == null || qtyStrs == null || assetIdsStr.length == 0) {
             request.setAttribute("errorMsg", "Vui lòng chọn ít nhất một dòng tài sản cần cấp phát.");
+            request.setAttribute("reason", reason);
             loadFormData(request);
             request.getRequestDispatcher("/views/request/allocation-form.jsp")
                     .forward(request, response);
@@ -112,15 +113,6 @@ public class AllocationCreateController extends HttpServlet {
                 continue;
             }
 
-            if (globalReason != null && !globalReason.trim().isEmpty()) {
-                String gr = globalReason.trim();
-                if (note == null || note.trim().isEmpty()) {
-                    note = gr;
-                } else {
-                    note = note.trim() + " | Lý do: " + gr;
-                }
-            }
-
             assetIdList.add(assetId);
             qtyList.add(qty);
             noteList.add(note);
@@ -128,6 +120,7 @@ public class AllocationCreateController extends HttpServlet {
 
         if (assetIdList.isEmpty()) {
             request.setAttribute("errorMsg", "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại danh sách tài sản.");
+            request.setAttribute("reason", reason);
             loadFormData(request);
             request.getRequestDispatcher("/views/request/allocation-form.jsp")
                     .forward(request, response);
@@ -138,12 +131,13 @@ public class AllocationCreateController extends HttpServlet {
         int[] quantities = qtyList.stream().mapToInt(Integer::intValue).toArray();
         String[] noteArr = noteList.toArray(new String[0]);
 
-        int requestId = allocationDao.createRequest(user.getUserId(), assetIds, quantities, noteArr);
+        int requestId = allocationDao.createRequest(user.getUserId(), reason, assetIds, quantities, noteArr);
         if (requestId > 0) {
             session.setAttribute("successMsg", "Đã tạo yêu cầu cấp phát REQ-" + requestId + " thành công.");
             response.sendRedirect(request.getContextPath() + "/request/allocation-list");
         } else {
             request.setAttribute("errorMsg", "Không thể tạo yêu cầu cấp phát. Vui lòng thử lại.");
+            request.setAttribute("reason", reason);
             loadFormData(request);
             request.getRequestDispatcher("/views/request/allocation-form.jsp")
                     .forward(request, response);

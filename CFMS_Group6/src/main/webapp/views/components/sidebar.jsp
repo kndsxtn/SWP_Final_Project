@@ -167,7 +167,7 @@
                 <li class="nav-item">
                     <a class="nav-link ${param.page == 'procurement_list' ? 'active' : ''}"
                        href="${pageContext.request.contextPath}/request/procurement-list">
-                        <i class="bi bi-clipboard-check"></i> Duyệt mua sắm
+                        <i class="bi bi-clipboard-check"></i> Yêu cầu mua sắm
                     </a>
                 </li>
                 <h6 class="sidebar-heading">Báo cáo</h6>

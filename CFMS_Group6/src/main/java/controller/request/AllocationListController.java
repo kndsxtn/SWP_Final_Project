@@ -75,11 +75,11 @@ public class AllocationListController extends HttpServlet {
             totalRecords = dao.countRequests(statusFilter, keyword);
         }
 
-        // Load details + computed stock info cho từng yêu cầu
         for (AllocationRequest req : list) {
             List<AllocationDetail> details = dao.getDetailsByRequestId(req.getRequestId());
             req.setDetails(details);
             dao.populateStockInfo(req);
+            dao.populateDetailsStockInfo(req.getDetails());
         }
         int totalPages = (int) Math.ceil((double) totalRecords / PAGE_SIZE);
         if (page > totalPages && totalPages > 0) {
