@@ -222,6 +222,20 @@ public class TransferOrderDAO {
             e.printStackTrace();
         }
     }
+    
+    public void setApproveBy(int transferId, int userId) {
+        String sql = "UPDATE transfer_orders SET approved_by = ? WHERE transfer_id = ?";
+
+        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ps.setInt(2, transferId);
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     // Xoá phiếu (chỉ dùng khi Pending)
     public void delete(int transferId) {
@@ -303,7 +317,6 @@ public class TransferOrderDAO {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            ps.executeUpdate();
             return list;
 
         } catch (Exception e) {
@@ -378,7 +391,6 @@ public class TransferOrderDAO {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            ps.executeUpdate();
             return list;
 
         } catch (Exception e) {

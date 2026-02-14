@@ -71,16 +71,30 @@ public class TransferAdd2 extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-        Integer srcRoomId = Integer.parseInt(request.getParameter("sourceRoom"));
-        Integer destRoomId = Integer.parseInt(request.getParameter("destinationRoom"));
-        session.setAttribute("srcRoomId", srcRoomId);
-        session.setAttribute("destRoomId", destRoomId);
+
+        Integer srcRoomId = null;
+        Integer destRoomId = null;
+
+        String srcParam = request.getParameter("sourceRoom");
+        String destParam = request.getParameter("destinationRoom");
+
+        if (srcParam != null && !srcParam.isEmpty()) {
+            srcRoomId = Integer.parseInt(srcParam);
+            session.setAttribute("srcRoomId", srcRoomId);
+        }
+
+        if (destParam != null && !destParam.isEmpty()) {
+            destRoomId = Integer.parseInt(destParam);
+            session.setAttribute("destRoomId", destRoomId);
+        }
         RoomDao rDao = new RoomDao();
         List<Room> rooms = rDao.getAll();
         request.setAttribute("rooms", rooms);
-        AssetDao aDao = new AssetDao();
-        List<Asset> assets = aDao.getByRoomId(srcRoomId);
-        request.setAttribute("assets", assets);
+        if (srcRoomId != null) {
+            AssetDao aDao = new AssetDao();
+            List<Asset> assets = aDao.getByRoomId(srcRoomId);
+            request.setAttribute("assets", assets);
+        }
         request.getRequestDispatcher("/views/tranfer/transfer-add-step1.jsp").forward(request, response);
     }
 
@@ -104,10 +118,11 @@ public class TransferAdd2 extends HttpServlet {
             }
         }
         TransferDao tDao = new TransferDao();
+        AssetDao aDao = new AssetDao();
         TransferOrder t = new TransferOrder();
 
         System.out.println("Selected assets: " + selectedAssetIds);
-        
+
         UserDto u = (UserDto) session.getAttribute("user");
 
         Integer src = (Integer) session.getAttribute("srcRoomId");
@@ -115,21 +130,26 @@ public class TransferAdd2 extends HttpServlet {
         String note = request.getParameter("note");
 
         if (u == null || src == null || dest == null || selectedAssetIds.isEmpty()) {
-            response.sendRedirect("transfer/add");
+            response.sendRedirect(request.getContextPath() + "/transfer/add");
             return;
         }
 
+        List<Asset> selectedAssetList = new ArrayList<>();
+        for (int id : selectedAssetIds) {
+            Asset a = aDao.getById(id);
+            selectedAssetList.add(a);
+        }
         t.setCreatedBy(u.getUserId());
         t.setDestRoomId(dest);
         t.setSourceRoomId(src);
         t.setNote(note);
         try {
-            int i = tDao.createTransfer(t, selectedAssetIds);
+            int i = tDao.createTransfer(t, selectedAssetList);
         } catch (Exception ex) {
             Logger.getLogger(TransferAdd2.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        response.sendRedirect("transfer/list");
+        response.sendRedirect(request.getContextPath() + "/transfer/list");
     }
 
     /**

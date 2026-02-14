@@ -43,7 +43,7 @@
                             </thead>
                             <tbody>
                                 <c:forEach items="${list}" var="t">
-                                    <c:if test="${t.status ne 'Pending' && t.status ne 'Rejected'}">
+                                    <c:if test="${t.status != 'Pending' && t.status != 'Rejected' && t.status != 'Cancelled'}">
                                         <tr>
                                             <td>${t.transferId}</td>                                      
                                             <td>${t.sourceRoom.roomName}</td>
@@ -53,10 +53,10 @@
                                             <td>
                                                 <c:choose>
                                                     <c:when test="${t.status == 'Approved'}">
-                                                        <span class="badge bg-success">Chưa Bàn Giao</span>
+                                                        <span class="badge bg-danger">Chưa Bàn Giao</span>
                                                     </c:when>
                                                     <c:when test="${t.status == 'Ongoing'}">
-                                                        <span class="badge bg-danger">Đã Bàn Giao</span>
+                                                        <span class="badge bg-success">Đã Bàn Giao</span>
                                                     </c:when>
                                                     <c:when test="${t.status == 'Completed'}">
                                                         <span class="badge bg-success">Đã hoàn thành</span>
@@ -68,12 +68,12 @@
                                             </td>
 
                                             <td>
-                                                <a href="${pageContext.request.contextPath}/transfer/detail?id=${t.transferId}" class="btn btn-sm btn-primary">
+                                                <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}" class="btn btn-sm btn-primary">
                                                     <i class="bi bi-eye"></i> Xem tài sản cần bàn giao
                                                 </a>
 
                                                 <c:if test="${t.status == 'Approved'}">
-                                                    <a href="${pageContext.request.contextPath}/transfer/detail?id=${t.transferId}&status=Ongoing" class="btn btn-sm btn-success">
+                                                    <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Ongoing" class="btn btn-sm btn-success">
                                                         <i class="bi ">Xác nhận bàn giao</i>
                                                     </a>
                                                 </c:if>

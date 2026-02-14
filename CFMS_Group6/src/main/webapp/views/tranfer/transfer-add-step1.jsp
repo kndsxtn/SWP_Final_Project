@@ -39,13 +39,15 @@
 
                             <div class="row">
                                 <label>Phòng Đích</label>
-                                <select name="destinationRoom" required>
+                                <select name="destinationRoom" required onchange="this.form.submit()">
                                     <option value="">-- Select --</option>
                                     <c:forEach items="${rooms}" var="r">
-                                        <option value="${r.roomId}"
-                                                ${r.roomId == param.destinationRoom ? "selected" : ""}>
-                                            ${r.roomName}
-                                        </option>
+                                        <c:if test="${r.roomId != param.sourceRoom}">
+                                            <option value="${r.roomId}"
+                                                    ${r.roomId == param.destinationRoom ? "selected" : ""}>
+                                                ${r.roomName}
+                                            </option>
+                                        </c:if>
                                     </c:forEach>
                                 </select>
                             </div>
@@ -55,15 +57,17 @@
                                 <select name="sourceRoom" required onchange="this.form.submit()">
                                     <option value="">-- Select --</option>
                                     <c:forEach items="${rooms}" var="r">
-                                        <option value="${r.roomId}"
-                                                ${r.roomId == param.sourceRoom ? "selected" : ""}>
-                                            ${r.roomName}
-                                        </option>
+                                        <c:if test="${r.roomId != param.destinationRoom}">
+                                            <option value="${r.roomId}"
+                                                    ${r.roomId == param.sourceRoom ? "selected" : ""}>
+                                                ${r.roomName}
+                                            </option>
+                                        </c:if>
                                     </c:forEach>
                                 </select>
                             </div>
 
-                            
+
                         </div>
                     </form>
 
@@ -99,12 +103,12 @@
                         </form>
                     </c:if>
             </div>
-       
 
+
+        </div>
     </div>
-</div>
 
-<jsp:include page="../components/footer.jsp"></jsp:include>
+    <jsp:include page="../components/footer.jsp"></jsp:include>
 
 </body>
 </html>
