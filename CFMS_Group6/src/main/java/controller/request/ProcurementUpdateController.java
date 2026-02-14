@@ -1,7 +1,7 @@
 package controller.request;
 
-import dal.AllocationRequestDao;
 import dal.AssetDAO;
+import dal.ProcurementRequestDao;
 import dto.UserDto;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,24 +12,19 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import model.AllocationDetail;
-import model.AllocationRequest;
 import model.Asset;
 import model.Category;
+import model.ProcurementDetail;
+import model.ProcurementRequest;
 
-/**
- * Controller for updating allocation requests (only when status is Pending)
- * 
- * @author Nguyen Dang Khang
- */
-@WebServlet(name = "AllocationUpdateController", urlPatterns = {
-    "/request/allocation-edit",
-    "/request/update"
+@WebServlet(name = "ProcurementUpdateController", urlPatterns = {
+    "/request/procurement-edit",
+    "/request/procurement-update"
 })
-public class AllocationUpdateController extends HttpServlet {
+public class ProcurementUpdateController extends HttpServlet {
 
     private final AssetDAO assetDao = new AssetDAO();
-    private final AllocationRequestDao allocationDao = new AllocationRequestDao();
+    private final ProcurementRequestDao procurementDao = new ProcurementRequestDao();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -40,54 +35,45 @@ public class AllocationUpdateController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/loginHome");
             return;
         }
-
         UserDto user = (UserDto) session.getAttribute("user");
 
-        // Parse request ID
         String idParam = request.getParameter("id");
-        int requestId;
+        int procurementId;
         try {
-            requestId = Integer.parseInt(idParam);
+            procurementId = Integer.parseInt(idParam);
         } catch (NumberFormatException e) {
-            session.setAttribute("errorMsg", "Mã yêu cầu không hợp lệ.");
-            response.sendRedirect(request.getContextPath() + "/request/allocation-list");
+            session.setAttribute("errorMsg", "Mã yêu cầu mua sắm không hợp lệ.");
+            response.sendRedirect(request.getContextPath() + "/request/procurement-list");
             return;
         }
 
-        // Get the request
-        AllocationRequest req = allocationDao.getRequestById(requestId);
-        if (req == null) {
-            session.setAttribute("errorMsg", "Không tìm thấy yêu cầu cấp phát REQ-" + requestId);
-            response.sendRedirect(request.getContextPath() + "/request/allocation-list");
+        ProcurementRequest proc = procurementDao.getProcurementById(procurementId);
+        if (proc == null) {
+            session.setAttribute("errorMsg", "Không tìm thấy yêu cầu mua sắm PROC-" + procurementId);
+            response.sendRedirect(request.getContextPath() + "/request/procurement-list");
             return;
         }
 
-        // Check if user is the creator
-        if (req.getCreatedBy() != user.getUserId()) {
+        if (proc.getCreatedBy() != user.getUserId()) {
             session.setAttribute("errorMsg", "Bạn không có quyền chỉnh sửa yêu cầu này.");
-            response.sendRedirect(request.getContextPath() + "/request/allocation-list");
+            response.sendRedirect(request.getContextPath() + "/request/procurement-list");
             return;
         }
 
-        // Check if status is Pending
-        if (!"Pending".equals(req.getStatus())) {
+        if (!"Pending".equals(proc.getStatus())) {
             session.setAttribute("errorMsg", "Chỉ có thể chỉnh sửa yêu cầu đang ở trạng thái 'Chờ duyệt'.");
-            response.sendRedirect(request.getContextPath() + "/request/allocation-detail?id=" + requestId);
+            response.sendRedirect(request.getContextPath() + "/request/procurement-detail?id=" + procurementId);
             return;
         }
 
-        // Load details
-        List<AllocationDetail> details = allocationDao.getDetailsByRequestId(requestId);
-        req.setDetails(details);
+        List<ProcurementDetail> details = procurementDao.getDetailsByProcurementId(procurementId);
+        proc.setDetails(details);
 
-        // Load form data (assets and categories)
         loadFormData(request);
-
-        // Set request for form
-        request.setAttribute("req", req);
+        request.setAttribute("proc", proc);
         request.setAttribute("isEdit", true);
 
-        request.getRequestDispatcher("/views/request/allocation-form.jsp")
+        request.getRequestDispatcher("/views/request/procurement-form.jsp")
                 .forward(request, response);
     }
 
@@ -104,27 +90,26 @@ public class AllocationUpdateController extends HttpServlet {
         }
         UserDto user = (UserDto) session.getAttribute("user");
 
-        // Parse request ID
-        String idParam = request.getParameter("requestId");
-        int requestId;
+        String idParam = request.getParameter("procurementId");
+        int procurementId;
         try {
-            requestId = Integer.parseInt(idParam);
+            procurementId = Integer.parseInt(idParam);
         } catch (NumberFormatException e) {
-            session.setAttribute("errorMsg", "Mã yêu cầu không hợp lệ.");
-            response.sendRedirect(request.getContextPath() + "/request/allocation-list");
+            session.setAttribute("errorMsg", "Mã yêu cầu mua sắm không hợp lệ.");
+            response.sendRedirect(request.getContextPath() + "/request/procurement-list");
             return;
         }
 
         String path = request.getServletPath();
-        if ("/request/update".equals(path)) {
-            handleUpdate(request, response, session, user, requestId);
+        if ("/request/procurement-update".equals(path)) {
+            handleUpdate(request, response, session, user, procurementId);
         } else {
-            response.sendRedirect(request.getContextPath() + "/request/allocation-list");
+            response.sendRedirect(request.getContextPath() + "/request/procurement-list");
         }
     }
 
     private void handleUpdate(HttpServletRequest request, HttpServletResponse response,
-                              HttpSession session, UserDto user, int requestId)
+                              HttpSession session, UserDto user, int procurementId)
             throws IOException, ServletException {
 
         String reason = request.getParameter("reason");
@@ -133,17 +118,16 @@ public class AllocationUpdateController extends HttpServlet {
         String[] notes = request.getParameterValues("note");
 
         if (assetIdsStr == null || qtyStrs == null || assetIdsStr.length == 0) {
-            request.setAttribute("errorMsg", "Vui lòng chọn ít nhất một dòng tài sản cần cấp phát.");
-            AllocationRequest req = allocationDao.getRequestById(requestId);
-            if (req != null) {
-                req.setReason(reason);
-                List<AllocationDetail> details = allocationDao.getDetailsByRequestId(requestId);
-                req.setDetails(details);
-                request.setAttribute("req", req);
+            request.setAttribute("errorMsg", "Vui lòng chọn ít nhất một dòng tài sản.");
+            ProcurementRequest proc = procurementDao.getProcurementById(procurementId);
+            if (proc != null) {
+                List<ProcurementDetail> details = procurementDao.getDetailsByProcurementId(procurementId);
+                proc.setDetails(details);
+                request.setAttribute("proc", proc);
             }
             request.setAttribute("isEdit", true);
             loadFormData(request);
-            request.getRequestDispatcher("/views/request/allocation-form.jsp")
+            request.getRequestDispatcher("/views/request/procurement-form.jsp")
                     .forward(request, response);
             return;
         }
@@ -181,16 +165,15 @@ public class AllocationUpdateController extends HttpServlet {
 
         if (assetIdList.isEmpty()) {
             request.setAttribute("errorMsg", "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại danh sách tài sản.");
-            AllocationRequest req = allocationDao.getRequestById(requestId);
-            if (req != null) {
-                req.setReason(reason);
-                List<AllocationDetail> details = allocationDao.getDetailsByRequestId(requestId);
-                req.setDetails(details);
-                request.setAttribute("req", req);
+            ProcurementRequest proc = procurementDao.getProcurementById(procurementId);
+            if (proc != null) {
+                List<ProcurementDetail> details = procurementDao.getDetailsByProcurementId(procurementId);
+                proc.setDetails(details);
+                request.setAttribute("proc", proc);
             }
             request.setAttribute("isEdit", true);
             loadFormData(request);
-            request.getRequestDispatcher("/views/request/allocation-form.jsp")
+            request.getRequestDispatcher("/views/request/procurement-form.jsp")
                     .forward(request, response);
             return;
         }
@@ -199,22 +182,22 @@ public class AllocationUpdateController extends HttpServlet {
         int[] quantities = qtyList.stream().mapToInt(Integer::intValue).toArray();
         String[] noteArr = noteList.toArray(new String[0]);
 
-        boolean success = allocationDao.updateRequest(requestId, user.getUserId(), reason, assetIds, quantities, noteArr);
+        boolean success = procurementDao.updateProcurement(
+                procurementId, user.getUserId(), reason, assetIds, quantities, noteArr);
         if (success) {
-            session.setAttribute("successMsg", "Đã cập nhật yêu cầu cấp phát REQ-" + requestId + " thành công.");
-            response.sendRedirect(request.getContextPath() + "/request/allocation-detail?id=" + requestId);
+            session.setAttribute("successMsg", "Đã cập nhật yêu cầu mua sắm PROC-" + procurementId + " thành công.");
+            response.sendRedirect(request.getContextPath() + "/request/procurement-detail?id=" + procurementId);
         } else {
-            request.setAttribute("errorMsg", "Không thể cập nhật yêu cầu cấp phát. Vui lòng kiểm tra lại quyền truy cập hoặc trạng thái yêu cầu.");
-            AllocationRequest req = allocationDao.getRequestById(requestId);
-            if (req != null) {
-                req.setReason(reason);
-                List<AllocationDetail> details = allocationDao.getDetailsByRequestId(requestId);
-                req.setDetails(details);
-                request.setAttribute("req", req);
+            request.setAttribute("errorMsg", "Không thể cập nhật. Kiểm tra quyền truy cập hoặc trạng thái yêu cầu.");
+            ProcurementRequest proc = procurementDao.getProcurementById(procurementId);
+            if (proc != null) {
+                List<ProcurementDetail> details = procurementDao.getDetailsByProcurementId(procurementId);
+                proc.setDetails(details);
+                request.setAttribute("proc", proc);
             }
             request.setAttribute("isEdit", true);
             loadFormData(request);
-            request.getRequestDispatcher("/views/request/allocation-form.jsp")
+            request.getRequestDispatcher("/views/request/procurement-form.jsp")
                     .forward(request, response);
         }
     }
