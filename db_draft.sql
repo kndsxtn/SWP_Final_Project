@@ -32,9 +32,9 @@ GO
 -- Bảng Users: Người dùng hệ thống
 CREATE TABLE users (
     user_id INT IDENTITY(1,1) PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE, -- Username thường không dấu
+    username VARCHAR(50) NOT NULL UNIQUE, 
     password_hash VARCHAR(255) NOT NULL,
-    full_name NVARCHAR(100) NOT NULL, -- Tiếng Việt
+    full_name NVARCHAR(100) NOT NULL, 
     email VARCHAR(100) NOT NULL UNIQUE,
     phone VARCHAR(20),
     role_id INT NOT NULL,
@@ -100,6 +100,7 @@ CREATE TABLE assets (
     price DECIMAL(15, 2) DEFAULT 0,
     purchase_date DATE,
     warranty_expiry_date DATE,
+    quantity INT NOT NULL DEFAULT 1, 
     status NVARCHAR(50) DEFAULT N'New',
     description NVARCHAR(MAX),
     created_at DATETIME DEFAULT GETDATE(),
@@ -109,7 +110,8 @@ CREATE TABLE assets (
     FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE SET NULL,
 
     -- Giả lập ENUM cho Status
-    CONSTRAINT CHK_AssetStatus CHECK (status IN (N'New', N'In_Use', N'Maintenance', N'Broken', N'Liquidated', N'Lost'))
+    CONSTRAINT CHK_AssetStatus CHECK (status IN (N'New', N'In_Use', N'Maintenance', N'Broken', N'Liquidated', N'Lost')),
+    CONSTRAINT CHK_AssetQuantity CHECK (quantity >= 1)
 );
 GO
 
@@ -147,10 +149,14 @@ CREATE TABLE allocation_requests (
     request_id INT IDENTITY(1,1) PRIMARY KEY,
     created_by INT NOT NULL, 
     created_date DATETIME DEFAULT GETDATE(),
+    approved_by INT NULL, 
+    approved_date DATETIME NULL, 
+    completed_date DATETIME NULL, 
     status NVARCHAR(50) DEFAULT N'Pending',
     reason_reject NVARCHAR(MAX),
     
     FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (approved_by) REFERENCES users(user_id), 
     CONSTRAINT CHK_AllocStatus CHECK (status IN (N'Pending', N'Approved_By_Staff', N'Approved_By_VP', N'Approved_By_Principal', N'Rejected', N'Completed'))
 );
 GO
@@ -159,10 +165,12 @@ CREATE TABLE allocation_details (
     detail_id INT IDENTITY(1,1) PRIMARY KEY,
     request_id INT NOT NULL,
     asset_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 1, 
     note NVARCHAR(255),
 
     FOREIGN KEY (request_id) REFERENCES allocation_requests(request_id) ON DELETE CASCADE,
-    FOREIGN KEY (asset_id) REFERENCES assets(asset_id)
+    FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
+    CONSTRAINT CHK_AllocationQuantity CHECK (quantity >= 1)
 );
 GO
 
@@ -173,14 +181,20 @@ CREATE TABLE transfer_orders (
     source_room_id INT NOT NULL,
     dest_room_id INT NOT NULL,
     created_date DATETIME DEFAULT GETDATE(),
-    approved_by INT, 
+    approved_by INT,
+    approved_date DATETIME NULL, 
+    completed_date DATETIME NULL, 
+    rejected_by INT NULL, 
+    rejected_date DATETIME NULL, 
+    reason_reject NVARCHAR(MAX), 
     status NVARCHAR(50) DEFAULT N'Pending',
     note NVARCHAR(MAX),
     
     FOREIGN KEY (created_by) REFERENCES users(user_id),
     FOREIGN KEY (source_room_id) REFERENCES rooms(room_id),
     FOREIGN KEY (dest_room_id) REFERENCES rooms(room_id),
-    FOREIGN KEY (approved_by) REFERENCES users(user_id), -- SQL Server mặc định NO ACTION (tương tự RESTRICT)
+    FOREIGN KEY (approved_by) REFERENCES users(user_id), 
+    FOREIGN KEY (rejected_by) REFERENCES users(user_id), 
     
     CONSTRAINT CHK_TransferStatus CHECK (status IN (N'Pending', N'Approved', N'Rejected', N'Completed'))
 );
@@ -222,11 +236,18 @@ CREATE TABLE procurement_requests (
     procurement_id INT IDENTITY(1,1) PRIMARY KEY,
     created_by INT NOT NULL,
     created_date DATETIME DEFAULT GETDATE(),
+    approved_by INT NULL, 
+    approved_date DATETIME NULL, 
+    rejected_by INT NULL, 
+    rejected_date DATETIME NULL, 
+    reason_reject NVARCHAR(MAX), 
     status NVARCHAR(50) DEFAULT N'Pending',
     reason NVARCHAR(MAX),
     allocation_request_id INT NULL,
     
     FOREIGN KEY (created_by) REFERENCES users(user_id),
+    FOREIGN KEY (approved_by) REFERENCES users(user_id), 
+    FOREIGN KEY (rejected_by) REFERENCES users(user_id), 
     FOREIGN KEY (allocation_request_id) REFERENCES allocation_requests(request_id),
     
     CONSTRAINT CHK_ProcStatus CHECK (status IN (N'Pending', N'Approved', N'Rejected', N'Cancelled', N'Completed'))
@@ -241,7 +262,42 @@ CREATE TABLE procurement_details (
     note NVARCHAR(255),
     
     FOREIGN KEY (procurement_id) REFERENCES procurement_requests(procurement_id) ON DELETE CASCADE,
-    FOREIGN KEY (asset_id) REFERENCES assets(asset_id)
+    FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
+    CONSTRAINT CHK_ProcurementQuantity CHECK (quantity >= 1)
 );
+GO
+
+-- ==========================================================
+-- 5. INDEX ĐỂ TỐI ƯU QUERY
+-- ==========================================================
+
+-- Index cho việc tìm kiếm tài sản theo category và room
+CREATE INDEX IX_Assets_CategoryRoom 
+ON assets(category_id, room_id) 
+INCLUDE (status, quantity);
+GO
+
+-- Index cho việc tìm kiếm tài sản theo status
+CREATE INDEX IX_Assets_Status 
+ON assets(status) 
+INCLUDE (asset_code, asset_name, quantity);
+GO
+
+-- Index cho việc tìm allocation request theo status và người tạo
+CREATE INDEX IX_AllocationRequests_Status 
+ON allocation_requests(status, created_by) 
+INCLUDE (created_date);
+GO
+
+-- Index cho việc tìm procurement request theo status
+CREATE INDEX IX_ProcurementRequests_Status 
+ON procurement_requests(status) 
+INCLUDE (created_date, created_by);
+GO
+
+-- Index cho việc tìm transfer order theo status
+CREATE INDEX IX_TransferOrders_Status 
+ON transfer_orders(status) 
+INCLUDE (created_date, source_room_id, dest_room_id);
 GO
 

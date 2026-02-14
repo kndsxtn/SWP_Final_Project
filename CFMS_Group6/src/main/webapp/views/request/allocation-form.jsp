@@ -12,7 +12,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Tạo yêu cầu cấp phát - CFMS</title>
+        <title><c:choose><c:when test="${isEdit}">Chỉnh sửa yêu cầu cấp phát</c:when><c:otherwise>Tạo yêu cầu cấp phát</c:otherwise></c:choose> - CFMS</title>
 
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
@@ -40,12 +40,19 @@
                     <!-- Page Header -->
                     <div class="cfms-page-header d-flex justify-content-between align-items-center">
                         <h2>
-                            <i class="bi bi-plus-square me-2"></i>
-                            Tạo yêu cầu cấp phát tài sản
+                            <i class="bi ${isEdit ? 'bi-pencil-square' : 'bi-plus-square'} me-2"></i>
+                            <c:choose>
+                                <c:when test="${isEdit}">
+                                    Chỉnh sửa yêu cầu cấp phát REQ-${req.requestId}
+                                </c:when>
+                                <c:otherwise>
+                                    Tạo yêu cầu cấp phát tài sản
+                                </c:otherwise>
+                            </c:choose>
                         </h2>
-                        <a href="${pageContext.request.contextPath}/dashboard"
+                        <a href="${pageContext.request.contextPath}<c:choose><c:when test="${isEdit}">/request/allocation-detail?id=${req.requestId}</c:when><c:otherwise>/dashboard</c:otherwise></c:choose>"
                            class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-1"></i>Quay lại tổng quan
+                            <i class="bi bi-arrow-left me-1"></i>Quay lại
                         </a>
                     </div>
 
@@ -69,7 +76,10 @@
                     </div>
 
                     <!-- Form -->
-                    <form method="post" action="${pageContext.request.contextPath}/request/create">
+                    <form method="post" action="${pageContext.request.contextPath}<c:choose><c:when test="${isEdit}">/request/update</c:when><c:otherwise>/request/create</c:otherwise></c:choose>">
+                        <c:if test="${isEdit}">
+                            <input type="hidden" name="requestId" value="${req.requestId}">
+                        </c:if>
 
                         <!-- Lý do chung -->
                         <div class="form-card">
@@ -98,39 +108,82 @@
                                         </tr>
                                     </thead>
                                     <tbody id="allocationItemRows">
-                                        <tr>
-                                            <td>
-                                                <select name="assetId" class="form-select" required>
-                                                    <option value="">-- Chọn tài sản --</option>
-                                                    <c:forEach items="${categories}" var="cat">
-                                                        <optgroup label="${cat.categoryName} (${cat.prefixCode})">
-                                                            <c:forEach items="${assets}" var="a">
-                                                                <c:if test="${a.category.categoryId == cat.categoryId && a.status == 'New'}">
-                                                                    <option value="${a.assetId}">
-                                                                        ${a.assetCode} - ${a.assetName}
-                                                                        [Khả dụng]
-                                                                    </option>
-                                                                </c:if>
+                                        <c:choose>
+                                            <c:when test="${isEdit && not empty req.details}">
+                                                <!-- Edit mode: populate with existing data -->
+                                                <c:forEach items="${req.details}" var="d">
+                                                    <tr>
+                                                        <td>
+                                                            <select name="assetId" class="form-select" required>
+                                                                <option value="">-- Chọn tài sản --</option>
+                                                                <c:forEach items="${categories}" var="cat">
+                                                                    <optgroup label="${cat.categoryName} (${cat.prefixCode})">
+                                                                        <c:forEach items="${assets}" var="a">
+                                                                            <c:if test="${a.category.categoryId == cat.categoryId && a.status == 'New'}">
+                                                                                <option value="${a.assetId}" ${a.assetId == d.assetId ? 'selected' : ''}>
+                                                                                    ${a.assetCode} - ${a.assetName}
+                                                                                    [Khả dụng]
+                                                                                </option>
+                                                                            </c:if>
+                                                                        </c:forEach>
+                                                                    </optgroup>
+                                                                </c:forEach>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <input type="number" name="quantity" class="form-control"
+                                                                   min="1" value="${d.quantity}" required>
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" name="note" class="form-control"
+                                                                   value="${d.note}" placeholder="VD: Cho phòng 101, lớp K68CNTT">
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                                                    onclick="removeAllocationRow(this)">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </c:forEach>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <!-- Create mode: empty row -->
+                                                <tr>
+                                                    <td>
+                                                        <select name="assetId" class="form-select" required>
+                                                            <option value="">-- Chọn tài sản --</option>
+                                                            <c:forEach items="${categories}" var="cat">
+                                                                <optgroup label="${cat.categoryName} (${cat.prefixCode})">
+                                                                    <c:forEach items="${assets}" var="a">
+                                                                        <c:if test="${a.category.categoryId == cat.categoryId && a.status == 'New'}">
+                                                                            <option value="${a.assetId}">
+                                                                                ${a.assetCode} - ${a.assetName}
+                                                                                [Khả dụng]
+                                                                            </option>
+                                                                        </c:if>
+                                                                    </c:forEach>
+                                                                </optgroup>
                                                             </c:forEach>
-                                                        </optgroup>
-                                                    </c:forEach>
-                                                </select>
-                                            </td>
-                                            <td>
-                                                <input type="number" name="quantity" class="form-control"
-                                                       min="1" value="1" required>
-                                            </td>
-                                            <td>
-                                                <input type="text" name="note" class="form-control"
-                                                       placeholder="VD: Cho phòng 101, lớp K68CNTT">
-                                            </td>
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-outline-danger btn-sm"
-                                                        onclick="removeAllocationRow(this)">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" name="quantity" class="form-control"
+                                                               min="1" value="1" required>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" name="note" class="form-control"
+                                                               placeholder="VD: Cho phòng 101, lớp K68CNTT">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                                                onclick="removeAllocationRow(this)">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </tbody>
                                 </table>
                             </div>
@@ -144,12 +197,16 @@
                         <!-- Submit -->
                         <div class="form-card mt-3">
                             <div class="cfms-btn-group-right">
-                                <a href="${pageContext.request.contextPath}/dashboard"
+                                <a href="${pageContext.request.contextPath}<c:choose><c:when test="${isEdit}">/request/allocation-detail?id=${req.requestId}</c:when><c:otherwise>/dashboard</c:otherwise></c:choose>"
                                    class="btn btn-outline-secondary">
                                     Hủy
                                 </a>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-send-fill me-1"></i>Gửi yêu cầu cấp phát
+                                    <i class="bi ${isEdit ? 'bi-check-circle' : 'bi-send-fill'} me-1"></i>
+                                    <c:choose>
+                                        <c:when test="${isEdit}">Cập nhật yêu cầu</c:when>
+                                        <c:otherwise>Gửi yêu cầu cấp phát</c:otherwise>
+                                    </c:choose>
                                 </button>
                             </div>
                         </div>

@@ -9,6 +9,7 @@ public class AllocationDetail {
     private int detailId;
     private int requestId;
     private int assetId;
+    private int quantity;
     private String note;
 
     // Relationships
@@ -17,10 +18,11 @@ public class AllocationDetail {
     public AllocationDetail() {
     }
 
-    public AllocationDetail(int detailId, int requestId, int assetId, String note) {
+    public AllocationDetail(int detailId, int requestId, int assetId, int quantity, String note) {
         this.detailId = detailId;
         this.requestId = requestId;
         this.assetId = assetId;
+        this.quantity = quantity;
         this.note = note;
     }
 
@@ -46,6 +48,14 @@ public class AllocationDetail {
 
     public void setAssetId(int assetId) {
         this.assetId = assetId;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public String getNote() {
