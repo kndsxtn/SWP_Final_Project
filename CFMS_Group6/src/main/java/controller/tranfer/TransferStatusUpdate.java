@@ -6,6 +6,7 @@
 package controller.tranfer;
 
 import dal.TransferOrderDAO;
+import dto.UserDto;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -13,6 +14,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
@@ -56,14 +58,20 @@ public class TransferStatusUpdate extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        HttpSession session = request.getSession();
         int id = Integer.parseInt(request.getParameter("id").trim());
         String status = request.getParameter("status");
         TransferOrderDAO tDao = new TransferOrderDAO();
         tDao.updateStatus(id, status);
+        UserDto u = (UserDto)session.getAttribute("user");
         if (status.equals("Ongoing")) {
             response.sendRedirect(request.getContextPath() + "/transfer/handover");
         } 
-        if (status.equals("Cancelled")) response.sendRedirect(request.getContextPath() + "/transfer/list");
+        if (status.equals("Approved") || status.equals("Rejected")) {
+            tDao.setApproveBy(id, u.getUserId());
+            response.sendRedirect(request.getContextPath() + "/transfer/list");
+        }
+        if (status.equals("Cancelled") ) response.sendRedirect(request.getContextPath() + "/transfer/list");
         if (status.equals("Completed") || status.equals("Failed")) response.sendRedirect(request.getContextPath() + "/transfer/list");
     } 
 

@@ -37,4 +37,25 @@ public class AssetDao {
         }
         return null;
     }
+    
+    public Asset getById(int id) {
+        String sql = "SELECT * FROM assets WHERE asset_id = ?";
+        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Asset a = new Asset();
+                a.setAssetId(rs.getInt("asset_id"));
+                a.setAssetCode(rs.getString("asset_code"));
+                a.setAssetName(rs.getString("asset_name"));
+                a.setStatus(rs.getString("status"));
+                return a;
+            }
+            return null;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

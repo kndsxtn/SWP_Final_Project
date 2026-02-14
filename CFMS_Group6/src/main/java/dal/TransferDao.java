@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
+import model.Asset;
 import model.TransferOrder;
 
 /**
@@ -17,7 +18,7 @@ import model.TransferOrder;
  */
 public class TransferDao {
 
-    public int createTransfer(TransferOrder t, List<Integer> assetIds) throws Exception {
+    public int createTransfer(TransferOrder t, List<Asset> assetList) throws Exception {
 
         String insertOrder = "INSERT INTO transfer_orders(created_by, source_room_id, dest_room_id, note) VALUES (?, ?, ?, ?)";
         String insertDetail = "INSERT INTO transfer_details(transfer_id, asset_id, status_at_transfer) VALUES (?, ?, ?)";
@@ -39,10 +40,10 @@ public class TransferDao {
 
             // 2️⃣ Insert details
             PreparedStatement ps2 = con.prepareStatement(insertDetail);
-            for (int assetId : assetIds) {
+            for (Asset a : assetList) {
                 ps2.setInt(1, transferId);
-                ps2.setInt(2, assetId);
-                ps2.setString(3, "AVAILABLE");
+                ps2.setInt(2, a.getAssetId());
+                ps2.setString(3, a.getStatus());
                 ps2.addBatch();
             }
             ps2.executeBatch();

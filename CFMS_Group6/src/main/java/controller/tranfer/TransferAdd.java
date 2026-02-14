@@ -68,7 +68,9 @@ public class TransferAdd extends HttpServlet {
         RoomDao rDao = new RoomDao();
         List<Room> rooms = rDao.getAll();
         request.setAttribute("rooms", rooms);
-        
+        HttpSession session = request.getSession();
+        session.removeAttribute("srcRoomId");
+        session.removeAttribute("destRoomId");
         request.getRequestDispatcher("/views/tranfer/transfer-add-step1.jsp").forward(request, response);
     }
 

@@ -58,6 +58,9 @@
                                                 <c:when test="${t.status == 'Pending'}">
                                                     <span class="badge bg-warning">Chờ duyệt</span>
                                                 </c:when>
+                                                <c:when test="${t.status == 'Ongoing'}">
+                                                    <span class="badge bg-warning">Tài sản đang được bàn giao</span>
+                                                </c:when>
                                                 <c:when test="${t.status == 'Approved'}">
                                                     <span class="badge bg-success">Đã duyệt</span>
                                                 </c:when>
@@ -84,10 +87,10 @@
                                                 </a>
                                             </c:if>
                                             <c:if test="${sessionScope.user.roleName== 'Finance Head' && t.status == 'Pending'}">
-                                                <a href="transfer-reject?id=${t.transferId}" class="btn btn-sm btn-success">
+                                                <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Approved" class="btn btn-sm btn-success">
                                                     <i class="bi bi-x">Duyệt đơn</i>
                                                 </a>
-                                                <a href="transfer-reject?id=${t.transferId}" class="btn btn-sm btn-warning">
+                                                <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Rejected" class="btn btn-sm btn-warning">
                                                     <i class="bi bi-x">Từ chối đơn</i>
                                                 </a>
                                             </c:if>
