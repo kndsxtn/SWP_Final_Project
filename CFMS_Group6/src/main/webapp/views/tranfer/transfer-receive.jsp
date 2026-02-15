@@ -43,7 +43,7 @@
                             </thead>
                             <tbody>
                                 <c:forEach items="${list}" var="t">
-                                    <c:if test="${t.status ne 'Pending' && t.status ne 'Rejected'}">
+                                    <c:if test="${t.status != 'Pending' && t.status != 'Rejected' && t.status != 'Cancelled'}">
                                         <tr>
                                             <td>${t.transferId}</td>                                      
                                             <td>${t.sourceRoom.roomName}</td>
