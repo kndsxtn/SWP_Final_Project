@@ -68,12 +68,12 @@
                                             </td>
 
                                             <td>
-                                                <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}" class="btn btn-sm btn-primary">
+                                                <a href="${pageContext.request.contextPath}/transfer/detail?id=${t.transferId}" class="btn btn-sm btn-primary">
                                                     <i class="bi bi-eye"></i> Xem tài sản cần bàn giao
                                                 </a>
 
                                                 <c:if test="${t.status == 'Approved'}">
-                                                    <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Ongoing" class="btn btn-sm btn-success">
+                                                    <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Ongoing&room=${t.sourceRoom.roomName}" class="btn btn-sm btn-success">
                                                         <i class="bi ">Xác nhận bàn giao</i>
                                                     </a>
                                                 </c:if>

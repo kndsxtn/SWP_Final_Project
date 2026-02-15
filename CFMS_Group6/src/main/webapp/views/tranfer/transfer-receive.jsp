@@ -73,10 +73,10 @@
                                                 </a>
 
                                                 <c:if test="${t.status == 'Ongoing'}">
-                                                    <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Completed" class="btn btn-sm btn-success">
+                                                    <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Completed&room=${t.destRoom.roomName}" class="btn btn-sm btn-success">
                                                         <i class="bi ">Đòng ý nhận tài sản</i>
                                                     </a>
-                                                    <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Failed" class="btn btn-sm btn-danger">
+                                                    <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Failed&room=${t.sourceRoom.roomName}" class="btn btn-sm btn-danger">
                                                         <i class="bi ">Từ chối nhận tài sản</i>
                                                     </a>
                                                 </c:if>
