@@ -73,6 +73,9 @@
                                                 <c:when test="${t.status == 'Cancelled'}">
                                                     <span class="badge bg-danger">Đã huỷ</span>
                                                 </c:when>
+                                                <c:when test="${t.status == 'Failed'}">
+                                                    <span class="badge bg-danger">Chuyển không thành công</span>
+                                                </c:when>
                                             </c:choose>
                                         </td>
 
