@@ -34,6 +34,7 @@ public class TransferDetailDao {
 
                 a.setAssetName(rs.getString("asset_name"));
                 a.setAssetCode(rs.getString("asset_code"));
+                a.setAssetId(rs.getInt("asset_id"));
 
                 td.setAsset(a);
                 transferDetails.add(td);
