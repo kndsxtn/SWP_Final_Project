@@ -132,7 +132,6 @@
                                 <c:if test="${!isHeadOfDept}">
                                     <th>Tồn kho</th>
                                 </c:if>
-                                <th>Ghi chú</th>
                                 <th>Trạng thái</th>
                                 <th class="col-action">Thao tác</th>
                             </tr>
@@ -141,7 +140,7 @@
                             <c:choose>
                                 <c:when test="${empty list}">
                                     <tr>
-                                        <td colspan="${isHeadOfDept ? 10 : 11}">
+                                        <td colspan="${isHeadOfDept ? 9 : 10}">
                                             <div class="cfms-table-empty">
                                                 <i class="bi bi-inbox"></i>
                                                 <c:choose>
@@ -210,34 +209,29 @@
                                                 </c:forEach>
                                             </td>
 
-                                            <!-- Stock status (UC13) - chỉ ý nghĩa cho yêu cầu đang chờ duyệt, ẩn với Trưởng bộ môn -->
+                                            <!-- Stock status (UC13) - hiển thị theo từng tài sản: tên + (có sẵn/yêu cầu) -->
                                             <c:if test="${!isHeadOfDept}">
                                                 <td>
                                                     <c:choose>
                                                         <c:when test="${req.status == 'Pending'}">
-                                                            <c:choose>
-                                                                <c:when test="${req.stockStatus == 'FULL'}">
-                                                                    <span class="cfms-badge cfms-badge-stock-full"
-                                                                          title="Tồn kho hiện tại đáp ứng đủ yêu cầu này">
-                                                                        Đủ hàng (${req.totalAvailableInStock}/${req.totalRequestedAssets})
+                                                            <c:forEach items="${req.details}" var="d">
+                                                                <div class="d-flex align-items-center mb-1" style="gap: 0.35rem;">
+                                                                    <span class="small flex-grow-1 text-nowrap" style="max-width: 120px; overflow: hidden; text-overflow: ellipsis;" title="${d.asset.assetCode} – ${d.asset.assetName}">
+                                                                        <strong>${d.asset.assetCode}</strong> – ${d.asset.assetName}
                                                                     </span>
-                                                                </c:when>
-                                                                <c:when test="${req.stockStatus == 'PARTIAL'}">
-                                                                    <span class="cfms-badge cfms-badge-stock-partial"
-                                                                          title="Tồn kho hiện tại chỉ đáp ứng được một phần yêu cầu này">
-                                                                        Thiếu hàng (${req.totalAvailableInStock}/${req.totalRequestedAssets})
-                                                                    </span>
-                                                                </c:when>
-                                                                <c:when test="${req.stockStatus == 'NONE'}">
-                                                                    <span class="cfms-badge cfms-badge-stock-none"
-                                                                          title="Tồn kho hiện tại không còn tài sản phù hợp với yêu cầu này">
-                                                                        Hết hàng (0/${req.totalRequestedAssets})
-                                                                    </span>
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    <span class="text-muted small">–</span>
-                                                                </c:otherwise>
-                                                            </c:choose>
+                                                                    <c:choose>
+                                                                        <c:when test="${d.availableInStock >= d.quantity}">
+                                                                            <span class="badge bg-success" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;" title="Đủ: ${d.availableInStock}/${d.quantity}">${d.availableInStock}/${d.quantity}</span>
+                                                                        </c:when>
+                                                                        <c:when test="${d.availableInStock > 0}">
+                                                                            <span class="badge bg-warning text-dark" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;" title="Thiếu: ${d.availableInStock}/${d.quantity}">${d.availableInStock}/${d.quantity}</span>
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            <span class="badge bg-danger" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;" title="Hết: 0/${d.quantity}">0/${d.quantity}</span>
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </div>
+                                                            </c:forEach>
                                                         </c:when>
                                                         <c:otherwise>
                                                             <span class="text-muted small">Không áp dụng</span>
@@ -245,18 +239,6 @@
                                                     </c:choose>
                                                 </td>
                                             </c:if>
-
-                                            <!-- Notes -->
-                                            <td>
-                                                <c:forEach items="${req.details}" var="d">
-                                                    <span class="d-block small text-muted">
-                                                        <c:choose>
-                                                            <c:when test="${not empty d.note}">${d.note}</c:when>
-                                                            <c:otherwise>–</c:otherwise>
-                                                        </c:choose>
-                                                    </span>
-                                                </c:forEach>
-                                            </td>
 
                                             <!-- Status badge -->
                                             <td>
@@ -548,6 +530,7 @@
             })();
         });
     </script>
+    <script src="${pageContext.request.contextPath}/js/message-auto-hide.js"></script>
 
 </body>
 </html>

@@ -1,7 +1,7 @@
 package controller.request;
 
-import dal.AllocationRequestDao;
 import dal.AssetDAO;
+import dal.ProcurementRequestDao;
 import dto.UserDto;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,18 +15,14 @@ import jakarta.servlet.http.HttpSession;
 import model.Asset;
 import model.Category;
 
-/**
- *
- * @author Nguyen Dang Khang
- */
-@WebServlet(name = "AllocationCreateController", urlPatterns = {
-    "/request/allocation-add",
-    "/request/create"
+@WebServlet(name = "ProcurementCreateController", urlPatterns = {
+    "/request/procurement-add",
+    "/request/procurement-create"
 })
-public class AllocationCreateController extends HttpServlet {
+public class ProcurementCreateController extends HttpServlet {
 
     private final AssetDAO assetDao = new AssetDAO();
-    private final AllocationRequestDao allocationDao = new AllocationRequestDao();
+    private final ProcurementRequestDao procurementDao = new ProcurementRequestDao();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -39,12 +35,13 @@ public class AllocationCreateController extends HttpServlet {
         }
 
         String path = request.getServletPath();
-        if ("/request/allocation-add".equals(path)) {
+        if ("/request/procurement-add".equals(path)) {
             loadFormData(request);
-            request.getRequestDispatcher("/views/request/allocation-form.jsp")
+            request.setAttribute("isEdit", false);
+            request.getRequestDispatcher("/views/request/procurement-form.jsp")
                     .forward(request, response);
         } else {
-            response.sendRedirect(request.getContextPath() + "/request/allocation-add");
+            response.sendRedirect(request.getContextPath() + "/request/procurement-add");
         }
     }
 
@@ -62,10 +59,10 @@ public class AllocationCreateController extends HttpServlet {
         UserDto user = (UserDto) session.getAttribute("user");
 
         String path = request.getServletPath();
-        if ("/request/create".equals(path)) {
+        if ("/request/procurement-create".equals(path)) {
             handleCreate(request, response, session, user);
         } else {
-            response.sendRedirect(request.getContextPath() + "/request/allocation-add");
+            response.sendRedirect(request.getContextPath() + "/request/procurement-add");
         }
     }
 
@@ -79,10 +76,11 @@ public class AllocationCreateController extends HttpServlet {
         String[] notes = request.getParameterValues("note");
 
         if (assetIdsStr == null || qtyStrs == null || assetIdsStr.length == 0) {
-            request.setAttribute("errorMsg", "Vui lòng chọn ít nhất một dòng tài sản cần cấp phát.");
+            request.setAttribute("errorMsg", "Vui lòng chọn ít nhất một dòng tài sản cần mua sắm.");
             request.setAttribute("reason", reason);
             loadFormData(request);
-            request.getRequestDispatcher("/views/request/allocation-form.jsp")
+            request.setAttribute("isEdit", false);
+            request.getRequestDispatcher("/views/request/procurement-form.jsp")
                     .forward(request, response);
             return;
         }
@@ -122,7 +120,8 @@ public class AllocationCreateController extends HttpServlet {
             request.setAttribute("errorMsg", "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại danh sách tài sản.");
             request.setAttribute("reason", reason);
             loadFormData(request);
-            request.getRequestDispatcher("/views/request/allocation-form.jsp")
+            request.setAttribute("isEdit", false);
+            request.getRequestDispatcher("/views/request/procurement-form.jsp")
                     .forward(request, response);
             return;
         }
@@ -131,15 +130,17 @@ public class AllocationCreateController extends HttpServlet {
         int[] quantities = qtyList.stream().mapToInt(Integer::intValue).toArray();
         String[] noteArr = noteList.toArray(new String[0]);
 
-        int requestId = allocationDao.createRequest(user.getUserId(), reason, assetIds, quantities, noteArr);
-        if (requestId > 0) {
-            session.setAttribute("successMsg", "Đã tạo yêu cầu cấp phát REQ-" + requestId + " thành công.");
-            response.sendRedirect(request.getContextPath() + "/request/allocation-list");
+        int procurementId = procurementDao.createProcurementStandalone(
+                user.getUserId(), reason, assetIds, quantities, noteArr);
+        if (procurementId > 0) {
+            session.setAttribute("successMsg", "Đã tạo yêu cầu mua sắm PROC-" + procurementId + " thành công.");
+            response.sendRedirect(request.getContextPath() + "/request/procurement-list");
         } else {
-            request.setAttribute("errorMsg", "Không thể tạo yêu cầu cấp phát. Vui lòng thử lại.");
+            request.setAttribute("errorMsg", "Không thể tạo yêu cầu mua sắm. Vui lòng thử lại.");
             request.setAttribute("reason", reason);
             loadFormData(request);
-            request.getRequestDispatcher("/views/request/allocation-form.jsp")
+            request.setAttribute("isEdit", false);
+            request.getRequestDispatcher("/views/request/procurement-form.jsp")
                     .forward(request, response);
         }
     }
@@ -151,4 +152,3 @@ public class AllocationCreateController extends HttpServlet {
         request.setAttribute("categories", categories);
     }
 }
-

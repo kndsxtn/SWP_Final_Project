@@ -153,6 +153,7 @@ CREATE TABLE allocation_requests (
     approved_date DATETIME NULL, 
     completed_date DATETIME NULL, 
     status NVARCHAR(50) DEFAULT N'Pending',
+    reason NVARCHAR(MAX),
     reason_reject NVARCHAR(MAX),
     
     FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE,

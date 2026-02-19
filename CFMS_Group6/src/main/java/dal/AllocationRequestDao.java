@@ -39,6 +39,7 @@ public class AllocationRequestDao {
         if (keyword != null && !keyword.isEmpty()) {
             conditions.add("(u.full_name LIKE ? OR CAST(ar.request_id AS VARCHAR) LIKE ? "
                     + "OR ('REQ-' + CAST(ar.request_id AS VARCHAR)) LIKE ? "
+                    + "OR ar.reason LIKE ? "
                     + "OR EXISTS (SELECT 1 FROM allocation_details ad "
                     + "JOIN assets a ON ad.asset_id = a.asset_id "
                     + "JOIN categories c ON a.category_id = c.category_id "
@@ -65,6 +66,7 @@ public class AllocationRequestDao {
                 ps.setString(idx++, kw); // full_name
                 ps.setString(idx++, kw); // request_id (numeric)
                 ps.setString(idx++, kw); // REQ-request_id (formatted)
+                ps.setString(idx++, kw); // ar.reason
                 ps.setString(idx++, kw); // asset_name
                 ps.setString(idx++, kw); // asset_code
                 ps.setString(idx++, kw); // category_name
@@ -97,6 +99,7 @@ public class AllocationRequestDao {
         if (keyword != null && !keyword.isEmpty()) {
             conditions.add("(u.full_name LIKE ? OR CAST(ar.request_id AS VARCHAR) LIKE ? "
                     + "OR ('REQ-' + CAST(ar.request_id AS VARCHAR)) LIKE ? "
+                    + "OR ar.reason LIKE ? "
                     + "OR EXISTS (SELECT 1 FROM allocation_details ad "
                     + "JOIN assets a ON ad.asset_id = a.asset_id "
                     + "JOIN categories c ON a.category_id = c.category_id "
@@ -120,6 +123,7 @@ public class AllocationRequestDao {
                 ps.setString(idx++, kw); // full_name
                 ps.setString(idx++, kw); // request_id (numeric)
                 ps.setString(idx++, kw); // REQ-request_id (formatted)
+                ps.setString(idx++, kw); // ar.reason
                 ps.setString(idx++, kw); // asset_name
                 ps.setString(idx++, kw); // asset_code
                 ps.setString(idx++, kw); // category_name
@@ -155,6 +159,7 @@ public class AllocationRequestDao {
         if (keyword != null && !keyword.isEmpty()) {
             conditions.add("(CAST(ar.request_id AS VARCHAR) LIKE ? "
                     + "OR ('REQ-' + CAST(ar.request_id AS VARCHAR)) LIKE ? "
+                    + "OR ar.reason LIKE ? "
                     + "OR EXISTS (SELECT 1 FROM allocation_details ad "
                     + "JOIN assets a ON ad.asset_id = a.asset_id "
                     + "JOIN categories c ON a.category_id = c.category_id "
@@ -180,6 +185,7 @@ public class AllocationRequestDao {
                 String kw = "%" + keyword + "%";
                 ps.setString(idx++, kw); // request_id (numeric)
                 ps.setString(idx++, kw); // REQ-request_id (formatted)
+                ps.setString(idx++, kw); // ar.reason
                 ps.setString(idx++, kw); // asset_name
                 ps.setString(idx++, kw); // asset_code
                 ps.setString(idx++, kw); // category_name
@@ -216,6 +222,7 @@ public class AllocationRequestDao {
         if (keyword != null && !keyword.isEmpty()) {
             conditions.add("(CAST(ar.request_id AS VARCHAR) LIKE ? "
                     + "OR ('REQ-' + CAST(ar.request_id AS VARCHAR)) LIKE ? "
+                    + "OR ar.reason LIKE ? "
                     + "OR EXISTS (SELECT 1 FROM allocation_details ad "
                     + "JOIN assets a ON ad.asset_id = a.asset_id "
                     + "JOIN categories c ON a.category_id = c.category_id "
@@ -239,6 +246,7 @@ public class AllocationRequestDao {
                 String kw = "%" + keyword + "%";
                 ps.setString(idx++, kw); // request_id (numeric)
                 ps.setString(idx++, kw); // REQ-request_id (formatted)
+                ps.setString(idx++, kw); // ar.reason
                 ps.setString(idx++, kw); // asset_name
                 ps.setString(idx++, kw); // asset_code
                 ps.setString(idx++, kw); // category_name
@@ -316,11 +324,19 @@ public class AllocationRequestDao {
                 + "WHERE ad.request_id = ? "
                 + "ORDER BY ad.detail_id";
 
-        // Asset is considered "available in stock" only when it is New and not assigned to any room yet.
-        // (Seed data uses room_id = NULL for assets in stock.)
-        String sqlAvailable = "SELECT COUNT(*) AS ok "
-                + "FROM assets "
-                + "WHERE asset_id = ? AND status = 'New' AND room_id IS NULL";
+        // Khả dụng = (số lượng New trong kho) - (số lượng đã cấp phát trong yêu cầu Completed).
+        // VD: tổng 8, 2 cái đã cấp phát ra phòng → khả dụng 6.
+        String sqlAvailable = "SELECT (COALESCE(a.quantity, 0) - COALESCE(("
+                + " SELECT SUM(ad.quantity) FROM allocation_details ad "
+                + " JOIN allocation_requests ar ON ad.request_id = ar.request_id "
+                + " WHERE ad.asset_id = a.asset_id AND ar.status = N'Completed'"
+                + "), 0)) AS ok "
+                + "FROM assets a "
+                + "WHERE a.asset_id = ? AND a.status = N'New' "
+                + "AND (a.room_id IS NULL OR EXISTS ("
+                + "  SELECT 1 FROM rooms r WHERE r.room_id = a.room_id "
+                + "  AND (r.room_name LIKE N'%Kho%' OR r.room_name LIKE N'%lưu trữ%')"
+                + "))";
 
         int totalRequested = 0;
         int totalAvailable = 0;
@@ -338,10 +354,11 @@ public class AllocationRequestDao {
 
                     psAvail.setInt(1, assetId);
                     try (ResultSet rsAvail = psAvail.executeQuery()) {
+                        int availableQty = 0;
                         if (rsAvail.next()) {
-                            int availableCount = rsAvail.getInt("ok");
-                            totalAvailable += Math.min(qty, availableCount);
+                            availableQty = Math.max(0, rsAvail.getInt("ok"));
                         }
+                        totalAvailable += Math.min(qty, availableQty);
                     }
                 }
             }
@@ -368,6 +385,66 @@ public class AllocationRequestDao {
         }
     }
 
+    /**
+     * Điền số lượng tồn kho hiện có (availableInStock) cho từng detail.
+     * Dùng để hiển thị cột Tồn kho theo từng tài sản trong list.
+     */
+    public void populateDetailsStockInfo(List<AllocationDetail> details) {
+        if (details == null || details.isEmpty()) {
+            return;
+        }
+
+        List<Integer> assetIds = new ArrayList<>();
+        for (AllocationDetail d : details) {
+            if (d.getAssetId() > 0 && !assetIds.contains(d.getAssetId())) {
+                assetIds.add(d.getAssetId());
+            }
+        }
+        if (assetIds.isEmpty()) {
+            return;
+        }
+
+        Map<Integer, Integer> assetIdToAvailable = new HashMap<>();
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < assetIds.size(); i++) {
+            if (i > 0) placeholders.append(",");
+            placeholders.append("?");
+        }
+        // Khả dụng = (số lượng New trong kho) - (đã cấp phát Completed) cho từng asset_id.
+        String sql = "SELECT a.asset_id, (COALESCE(a.quantity, 0) - COALESCE(("
+                + " SELECT SUM(ad.quantity) FROM allocation_details ad "
+                + " JOIN allocation_requests ar ON ad.request_id = ar.request_id "
+                + " WHERE ad.asset_id = a.asset_id AND ar.status = N'Completed'"
+                + "), 0)) AS qty "
+                + "FROM assets a "
+                + "WHERE a.asset_id IN (" + placeholders + ") AND a.status = N'New' "
+                + "AND (a.room_id IS NULL OR EXISTS ("
+                + "  SELECT 1 FROM rooms r WHERE r.room_id = a.room_id "
+                + "  AND (r.room_name LIKE N'%Kho%' OR r.room_name LIKE N'%lưu trữ%')"
+                + "))";
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            for (int i = 0; i < assetIds.size(); i++) {
+                ps.setInt(i + 1, assetIds.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int avail = Math.max(0, rs.getInt("qty"));
+                    assetIdToAvailable.put(rs.getInt("asset_id"), avail);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        for (AllocationDetail d : details) {
+            int available = assetIdToAvailable.getOrDefault(d.getAssetId(), 0);
+            d.setAvailableInStock(available);
+        }
+    }
+
     public Map<Integer, Integer> getMissingQuantitiesByAsset(int requestId) {
         Map<Integer, Integer> missing = new HashMap<>();
 
@@ -376,9 +453,17 @@ public class AllocationRequestDao {
                 + "WHERE ad.request_id = ? "
                 + "GROUP BY ad.asset_id";
 
-        String sqlIsAvailable = "SELECT COUNT(*) AS ok "
-                + "FROM assets "
-                + "WHERE asset_id = ? AND status = 'New' AND room_id IS NULL";
+        String sqlIsAvailable = "SELECT (COALESCE(a.quantity, 0) - COALESCE(("
+                + " SELECT SUM(ad.quantity) FROM allocation_details ad "
+                + " JOIN allocation_requests ar ON ad.request_id = ar.request_id "
+                + " WHERE ad.asset_id = a.asset_id AND ar.status = N'Completed'"
+                + "), 0)) AS ok "
+                + "FROM assets a "
+                + "WHERE a.asset_id = ? AND a.status = N'New' "
+                + "AND (a.room_id IS NULL OR EXISTS ("
+                + "  SELECT 1 FROM rooms r WHERE r.room_id = a.room_id "
+                + "  AND (r.room_name LIKE N'%Kho%' OR r.room_name LIKE N'%lưu trữ%')"
+                + "))";
 
         try (Connection con = new DBContext().getConnection();
              PreparedStatement psReq = con.prepareStatement(sqlRequestedAssets);
@@ -391,14 +476,14 @@ public class AllocationRequestDao {
                     int requestedQty = rs.getInt("requested_qty");
 
                     psAvail.setInt(1, assetId);
-                    int availableCount = 0;
+                    int availableQty = 0;
                     try (ResultSet rsAvail = psAvail.executeQuery()) {
                         if (rsAvail.next()) {
-                            availableCount = rsAvail.getInt("ok");
+                            availableQty = Math.max(0, rsAvail.getInt("ok"));
                         }
                     }
 
-                    int shortage = requestedQty - availableCount;
+                    int shortage = requestedQty - availableQty;
                     if (shortage > 0) {
                         missing.put(assetId, shortage);
                     }
@@ -412,7 +497,7 @@ public class AllocationRequestDao {
         return missing;
     }
 
-    public int createRequest(int createdByUserId, int[] assetIds, int[] quantities, String[] notes) {
+    public int createRequest(int createdByUserId, String reason, int[] assetIds, int[] quantities, String[] notes) {
         if (assetIds == null || quantities == null || assetIds.length == 0 || assetIds.length != quantities.length) {
             return -1;
         }
@@ -424,12 +509,17 @@ public class AllocationRequestDao {
 
             // 1) Insert master row into allocation_requests
             String insertReqSql = "INSERT INTO allocation_requests "
-                    + "(created_by, created_date, status, reason_reject) "
-                    + "VALUES (?, GETDATE(), N'Pending', NULL)";
+                    + "(created_by, created_date, status, reason, reason_reject) "
+                    + "VALUES (?, GETDATE(), N'Pending', ?, NULL)";
 
             int requestId = -1;
             try (PreparedStatement psReq = con.prepareStatement(insertReqSql, Statement.RETURN_GENERATED_KEYS)) {
                 psReq.setInt(1, createdByUserId);
+                if (reason != null && !reason.trim().isEmpty()) {
+                    psReq.setString(2, reason.trim());
+                } else {
+                    psReq.setNull(2, java.sql.Types.NVARCHAR);
+                }
                 psReq.executeUpdate();
 
                 try (ResultSet rs = psReq.getGeneratedKeys()) {
@@ -588,7 +678,8 @@ public class AllocationRequestDao {
     }
 
     // ─── Update request (only allowed when status is Pending) ───
-    public boolean updateRequest(int requestId, int createdByUserId, int[] assetIds, int[] quantities, String[] notes) {
+    public boolean updateRequest(int requestId, int createdByUserId, String reason,
+                                 int[] assetIds, int[] quantities, String[] notes) {
         if (assetIds == null || quantities == null || assetIds.length == 0 || assetIds.length != quantities.length) {
             return false;
         }
@@ -621,14 +712,26 @@ public class AllocationRequestDao {
                 }
             }
 
-            // 2) Delete existing details
+            // 2) Update reason
+            String updateReasonSql = "UPDATE allocation_requests SET reason = ? WHERE request_id = ?";
+            try (PreparedStatement psReason = con.prepareStatement(updateReasonSql)) {
+                if (reason != null && !reason.trim().isEmpty()) {
+                    psReason.setString(1, reason.trim());
+                } else {
+                    psReason.setNull(1, java.sql.Types.NVARCHAR);
+                }
+                psReason.setInt(2, requestId);
+                psReason.executeUpdate();
+            }
+
+            // 3) Delete existing details
             String deleteDetailsSql = "DELETE FROM allocation_details WHERE request_id = ?";
             try (PreparedStatement psDelete = con.prepareStatement(deleteDetailsSql)) {
                 psDelete.setInt(1, requestId);
                 psDelete.executeUpdate();
             }
 
-            // 3) Insert new details
+            // 4) Insert new details
             String insertDetailSql = "INSERT INTO allocation_details (request_id, asset_id, quantity, note) "
                     + "VALUES (?, ?, ?, ?)";
 
@@ -714,6 +817,7 @@ public class AllocationRequestDao {
         req.setCreatedBy(rs.getInt("created_by"));
         req.setCreatedDate(rs.getTimestamp("created_date"));
         req.setStatus(rs.getString("status"));
+        req.setReason(rs.getString("reason"));
         req.setReasonReject(rs.getString("reason_reject"));
 
         // Attach creator (lightweight – only full_name needed for the list)

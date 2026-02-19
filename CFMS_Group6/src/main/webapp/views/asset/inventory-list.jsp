@@ -1,17 +1,3 @@
-<%--
-    Document   : inventory-list.jsp
-    Description: UC13 - Inventory list by individual asset (Option 2)
-    Author     : GPT (based on CFMS layout)
-
-    Expected request attribute:
-      - inventoryList: List<Asset> (model.Asset) or DTO with fields
-            assetCode
-            assetName
-            category.categoryName
-            room.roomName (nullable)
-            status
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -20,7 +6,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Tồn kho tài sản - CFMS</title>
+        <title>Kiểm tra tồn kho tài sản - CFMS</title>
 
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
@@ -32,6 +18,7 @@
         <link href="${pageContext.request.contextPath}/css/table.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/badge.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/paging.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/css/inventory.css" rel="stylesheet">
     </head>
 
     <body class="d-flex flex-column">
@@ -49,10 +36,58 @@
 
                     <!-- ===== Page Header ===== -->
                     <div class="cfms-page-header">
-                        <h2><i class="bi bi-box-seam me-2"></i>Danh sách tồn kho tài sản</h2>
+                        <h2><i class="bi bi-box-seam me-2"></i>Kiểm tra tồn kho tài sản</h2>
                         <p class="text-muted small mb-0">
-                            Mỗi dòng là một tài sản trong hệ thống, kèm trạng thái và vị trí hiện tại.
+                            Xem tài sản nào đang có sẵn trong kho để đáp ứng yêu cầu cấp phát. Dùng bộ lọc bên dưới để nhanh chóng xem <strong>tài sản khả dụng</strong> (có thể cấp phát).
                         </p>
+                    </div>
+
+                    <div class="inventory-summary">
+                        <c:set var="totalAll" value="0"/>
+                        <c:forEach items="${statusCounts}" var="entry">
+                            <c:set var="totalAll" value="${totalAll + entry.value}"/>
+                        </c:forEach>
+                        <a href="${pageContext.request.contextPath}/asset/inventory-check" class="inv-card text-decoration-none text-dark">
+                            <span class="inv-num">${totalAll}</span>
+                            <span class="inv-label">Tổng tài sản</span>
+                        </a>
+                        <a href="${pageContext.request.contextPath}/asset/inventory-check?status=New" class="inv-card available text-decoration-none text-dark">
+                            <span class="inv-num">${statusCounts['New'] != null ? statusCounts['New'] : 0}</span>
+                            <span class="inv-label">Khả dụng (có thể cấp phát)</span>
+                        </a>
+                        <span class="inv-card">
+                            <span class="inv-num">${statusCounts['In_Use'] != null ? statusCounts['In_Use'] : 0}</span>
+                            <span class="inv-label">Đang sử dụng</span>
+                        </span>
+                        <span class="inv-card">
+                            <span class="inv-num">${statusCounts['Maintenance'] != null ? statusCounts['Maintenance'] : 0}</span>
+                            <span class="inv-label">Bảo trì</span>
+                        </span>
+                        <span class="inv-card">
+                            <span class="inv-num">${statusCounts['Broken'] != null ? statusCounts['Broken'] : 0}</span>
+                            <span class="inv-label">Hỏng</span>
+                        </span>
+                        <span class="inv-card">
+                            <span class="inv-num">${statusCounts['Lost'] != null ? statusCounts['Lost'] : 0}</span>
+                            <span class="inv-label">Thất lạc</span>
+                        </span>
+                        <span class="inv-card">
+                            <span class="inv-num">${statusCounts['Liquidated'] != null ? statusCounts['Liquidated'] : 0}</span>
+                            <span class="inv-label">Thanh lý</span>
+                        </span>
+                    </div>
+
+                    <!-- Quick filter: show only available -->
+                    <div class="inv-quick-filter">
+                        <c:if test="${statusFilter != 'New'}">
+                            <a href="${pageContext.request.contextPath}/asset/inventory-check?status=New" class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-check-circle me-1"></i>Chỉ xem tài sản khả dụng (có thể cấp phát)
+                            </a>
+                        </c:if>
+                        <c:if test="${statusFilter == 'New'}">
+                            <span class="badge bg-success">Đang lọc: Chỉ tài sản khả dụng</span>
+                            <a href="${pageContext.request.contextPath}/asset/inventory-check" class="btn btn-sm btn-link">Xem tất cả</a>
+                        </c:if>
                     </div>
 
                     <!-- ===== Filter & Search Bar ===== -->
@@ -75,7 +110,7 @@
                         <div class="filter-select">
                             <select name="status" class="form-select">
                                 <option value="">-- Tất cả trạng thái --</option>
-                                <option value="New" ${statusFilter == 'New' ? 'selected' : ''}>Mới (Trong kho)</option>
+                                <option value="New" ${statusFilter == 'New' ? 'selected' : ''}>Khả dụng</option>
                                 <option value="In_Use" ${statusFilter == 'In_Use' ? 'selected' : ''}>Đang sử dụng</option>
                                 <option value="Maintenance" ${statusFilter == 'Maintenance' ? 'selected' : ''}>Bảo trì</option>
                                 <option value="Broken" ${statusFilter == 'Broken' ? 'selected' : ''}>Hỏng</option>
@@ -107,14 +142,16 @@
                                     <th>Tên tài sản</th>
                                     <th>Loại tài sản</th>
                                     <th>Vị trí hiện tại</th>
+                                    <th>Số lượng</th>
                                     <th>Trạng thái</th>
+                                    <th>Có thể cấp phát?</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <c:choose>
                                     <c:when test="${empty inventoryList}">
                                         <tr>
-                                            <td colspan="7">
+                                            <td colspan="9">
                                                 <div class="cfms-table-empty">
                                                     <i class="bi bi-inbox"></i>
                                                     Chưa có tài sản nào trong hệ thống để hiển thị tồn kho.
@@ -132,7 +169,7 @@
                                                     <c:choose>
                                                         <c:when test="${not empty inv.images}">
                                                             <c:set var="firstImg" value="${inv.images[0]}"/>
-                                                            <img src="${pageContext.request.contextPath}${firstImg.imageUrl}"
+                                                            <img src="${pageContext.request.contextPath}/${firstImg.imageUrl}"
                                                                  alt="${firstImg.description}"
                                                                  class="img-thumbnail"
                                                                  style="width: 60px; height: 60px; object-fit: cover;">
@@ -173,10 +210,13 @@
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </td>
+                                                <td class="text-center">
+                                                    <strong>${inv.quantity}</strong>
+                                                </td>
                                                 <td>
                                                     <c:choose>
                                                         <c:when test="${inv.status == 'New'}">
-                                                            <span class="cfms-badge cfms-badge-new">Mới (Trong kho)</span>
+                                                            <span class="cfms-badge cfms-badge-new">Khả dụng</span>
                                                         </c:when>
                                                         <c:when test="${inv.status == 'In_Use'}">
                                                             <span class="cfms-badge cfms-badge-in-use">Đang sử dụng</span>
@@ -195,6 +235,20 @@
                                                         </c:when>
                                                         <c:otherwise>
                                                             <span class="cfms-badge">${inv.status}</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </td>
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${inv.status == 'New'}">
+                                                            <span class="cfms-badge cfms-badge-stock-full" title="Tài sản có sẵn trong kho, có thể cấp phát">
+                                                                <i class="bi bi-check-circle me-1"></i>Có thể cấp phát
+                                                            </span>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span class="cfms-badge cfms-badge-stock-none" title="Đang sử dụng / bảo trì / hỏng / thất lạc / thanh lý">
+                                                                Không thể cấp phát
+                                                            </span>
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </td>

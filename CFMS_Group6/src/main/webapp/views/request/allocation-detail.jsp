@@ -77,8 +77,12 @@
                         </span>
                     </div>
                     <div class="detail-row">
+                        <span class="detail-label">Lý do:</span>
+                        <span class="detail-value">${not empty req.reason ? req.reason : '–'}</span>
+                    </div>
+                    <div class="detail-row">
                         <span class="detail-label">Số lượng tài sản:</span>
-                        <span class="detail-value"><strong>${req.details.size()}</strong></span>
+                        <span class="detail-value"><strong>${req.totalRequestedAssets}</strong></span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Trạng thái:</span>
@@ -102,6 +106,8 @@
                             </c:choose>
                         </span>
                     </div>
+                    <%-- Tồn kho (hiện tại) chỉ hiển thị cho Asset Staff; ẩn với Trưởng bộ môn (Head of Dept) --%>
+                    <c:if test="${sessionScope.user.roleName != 'Head of Dept'}">
                     <div class="detail-row">
                         <span class="detail-label">Tồn kho (hiện tại):</span>
                         <span class="detail-value">
@@ -137,6 +143,7 @@
                             </c:choose>
                         </span>
                     </div>
+                    </c:if>
 
                     <c:if test="${req.status == 'Rejected' && not empty req.reasonReject}">
                         <div class="detail-row">
@@ -203,7 +210,7 @@
                                 <div class="mt-2">
                                     <c:choose>
                                         <c:when test="${d.asset.status == 'New'}">
-                                            <span class="cfms-badge cfms-badge-new">${d.asset.status}</span>
+                                            <span class="cfms-badge cfms-badge-new">Khả dụng</span>
                                         </c:when>
                                         <c:when test="${d.asset.status == 'In_Use'}">
                                             <span class="cfms-badge cfms-badge-in-use">Đang dùng</span>
@@ -255,12 +262,12 @@
                                 <c:when test="${not empty d.asset.images}">
                                     <div class="asset-images">
                                         <c:forEach items="${d.asset.images}" var="img">
-                                            <img src="${pageContext.request.contextPath}${img.imageUrl}"
+                                            <img src="${pageContext.request.contextPath}/${img.imageUrl}"
                                                  alt="${img.description}"
                                                  class="img-thumb"
                                                  data-bs-toggle="modal"
                                                  data-bs-target="#imageModal"
-                                                 data-img-src="${pageContext.request.contextPath}${img.imageUrl}"
+                                                 data-img-src="${pageContext.request.contextPath}/${img.imageUrl}"
                                                  data-img-desc="${img.description}"
                                                  title="${img.description}">
                                         </c:forEach>
@@ -389,6 +396,7 @@
             }
         })();
     </script>
+    <script src="${pageContext.request.contextPath}/js/message-auto-hide.js"></script>
 
 </body>
 </html>

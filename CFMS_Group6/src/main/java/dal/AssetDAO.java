@@ -454,6 +454,7 @@ public class AssetDAO {
         a.setPurchaseDate(rs.getDate("purchase_date"));
         a.setWarrantyExpiryDate(rs.getDate("warranty_expiry_date"));
         a.setStatus(rs.getString("status"));
+        a.setQuantity(rs.getInt("quantity"));
         a.setDescription(rs.getString("description"));
         a.setCreatedAt(rs.getTimestamp("created_at"));
 

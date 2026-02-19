@@ -81,17 +81,10 @@
                             <input type="hidden" name="requestId" value="${req.requestId}">
                         </c:if>
 
-                        <!-- Lý do chung -->
-                        <div class="form-card">
-                            <h5><i class="bi bi-pencil-square me-2"></i>Lý do yêu cầu</h5>
-                            <div class="mb-0">
-                                <label for="globalReason" class="form-label">Lý do / Ghi chú chung cho yêu cầu</label>
-                                <textarea id="globalReason" name="globalReason" class="form-control" rows="3"
-                                          placeholder="VD: Bổ sung thiết bị cho phòng 201 phục vụ lớp K68CNTT..."></textarea>
-                                <small class="text-muted">
-                                    Lý do này sẽ được tự động gộp vào ghi chú của từng dòng tài sản.
-                                </small>
-                            </div>
+                        <!-- Lý do yêu cầu -->
+                        <div class="form-card mb-3">
+                            <h5><i class="bi bi-chat-text me-2"></i>Lý do yêu cầu cấp phát</h5>
+                            <textarea name="reason" class="form-control" rows="3" placeholder="VD: Bổ sung thiết bị cho phòng lab, nhu cầu giảng dạy bộ môn..."><c:out value="${isEdit ? req.reason : reason}" /></textarea>
                         </div>
 
                         <div class="form-card">
@@ -255,6 +248,7 @@
                 }
             }
         </script>
+    <script src="${pageContext.request.contextPath}/js/message-auto-hide.js"></script>
 
     </body>
 </html>

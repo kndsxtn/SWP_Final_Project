@@ -12,6 +12,7 @@ public class AllocationRequest {
     private int createdBy;
     private Date createdDate;
     private String status;
+    private String reason;
     private String reasonReject;
 
     
@@ -71,6 +72,14 @@ public class AllocationRequest {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 
     public String getReasonReject() {
