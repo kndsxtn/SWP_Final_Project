@@ -84,6 +84,10 @@
                                                 <div class="detail-value">${asset.assetName}</div>
                                             </div>
                                             <div class="detail-row">
+                                                <div class="detail-label">Số lượng</div>
+                                                <div class="detail-value">${asset.quantity}</div>
+                                            </div>
+                                            <div class="detail-row">
                                                 <div class="detail-label">Danh mục</div>
                                                 <div class="detail-value">
                                                     ${asset.category != null ? asset.category.categoryName : '–'}

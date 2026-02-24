@@ -411,6 +411,7 @@ public class AssetController extends HttpServlet {
         }
 
         asset.setDescription(request.getParameter("description"));
+        asset.setQuantity(parseIntParam(request.getParameter("quantity"), 1));
         return asset;
     }
 

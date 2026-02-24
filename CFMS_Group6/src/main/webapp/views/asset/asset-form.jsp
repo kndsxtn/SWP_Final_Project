@@ -210,6 +210,13 @@
                                                 <h5><i class="bi bi-currency-dollar me-2"></i>Giá trị & bảo hành</h5>
 
                                                 <div class="mb-3">
+                                                    <label for="quantity" class="form-label required">Số lượng</label>
+                                                    <input type="number" id="quantity" name="quantity"
+                                                        class="form-control" required min="1"
+                                                        value="${asset != null ? asset.quantity : 1}">
+                                                </div>
+
+                                                <div class="mb-3">
                                                     <label for="price" class="form-label required">Giá trị (VNĐ)</label>
                                                     <input type="number" id="price" name="price" class="form-control"
                                                         required min="0" step="1000" placeholder="0"

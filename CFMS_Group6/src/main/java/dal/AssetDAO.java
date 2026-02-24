@@ -194,8 +194,8 @@ public class AssetDAO {
         asset.setAssetCode(generatedCode);
 
         String sql = "INSERT INTO assets (asset_code, asset_name, category_id, supplier_id, room_id, "
-                + "price, purchase_date, warranty_expiry_date, status, description, created_at) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "price, purchase_date, warranty_expiry_date, status, quantity, description, created_at) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = new DBContext().getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -209,8 +209,9 @@ public class AssetDAO {
             setNullableDate(ps, 7, asset.getPurchaseDate());
             setNullableDate(ps, 8, asset.getWarrantyExpiryDate());
             ps.setString(9, "New");
-            ps.setString(10, asset.getDescription());
-            ps.setTimestamp(11, new java.sql.Timestamp(System.currentTimeMillis()));
+            ps.setInt(10, Math.max(asset.getQuantity(), 1));
+            ps.setString(11, asset.getDescription());
+            ps.setTimestamp(12, new java.sql.Timestamp(System.currentTimeMillis()));
 
             int rows = ps.executeUpdate();
             if (rows > 0) {
@@ -324,7 +325,7 @@ public class AssetDAO {
     public boolean updateAsset(Asset asset) {
         String sql = "UPDATE assets SET asset_name = ?, category_id = ?, supplier_id = ?, "
                 + "room_id = ?, price = ?, purchase_date = ?, warranty_expiry_date = ?, "
-                + "description = ? WHERE asset_id = ?";
+                + "quantity = ?, description = ? WHERE asset_id = ?";
 
         try (Connection conn = new DBContext().getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -336,8 +337,9 @@ public class AssetDAO {
             ps.setBigDecimal(5, asset.getPrice());
             setNullableDate(ps, 6, asset.getPurchaseDate());
             setNullableDate(ps, 7, asset.getWarrantyExpiryDate());
-            ps.setString(8, asset.getDescription());
-            ps.setInt(9, asset.getAssetId());
+            ps.setInt(8, Math.max(asset.getQuantity(), 1));
+            ps.setString(9, asset.getDescription());
+            ps.setInt(10, asset.getAssetId());
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
