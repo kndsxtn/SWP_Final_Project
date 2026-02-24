@@ -12,10 +12,26 @@ public class AllocationRequest {
     private int createdBy;
     private Date createdDate;
     private String status;
+    private String reason;
     private String reasonReject;
+    private Integer approvedBy;
+    private Date approvedDate;
+    private Date completedDate;
+
+    private int totalRequestedAssets; // how many assets are requested in this allocation
+    private int totalAvailableInStock; // how many assets can be served from current stock
+    /**
+     * Stock status level for this request.
+     * Possible values:
+     * - "FULL" : stock can fully satisfy the request
+     * - "PARTIAL" : stock can only partially satisfy the request
+     * - "NONE" : stock cannot satisfy any part of the request
+     */
+    private String stockStatus;
 
     // Relationships
     private User creator;
+    private User approver;
     private List<AllocationDetail> details;
 
     public AllocationRequest() {
@@ -61,12 +77,76 @@ public class AllocationRequest {
         this.status = status;
     }
 
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
     public String getReasonReject() {
         return reasonReject;
     }
 
     public void setReasonReject(String reasonReject) {
         this.reasonReject = reasonReject;
+    }
+
+    public Integer getApprovedBy() {
+        return approvedBy;
+    }
+
+    public void setApprovedBy(Integer approvedBy) {
+        this.approvedBy = approvedBy;
+    }
+
+    public Date getApprovedDate() {
+        return approvedDate;
+    }
+
+    public void setApprovedDate(Date approvedDate) {
+        this.approvedDate = approvedDate;
+    }
+
+    public Date getCompletedDate() {
+        return completedDate;
+    }
+
+    public void setCompletedDate(Date completedDate) {
+        this.completedDate = completedDate;
+    }
+
+    public User getApprover() {
+        return approver;
+    }
+
+    public void setApprover(User approver) {
+        this.approver = approver;
+    }
+
+    public int getTotalRequestedAssets() {
+        return totalRequestedAssets;
+    }
+
+    public void setTotalRequestedAssets(int totalRequestedAssets) {
+        this.totalRequestedAssets = totalRequestedAssets;
+    }
+
+    public int getTotalAvailableInStock() {
+        return totalAvailableInStock;
+    }
+
+    public void setTotalAvailableInStock(int totalAvailableInStock) {
+        this.totalAvailableInStock = totalAvailableInStock;
+    }
+
+    public String getStockStatus() {
+        return stockStatus;
+    }
+
+    public void setStockStatus(String stockStatus) {
+        this.stockStatus = stockStatus;
     }
 
     public User getCreator() {

@@ -7,6 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -40,6 +41,8 @@
             </jsp:include>
 
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+                <c:set var="isHeadOfDept" value="${sessionScope.user.roleName == 'Head of Dept'}"/>
 
                 <!-- ===== Page Header ===== -->
                 <div class="cfms-page-header">
@@ -123,10 +126,12 @@
                                 <th>Mã yêu cầu</th>
                                 <th>Người tạo</th>
                                 <th>Ngày tạo</th>
-                                <th>Số lượng</th>
-                                <th>Tài sản</th>
+                                <th class="text-center">Tổng số lượng</th>
+                                <th>Tài sản & Số lượng</th>
                                 <th>Loại tài sản</th>
-                                <th>Ghi chú</th>
+                                <c:if test="${!isHeadOfDept}">
+                                    <th>Tồn kho</th>
+                                </c:if>
                                 <th>Trạng thái</th>
                                 <th class="col-action">Thao tác</th>
                             </tr>
@@ -135,7 +140,7 @@
                             <c:choose>
                                 <c:when test="${empty list}">
                                     <tr>
-                                        <td colspan="10">
+                                        <td colspan="${isHeadOfDept ? 9 : 10}">
                                             <div class="cfms-table-empty">
                                                 <i class="bi bi-inbox"></i>
                                                 <c:choose>
@@ -172,17 +177,28 @@
                                                                 pattern="dd/MM/yyyy HH:mm"/>
                                             </td>
 
-                                            <!-- Quantity (number of assets in this request) -->
+                                            <!-- Total Quantity (sum of all assets in this request) -->
                                             <td class="text-center">
-                                                <strong>${req.details.size()}</strong>
+                                                <c:set var="totalQty" value="0" />
+                                                <c:forEach items="${req.details}" var="d">
+                                                    <c:set var="totalQty" value="${totalQty + d.quantity}" />
+                                                </c:forEach>
+                                                <span class="badge bg-primary" style="font-size: 0.85rem; padding: 0.35rem 0.6rem;">
+                                                    <i class="bi bi-box-seam me-1"></i>${totalQty}
+                                                </span>
                                             </td>
 
-                                            <!-- Assets -->
+                                            <!-- Assets with Quantity -->
                                             <td>
                                                 <c:forEach items="${req.details}" var="d">
-                                                    <span class="d-block small">
-                                                        <strong>${d.asset.assetCode}</strong> – ${d.asset.assetName}
-                                                    </span>
+                                                    <div class="d-flex align-items-center mb-1" style="gap: 0.5rem;">
+                                                        <span class="small flex-grow-1">
+                                                            <strong>${d.asset.assetCode}</strong> – ${d.asset.assetName}
+                                                        </span>
+                                                        <span class="badge bg-secondary" style="font-size: 0.7rem; padding: 0.25rem 0.5rem; min-width: 2.5rem;">
+                                                            <i class="bi bi-hash me-1"></i>${d.quantity}
+                                                        </span>
+                                                    </div>
                                                 </c:forEach>
                                             </td>
 
@@ -193,17 +209,36 @@
                                                 </c:forEach>
                                             </td>
 
-                                            <!-- Notes -->
-                                            <td>
-                                                <c:forEach items="${req.details}" var="d">
-                                                    <span class="d-block small text-muted">
-                                                        <c:choose>
-                                                            <c:when test="${not empty d.note}">${d.note}</c:when>
-                                                            <c:otherwise>–</c:otherwise>
-                                                        </c:choose>
-                                                    </span>
-                                                </c:forEach>
-                                            </td>
+                                            <!-- Stock status (UC13) - hiển thị theo từng tài sản: tên + (có sẵn/yêu cầu) -->
+                                            <c:if test="${!isHeadOfDept}">
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${req.status == 'Pending'}">
+                                                            <c:forEach items="${req.details}" var="d">
+                                                                <div class="d-flex align-items-center mb-1" style="gap: 0.35rem;">
+                                                                    <span class="small flex-grow-1 text-nowrap" style="max-width: 120px; overflow: hidden; text-overflow: ellipsis;" title="${d.asset.assetCode} – ${d.asset.assetName}">
+                                                                        <strong>${d.asset.assetCode}</strong> – ${d.asset.assetName}
+                                                                    </span>
+                                                                    <c:choose>
+                                                                        <c:when test="${d.availableInStock >= d.quantity}">
+                                                                            <span class="badge bg-success" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;" title="Đủ: ${d.availableInStock}/${d.quantity}">${d.availableInStock}/${d.quantity}</span>
+                                                                        </c:when>
+                                                                        <c:when test="${d.availableInStock > 0}">
+                                                                            <span class="badge bg-warning text-dark" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;" title="Thiếu: ${d.availableInStock}/${d.quantity}">${d.availableInStock}/${d.quantity}</span>
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            <span class="badge bg-danger" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;" title="Hết: 0/${d.quantity}">0/${d.quantity}</span>
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </div>
+                                                            </c:forEach>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span class="text-muted small">Không áp dụng</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </td>
+                                            </c:if>
 
                                             <!-- Status badge -->
                                             <td>
@@ -211,17 +246,25 @@
                                                     <c:when test="${req.status == 'Pending'}">
                                                         <span class="cfms-badge cfms-badge-pending">Chờ duyệt</span>
                                                     </c:when>
-                                                    <c:when test="${req.status == 'Approved_By_Staff'}">
-                                                        <span class="cfms-badge cfms-badge-in-progress">Đã duyệt (NV TB)</span>
-                                                    </c:when>
-                                                    <c:when test="${req.status == 'Approved_By_VP'}">
-                                                        <span class="cfms-badge cfms-badge-approved">Đã duyệt (Phó HT)</span>
-                                                    </c:when>
-                                                    <c:when test="${req.status == 'Approved_By_Principal'}">
-                                                        <span class="cfms-badge cfms-badge-approved">Đã duyệt (HT)</span>
+                                                    <c:when test="${req.status == 'Approved_By_Staff' || req.status == 'Approved_By_VP' || req.status == 'Approved_By_Principal'}">
+                                                        <span class="cfms-badge cfms-badge-approved">Đã duyệt</span>
                                                     </c:when>
                                                     <c:when test="${req.status == 'Rejected'}">
-                                                        <span class="cfms-badge cfms-badge-rejected">Từ chối</span>
+                                                        <span class="d-inline-flex align-items-center">
+                                                            <c:choose>
+                                                                <c:when test="${fn:startsWith(req.reasonReject, '[CANCELLED]')}">
+                                                                    <span class="cfms-badge cfms-badge-rejected">Đã hủy</span>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <span class="cfms-badge cfms-badge-rejected">Từ chối</span>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                            <c:if test="${not empty req.reasonReject}">
+                                                                <i class="bi bi-info-circle text-danger ms-1"
+                                                                   data-bs-toggle="tooltip"
+                                                                   title="${req.reasonReject}"></i>
+                                                            </c:if>
+                                                        </span>
                                                     </c:when>
                                                     <c:when test="${req.status == 'Completed'}">
                                                         <span class="cfms-badge cfms-badge-completed">Hoàn thành</span>
@@ -230,13 +273,6 @@
                                                         <span class="cfms-badge">${req.status}</span>
                                                     </c:otherwise>
                                                 </c:choose>
-
-                                                <!-- Rejection reason tooltip -->
-                                                <c:if test="${req.status == 'Rejected' && not empty req.reasonReject}">
-                                                    <i class="bi bi-info-circle text-danger ms-1"
-                                                       data-bs-toggle="tooltip"
-                                                       title="${req.reasonReject}"></i>
-                                                </c:if>
                                             </td>
 
                                             <!-- Actions -->
@@ -246,6 +282,40 @@
                                                    title="Xem chi tiết">
                                                     <i class="bi bi-eye"></i>
                                                 </a>
+
+                                                <!-- Approve / Reject for Asset Staff -->
+                                                <c:if test="${req.status == 'Pending' && sessionScope.user.roleName == 'Asset Staff'}">
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-success ms-1 btn-alloc-approve"
+                                                            data-req-id="${req.requestId}"
+                                                            data-stock-status="${req.stockStatus}"
+                                                            data-total="${req.totalRequestedAssets}"
+                                                            data-available="${req.totalAvailableInStock}"
+                                                            title="Phê duyệt yêu cầu">
+                                                        <i class="bi bi-check2-circle"></i>
+                                                    </button>
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-outline-danger ms-1 btn-alloc-reject"
+                                                            data-req-id="${req.requestId}"
+                                                            title="Từ chối yêu cầu">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </button>
+                                                </c:if>
+
+                                                <!-- Edit and Cancel for Head of Dept (creator) when Pending -->
+                                                <c:if test="${req.status == 'Pending' && sessionScope.user.roleName == 'Head of Dept' && req.createdBy == sessionScope.user.userId}">
+                                                    <a href="${pageContext.request.contextPath}/request/allocation-edit?id=${req.requestId}"
+                                                       class="btn btn-sm btn-outline-warning ms-1"
+                                                       title="Chỉnh sửa yêu cầu">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-outline-danger ms-1 btn-alloc-cancel"
+                                                            data-req-id="${req.requestId}"
+                                                            title="Hủy yêu cầu này">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </c:if>
                                             </td>
                                         </tr>
                                     </c:forEach>
@@ -254,6 +324,20 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Hidden form for approve/reject actions from list -->
+                <form id="allocationListActionForm" method="post"
+                      action="${pageContext.request.contextPath}/request/approve" class="d-none">
+                    <input type="hidden" name="id" id="listActionRequestId">
+                    <input type="hidden" name="action" id="listActionType">
+                    <input type="hidden" name="reasonReject" id="listActionReason">
+                </form>
+
+                <!-- Hidden form for cancel (Head of Dept) -->
+                <form id="allocationCancelForm" method="post"
+                      action="${pageContext.request.contextPath}/request/cancel" class="d-none">
+                    <input type="hidden" name="id" id="cancelRequestId">
+                </form>
 
                 <!-- ===== Pagination ===== -->
                 <c:if test="${totalPages > 0}">
@@ -304,16 +388,149 @@
 
     <jsp:include page="../components/footer.jsp" />
 
-    <!-- Tooltip init -->
+    <!-- Reusable confirmation modal for list actions -->
+    <jsp:include page="../components/confirm-modal.jsp" />
+
+    <!-- Tooltip + Approve/Reject from list -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Tooltip init
             var tooltipTriggerList = [].slice.call(
-                document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                    document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tooltipTriggerList.forEach(function (el) {
                 new bootstrap.Tooltip(el);
             });
+
+            // // Auto-hide flash messages after 3s
+            // setTimeout(function () {
+            //     document.querySelectorAll('.cfms-msg').forEach(function (el) {
+            //         el.style.transition = 'opacity 0.3s';
+            //         el.style.opacity = '0';
+            //         setTimeout(function () {
+            //             el.style.display = 'none';
+            //         }, 300);
+            //     });
+            // }, 3000);
+
+            // Approve / Reject from list
+            (function () {
+                var form = document.getElementById('allocationListActionForm');
+                if (!form) {
+                    return;
+                }
+
+                var idInput = document.getElementById('listActionRequestId');
+                var actionInput = document.getElementById('listActionType');
+                var reasonInput = document.getElementById('listActionReason');
+
+                // Approve buttons
+                document.querySelectorAll('.btn-alloc-approve').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var reqId = btn.getAttribute('data-req-id');
+                        var stockStatus = btn.getAttribute('data-stock-status') || '';
+                        var totalReq = parseInt(btn.getAttribute('data-total') || '0', 10);
+                        var totalAvail = parseInt(btn.getAttribute('data-available') || '0', 10);
+                        var shortage = totalReq - totalAvail;
+
+                        var message = 'Bạn có chắc chắn muốn duyệt yêu cầu REQ-' + reqId + ' ?';
+                        var extraHtml = '';
+                        if (stockStatus === 'PARTIAL' || stockStatus === 'NONE') {
+                            extraHtml = '<div class="alert alert-warning p-2 mb-0 small">'
+                                    + 'Tồn kho hiện tại chỉ đáp ứng <strong>' + totalAvail + '/' + totalReq + '</strong> tài sản.<br>'
+                                    + 'Hệ thống sẽ tự động tạo <strong>đề xuất mua sắm</strong> cho '
+                                    + '<strong>' + (shortage > 0 ? shortage : 0) + '</strong> tài sản còn thiếu.'
+                                    + '</div>';
+                        }
+
+                        if (window.CFMS_CONFIRM) {
+                            CFMS_CONFIRM({
+                                title: 'Xác nhận duyệt yêu cầu',
+                                message: message,
+                                extraHtml: extraHtml,
+                                danger: false,
+                                requireReason: false,
+                                onConfirm: function () {
+                                    idInput.value = reqId;
+                                    actionInput.value = 'approve';
+                                    reasonInput.value = '';
+                                    form.submit();
+                                }
+                            });
+                        } else {
+                            if (confirm(message)) {
+                                idInput.value = reqId;
+                                actionInput.value = 'approve';
+                                reasonInput.value = '';
+                                form.submit();
+                            }
+                        }
+                    });
+                });
+
+                // Reject buttons
+                document.querySelectorAll('.btn-alloc-reject').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var reqId = btn.getAttribute('data-req-id');
+                        if (window.CFMS_CONFIRM) {
+                            CFMS_CONFIRM({
+                                title: 'Xác nhận từ chối yêu cầu',
+                                message: 'Bạn có chắc chắn muốn từ chối yêu cầu REQ-' + reqId + ' ?',
+                                danger: true,
+                                requireReason: true,
+                                reasonLabel: 'Lý do từ chối',
+                                reasonPlaceholder: 'Nhập lý do từ chối...',
+                                onConfirm: function (reasonText) {
+                                    idInput.value = reqId;
+                                    actionInput.value = 'reject';
+                                    reasonInput.value = reasonText;
+                                    form.submit();
+                                }
+                            });
+                        } else {
+                            var reason = prompt('Nhập lý do từ chối cho REQ-' + reqId + ':');
+                            if (reason && reason.trim().length > 0) {
+                                idInput.value = reqId;
+                                actionInput.value = 'reject';
+                                reasonInput.value = reason.trim();
+                                form.submit();
+                            }
+                        }
+                    });
+                });
+
+                // Cancel buttons (Head of Dept)
+                var cancelForm = document.getElementById('allocationCancelForm');
+                var cancelIdInput = document.getElementById('cancelRequestId');
+                if (cancelForm && cancelIdInput) {
+                    document.querySelectorAll('.btn-alloc-cancel').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            var reqId = btn.getAttribute('data-req-id');
+                            var message = 'Bạn có chắc chắn muốn hủy yêu cầu REQ-' + reqId + ' ?';
+
+                            if (window.CFMS_CONFIRM) {
+                                CFMS_CONFIRM({
+                                    title: 'Xác nhận hủy yêu cầu',
+                                    message: message,
+                                    danger: true,
+                                    requireReason: false,
+                                    onConfirm: function () {
+                                        cancelIdInput.value = reqId;
+                                        cancelForm.submit();
+                                    }
+                                });
+                            } else {
+                                if (confirm(message)) {
+                                    cancelIdInput.value = reqId;
+                                    cancelForm.submit();
+                                }
+                            }
+                        });
+                    });
+                }
+            })();
         });
     </script>
+    <script src="${pageContext.request.contextPath}/js/message-auto-hide.js"></script>
 
 </body>
 </html>

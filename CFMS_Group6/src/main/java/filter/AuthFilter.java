@@ -14,32 +14,29 @@ import java.io.IOException;
  */
 
 @WebFilter({
-    // --- 1. KHU VỰC CHUNG & DASHBOARD ---
-    "/report/dashboard", //Landing Page của Hiệu trưởng
-    "/profile",
-    "/profile/update",
-    "/change-password",
-    
-    
-    // --- 2. QUẢN LÝ TÀI SẢN & DANH MỤC ---
-    "/asset/*", // Dùng wildcard bao quát hết list/create/update...
-    "/category/*",
-    
-    
-    // --- 3. QUẢN LÝ YÊU CẦU & MUA SẮM ---
-    "/request/allocation-list", //Landing Page của NV QLTS
-    "/request/my-requests", //Landing Page của Trưởng ban
-    "/request/*",
-    "/procurement/*",
-    
-    
-    // --- 4. QUẢN LÝ ĐIỀU CHUYỂN ---
-    "/transfer/*",
-    
-    
-    // --- 5. BÁO CÁO & ADMIN ---
-    "/report/*",
-    "/admin/*"
+        // --- 1. KHU VỰC CHUNG & DASHBOARD ---
+        "/dashboard",
+        "/report/dashboard", // Landing Page của Hiệu trưởng
+        "/profile",
+        "/profile/update",
+        "/change-password",
+
+        // --- 2. QUẢN LÝ TÀI SẢN & DANH MỤC ---
+        "/asset/*", // Dùng wildcard bao quát hết list/create/update...
+        "/category/*",
+
+        // --- 3. QUẢN LÝ YÊU CẦU & MUA SẮM ---
+        "/request/allocation-list", // Landing Page của NV QLTS
+        "/request/my-requests", // Landing Page của Trưởng ban
+        "/request/*",
+        "/procurement/*",
+
+        // --- 4. QUẢN LÝ ĐIỀU CHUYỂN ---
+        "/transfer/*",
+
+        // --- 5. BÁO CÁO & ADMIN ---
+        "/report/*",
+        "/admin/*"
 })
 public class AuthFilter implements Filter {
 

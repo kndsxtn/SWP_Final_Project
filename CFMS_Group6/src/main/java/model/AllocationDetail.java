@@ -9,7 +9,11 @@ public class AllocationDetail {
     private int detailId;
     private int requestId;
     private int assetId;
+    private int quantity;
     private String note;
+
+    /** Số lượng tồn kho hiện có cho asset này (dùng khi hiển thị cột Tồn kho). */
+    private int availableInStock;
 
     // Relationships
     private Asset asset;
@@ -17,10 +21,11 @@ public class AllocationDetail {
     public AllocationDetail() {
     }
 
-    public AllocationDetail(int detailId, int requestId, int assetId, String note) {
+    public AllocationDetail(int detailId, int requestId, int assetId, int quantity, String note) {
         this.detailId = detailId;
         this.requestId = requestId;
         this.assetId = assetId;
+        this.quantity = quantity;
         this.note = note;
     }
 
@@ -48,12 +53,28 @@ public class AllocationDetail {
         this.assetId = assetId;
     }
 
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
     public String getNote() {
         return note;
     }
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public int getAvailableInStock() {
+        return availableInStock;
+    }
+
+    public void setAvailableInStock(int availableInStock) {
+        this.availableInStock = availableInStock;
     }
 
     public Asset getAsset() {

@@ -1,0 +1,23 @@
+.cfms-btn-group-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cfms-btn-group-right .btn {
+    min-width: 150px;
+    white-space: nowrap;
+}
+
+@media (max-width: 576px) {
+    .cfms-btn-group-right {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .cfms-btn-group-right .btn {
+        width: 100%;
+    }
+}
+

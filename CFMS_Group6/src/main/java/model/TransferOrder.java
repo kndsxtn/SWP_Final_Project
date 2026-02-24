@@ -14,6 +14,11 @@ public class TransferOrder {
     private int destRoomId;
     private Date createdDate;
     private int approvedBy;
+    private Date approvedDate;
+    private Date completedDate;
+    private Integer rejectedBy;
+    private Date rejectedDate;
+    private String reasonReject;
     private String status;
     private String note;
 
@@ -22,6 +27,7 @@ public class TransferOrder {
     private Room sourceRoom;
     private Room destRoom;
     private User approver;
+    private User rejector;
     private List<TransferDetail> details;
 
     public TransferOrder() {
@@ -87,6 +93,46 @@ public class TransferOrder {
         this.approvedBy = approvedBy;
     }
 
+    public Date getApprovedDate() {
+        return approvedDate;
+    }
+
+    public void setApprovedDate(Date approvedDate) {
+        this.approvedDate = approvedDate;
+    }
+
+    public Date getCompletedDate() {
+        return completedDate;
+    }
+
+    public void setCompletedDate(Date completedDate) {
+        this.completedDate = completedDate;
+    }
+
+    public Integer getRejectedBy() {
+        return rejectedBy;
+    }
+
+    public void setRejectedBy(Integer rejectedBy) {
+        this.rejectedBy = rejectedBy;
+    }
+
+    public Date getRejectedDate() {
+        return rejectedDate;
+    }
+
+    public void setRejectedDate(Date rejectedDate) {
+        this.rejectedDate = rejectedDate;
+    }
+
+    public String getReasonReject() {
+        return reasonReject;
+    }
+
+    public void setReasonReject(String reasonReject) {
+        this.reasonReject = reasonReject;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -133,6 +179,14 @@ public class TransferOrder {
 
     public void setApprover(User approver) {
         this.approver = approver;
+    }
+
+    public User getRejector() {
+        return rejector;
+    }
+
+    public void setRejector(User rejector) {
+        this.rejector = rejector;
     }
 
     public List<TransferDetail> getDetails() {

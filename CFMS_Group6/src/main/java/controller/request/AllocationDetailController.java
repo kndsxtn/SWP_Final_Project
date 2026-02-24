@@ -53,6 +53,9 @@ public class AllocationDetailController extends HttpServlet {
         List<AllocationDetail> details = dao.getDetailsFullByRequestId(id);
         req.setDetails(details);
 
+        // UC13: also compute stock information for this request
+        dao.populateStockInfo(req);
+
         request.setAttribute("req", req);
 
         request.getRequestDispatcher("/views/request/allocation-detail.jsp")
