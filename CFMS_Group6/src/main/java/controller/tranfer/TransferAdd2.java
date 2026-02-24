@@ -4,7 +4,7 @@
  */
 package controller.tranfer;
 
-import dal.AssetDao;
+import dal.AssetDAO;
 import dal.RoomDao;
 import dal.TransferDao;
 import dto.UserDto;
@@ -91,7 +91,7 @@ public class TransferAdd2 extends HttpServlet {
         List<Room> rooms = rDao.getAll();
         request.setAttribute("rooms", rooms);
         if (srcRoomId != null) {
-            AssetDao aDao = new AssetDao();
+            AssetDAO aDao = new AssetDAO();
             List<Asset> assets = aDao.getByRoomId(srcRoomId);
             request.setAttribute("assets", assets);
         }
@@ -118,7 +118,7 @@ public class TransferAdd2 extends HttpServlet {
             }
         }
         TransferDao tDao = new TransferDao();
-        AssetDao aDao = new AssetDao();
+        AssetDAO aDao = new AssetDAO();
         TransferOrder t = new TransferOrder();
 
         System.out.println("Selected assets: " + selectedAssetIds);
