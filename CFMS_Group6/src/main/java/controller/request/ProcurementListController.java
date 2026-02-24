@@ -1,7 +1,6 @@
 package controller.request;
 
-import dal.AllocationRequestDao;
-import dto.UserDto;
+import dal.ProcurementRequestDao;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -10,15 +9,14 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import model.AllocationDetail;
-import model.AllocationRequest;
+import model.ProcurementDetail;
+import model.ProcurementRequest;
 
 /**
- *
- * @author Nguyen Dang Khang
+ * Controller for procurement list page.
  */
-@WebServlet(name = "AllocationListController", urlPatterns = {"/request/allocation-list"})
-public class AllocationListController extends HttpServlet {
+@WebServlet(name = "ProcurementListController", urlPatterns = {"/request/procurement-list"})
+public class ProcurementListController extends HttpServlet {
 
     private static final int PAGE_SIZE = 5;
 
@@ -32,15 +30,11 @@ public class AllocationListController extends HttpServlet {
             return;
         }
 
-        UserDto user = (UserDto) session.getAttribute("user");
-
-        // --- Filter param ---
         String statusFilter = request.getParameter("status");
         if (statusFilter != null && statusFilter.isEmpty()) {
             statusFilter = null;
         }
 
-        // --- Search param ---
         String keyword = request.getParameter("keyword");
         if (keyword != null && keyword.trim().isEmpty()) {
             keyword = null;
@@ -49,7 +43,6 @@ public class AllocationListController extends HttpServlet {
             keyword = keyword.trim();
         }
 
-        // --- Page param ---
         int page = 1;
         try {
             page = Integer.parseInt(request.getParameter("page"));
@@ -57,36 +50,20 @@ public class AllocationListController extends HttpServlet {
         } catch (NumberFormatException ignored) {
         }
 
-        // --- Query data ---
-        AllocationRequestDao dao = new AllocationRequestDao();
-        List<AllocationRequest> list;
-        int totalRecords;
+        ProcurementRequestDao dao = new ProcurementRequestDao();
+        List<ProcurementRequest> list = dao.getRequests(statusFilter, keyword, page, PAGE_SIZE);
+        int totalRecords = dao.countRequests(statusFilter, keyword);
 
-        // Asset Staff, Finance Head, Principal, Admin... xem tất cả
-        // Trưởng bộ môn (Head of Dept) chỉ xem các yêu cầu do chính mình tạo
-        String roleName = user.getRoleName();
-        boolean isHeadOfDept = "Head of Dept".equals(roleName);
-
-        if (isHeadOfDept) {
-            list = dao.getRequestsByCreator(user.getUserId(), statusFilter, keyword, page, PAGE_SIZE);
-            totalRecords = dao.countRequestsByCreator(user.getUserId(), statusFilter, keyword);
-        } else {
-            list = dao.getRequests(statusFilter, keyword, page, PAGE_SIZE);
-            totalRecords = dao.countRequests(statusFilter, keyword);
-        }
-
-        for (AllocationRequest req : list) {
-            List<AllocationDetail> details = dao.getDetailsByRequestId(req.getRequestId());
+        for (ProcurementRequest req : list) {
+            List<ProcurementDetail> details = dao.getDetailsByProcurementId(req.getProcurementId());
             req.setDetails(details);
-            dao.populateStockInfo(req);
-            dao.populateDetailsStockInfo(req.getDetails());
         }
+
         int totalPages = (int) Math.ceil((double) totalRecords / PAGE_SIZE);
         if (page > totalPages && totalPages > 0) {
             page = totalPages;
         }
 
-        // --- Set attributes ---
         request.setAttribute("list", list);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
@@ -95,7 +72,7 @@ public class AllocationListController extends HttpServlet {
         request.setAttribute("statusFilter", statusFilter);
         request.setAttribute("keyword", keyword);
 
-        request.getRequestDispatcher("/views/request/allocation-list.jsp")
+        request.getRequestDispatcher("/views/request/procurement-list.jsp")
                 .forward(request, response);
     }
 }

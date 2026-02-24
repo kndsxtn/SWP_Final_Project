@@ -1,0 +1,27 @@
+.cfms-confirm-modal .modal-header {
+    border-bottom: 1px solid var(--border-light);
+}
+
+.cfms-confirm-modal .modal-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.cfms-confirm-modal .modal-body {
+    font-size: 0.9rem;
+    color: var(--text-body);
+}
+
+.cfms-confirm-modal .modal-body p {
+    margin-bottom: 0.75rem;
+}
+
+.cfms-confirm-modal .form-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.cfms-confirm-modal textarea.form-control {
+    font-size: 0.85rem;
+}
+
