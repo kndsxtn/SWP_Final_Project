@@ -27,7 +27,7 @@ import model.User;
 
 /**
  *
- * @author Admin
+ * @author Pham Van Tung
  */
 @WebServlet(name = "TransferAdd2", urlPatterns = {"/transfer/addstep2"})
 public class TransferAdd2 extends HttpServlet {
@@ -136,7 +136,7 @@ public class TransferAdd2 extends HttpServlet {
 
         List<Asset> selectedAssetList = new ArrayList<>();
         for (int id : selectedAssetIds) {
-            Asset a = aDao.getById(id);
+            Asset a = aDao.getById2(id);
             selectedAssetList.add(a);
         }
         t.setCreatedBy(u.getUserId());

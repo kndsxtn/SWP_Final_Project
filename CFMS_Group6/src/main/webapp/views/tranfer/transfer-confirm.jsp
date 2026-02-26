@@ -1,7 +1,7 @@
 <%-- 
     Document   : transfer-confirm
     Created on : Feb 13, 2026, 2:06:36 PM
-    Author     : Admin
+    Author     : Pham Van Tung
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>

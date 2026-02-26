@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 /**
  *
- * @author Admin
+ * @author Pham Van Tung
  */
 @WebServlet(name="TransferConfirmController", urlPatterns={"/transfer/confirm"})
 public class TransferConfirmController extends HttpServlet {
