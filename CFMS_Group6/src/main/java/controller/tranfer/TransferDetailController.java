@@ -18,7 +18,7 @@ import model.TransferDetail;
 
 /**
  *
- * @author Admin
+ * @author Pham Van Tung
  */
 @WebServlet(name="TransferDetailController", urlPatterns={"/transfer/detail"})
 public class TransferDetailController extends HttpServlet {

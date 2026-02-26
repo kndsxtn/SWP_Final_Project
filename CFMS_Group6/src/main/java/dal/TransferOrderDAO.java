@@ -174,7 +174,7 @@ public class TransferOrderDAO {
                 t.setDestRoomId(rs.getInt("dest_room_id"));
                 t.setStatus(rs.getString("status"));
                 t.setNote(rs.getString("note"));
-                t.setCreatedDate(rs.getTimestamp("created_at"));
+                t.setCreatedDate(rs.getTimestamp("created_date"));
                 return t;
             }
 
@@ -237,20 +237,7 @@ public class TransferOrderDAO {
         }
     }
 
-    // Xoá phiếu (chỉ dùng khi Pending)
-    public void delete(int transferId) {
-        String sql = "DELETE FROM transfer_orders WHERE transfer_id = ? AND status = 'Pending'";
-
-        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, transferId);
-            ps.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
+/// lấy thông tin transfer order theo phòng nguồn
     public List<TransferOrder> selectByDeptId(int deptId) {
         List<TransferOrder> list = new ArrayList<>();
         String sql = " SELECT \n"
@@ -325,6 +312,7 @@ public class TransferOrderDAO {
         return list;
     }
 
+    /// lấy thông tin transfer order theo phòng đích
     public List<TransferOrder> selectByDeptId2(int deptId) {
         List<TransferOrder> list = new ArrayList<>();
         String sql = " SELECT \n"

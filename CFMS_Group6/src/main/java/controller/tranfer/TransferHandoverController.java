@@ -20,7 +20,7 @@ import model.TransferOrder;
 
 /**
  *
- * @author Admin
+ * @author Pham Van Tung
  */
 @WebServlet(name = "TransferHandoverController", urlPatterns = {"/transfer/handover"})
 public class TransferHandoverController extends HttpServlet {

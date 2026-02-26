@@ -1,7 +1,7 @@
 <%-- 
     Document   : transfer-receive
     Created on : Feb 13, 2026, 2:28:33 PM
-    Author     : Admin
+    Author     : Pham Van Tung
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
