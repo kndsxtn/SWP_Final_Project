@@ -28,7 +28,8 @@ public class TransferDetailDao {
             while (rs.next()) {
                 TransferDetail td = new TransferDetail();
                 Asset a = new Asset();
-                td.setAssetId(id);
+                td.setTransferId(id);
+                td.setAssetId(rs.getInt("asset_id"));
                 td.setTransferDate(rs.getDate("transfer_date"));
                 td.setStatusAtTransfer(rs.getString("status_at_transfer"));
 
