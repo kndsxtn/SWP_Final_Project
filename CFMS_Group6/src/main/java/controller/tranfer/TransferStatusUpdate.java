@@ -4,6 +4,7 @@
  */
 package controller.tranfer;
 
+import dal.AssetDAO;
 import dal.AssetHistoryDao;
 import dal.TransferDetailDao;
 import dal.TransferOrderDAO;
@@ -18,10 +19,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import model.TransferDetail;
+import model.TransferOrder;
 
 /**
  *
- * @author Admin
+ * @author Pham Van Tung
  */
 @WebServlet(name = "TransferStatusUpdate", urlPatterns = {"/transfer/update"})
 public class TransferStatusUpdate extends HttpServlet {
@@ -65,18 +67,26 @@ public class TransferStatusUpdate extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
+
+        // Lấy thông tin về id TO, status muốn cập nhật, tên phòng
         int id = Integer.parseInt(request.getParameter("id").trim());
         String status = request.getParameter("status");
         String room = request.getParameter("room");
+        
+        System.out.println(id);
+        System.out.println(status);
+        System.out.println(room);
         TransferOrderDAO tDao = new TransferOrderDAO();
         AssetHistoryDao assetHistoryDao = new AssetHistoryDao();
+        AssetDAO assetDao = new AssetDAO();
         tDao.updateStatus(id, status);
         UserDto u = (UserDto) session.getAttribute("user");
+
         if (status.equals("Ongoing")) {
             TransferDetailDao tdDao = new TransferDetailDao();
             List<TransferDetail> transferDetails = tdDao.getByTransferId(id);
-            for (TransferDetail t:transferDetails) {
-                assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(), "Tài sản được chuyển ra khỏi phòng "+room, "Làm theo đơn chuyển tài sản");
+            for (TransferDetail t : transferDetails) {
+                assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(), "Tài sản được chuyển ra khỏi phòng " + room, "Làm theo đơn chuyển tài sản");
             }
             response.sendRedirect(request.getContextPath() + "/transfer/handover");
         }
@@ -89,17 +99,30 @@ public class TransferStatusUpdate extends HttpServlet {
         }
         if (status.equals("Completed")) {
             TransferDetailDao tdDao = new TransferDetailDao();
+            System.out.println("==== ENTER COMPLETED ====");
+
+            TransferOrder transferOrder = tDao.getById(id);
+
+            System.out.println("transferOrder = " + transferOrder);
+
+            if (transferOrder != null) {
+                System.out.println("DestRoomId = " + transferOrder.getDestRoomId());
+            } else {
+                System.out.println("TRANSFER ORDER IS NULL");
+            }
             List<TransferDetail> transferDetails = tdDao.getByTransferId(id);
-            for (TransferDetail t:transferDetails) {
-                assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(), "Tài sản được chuyển vào phòng "+room, "Làm theo đơn chuyển tài sản");
+            for (TransferDetail t : transferDetails) {
+                System.out.println("DestRoomId = " + transferOrder.getDestRoomId());
+                assetDao.setRoomId(transferOrder.getDestRoomId(), t.getAssetId());
+                assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(), "Tài sản được chuyển vào phòng " + room, "Làm theo đơn chuyển tài sản");
             }
             response.sendRedirect(request.getContextPath() + "/transfer/receive");
         }
         if (status.equals("Failed")) {
             TransferDetailDao tdDao = new TransferDetailDao();
             List<TransferDetail> transferDetails = tdDao.getByTransferId(id);
-            for (TransferDetail t:transferDetails) {
-                assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(), "Tài sản trả về phòng "+room, "Làm theo đơn chuyển tài sản");
+            for (TransferDetail t : transferDetails) {
+                assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(), "Tài sản trả về phòng " + room, "Làm theo đơn chuyển tài sản");
             }
             response.sendRedirect(request.getContextPath() + "/transfer/receive");
         }
