@@ -14,9 +14,8 @@ import java.sql.Statement;
 import java.time.LocalDate;
 
 /**
- * DAO xử lý nghiệp vụ truy vấn bảng assets.
- * Phục vụ UC05-UC10: Thêm / Xem / Tìm kiếm / Sửa / Cập nhật trạng thái / Xóa
- * tài sản.
+ * DAO xử lý nghiệp vụ truy vấn bảng assets. Phục vụ UC05-UC10: Thêm / Xem / Tìm
+ * kiếm / Sửa / Cập nhật trạng thái / Xóa tài sản.
  *
  * @author Vũ Quang Hiếu
  */
@@ -40,9 +39,7 @@ public class AssetDAO {
         List<Asset> assets = new ArrayList<>();
         String sql = SELECT_WITH_JOIN + "ORDER BY a.asset_id DESC";
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 assets.add(mapAsset(rs));
@@ -56,11 +53,11 @@ public class AssetDAO {
     /**
      * Tìm kiếm và lọc danh sách tài sản với phân trang.
      *
-     * @param keyword    Tìm theo mã, tên, mô tả (null = bỏ qua)
+     * @param keyword Tìm theo mã, tên, mô tả (null = bỏ qua)
      * @param categoryId Lọc theo danh mục (0 = tất cả)
-     * @param status     Lọc theo trạng thái (null = tất cả)
-     * @param page       Trang hiện tại (bắt đầu từ 1)
-     * @param pageSize   Số bản ghi mỗi trang
+     * @param status Lọc theo trạng thái (null = tất cả)
+     * @param page Trang hiện tại (bắt đầu từ 1)
+     * @param pageSize Số bản ghi mỗi trang
      */
     public List<Asset> search(String keyword, int categoryId, String status, int page, int pageSize) {
         List<Asset> assets = new ArrayList<>();
@@ -75,8 +72,7 @@ public class AssetDAO {
         params.add((page - 1) * pageSize);
         params.add(pageSize);
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
             setParams(ps, params);
             ResultSet rs = ps.executeQuery();
@@ -97,13 +93,13 @@ public class AssetDAO {
         List<Object> params = new ArrayList<>();
         appendFilters(sql, params, keyword, categoryId, status);
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
             setParams(ps, params);
             ResultSet rs = ps.executeQuery();
-            if (rs.next())
+            if (rs.next()) {
                 return rs.getInt(1);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -113,15 +109,13 @@ public class AssetDAO {
     // ═══════════════════════════════════════════
     // UC07: Xem chi tiết tài sản
     // ═══════════════════════════════════════════
-
     /**
      * Lấy 1 tài sản theo ID, kèm thông tin category/supplier/room.
      */
     public Asset getById(int assetId) {
         String sql = SELECT_WITH_JOIN + "WHERE a.asset_id = ?";
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, assetId);
             ResultSet rs = ps.executeQuery();
@@ -142,8 +136,7 @@ public class AssetDAO {
         String prefix = "";
         String sqlGetPrefix = "SELECT prefix_code FROM categories WHERE category_id = ?";
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sqlGetPrefix)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sqlGetPrefix)) {
             ps.setInt(1, categoryId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -153,16 +146,16 @@ public class AssetDAO {
             e.printStackTrace();
             return null;
         }
-        if (prefix.isEmpty())
+        if (prefix.isEmpty()) {
             return null;
+        }
 
         int currentYear = LocalDate.now().getYear();
         String codePattern = prefix + "-" + currentYear + "-%";
         String sqlGetMaxCode = "SELECT TOP 1 asset_code FROM assets WHERE asset_code LIKE ? ORDER BY asset_code DESC";
         String nextCode = prefix + "-" + currentYear + "-001";
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sqlGetMaxCode)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sqlGetMaxCode)) {
             ps.setString(1, codePattern);
             ResultSet rs = ps.executeQuery();
 
@@ -183,13 +176,14 @@ public class AssetDAO {
     }
 
     /**
-     * Thêm mới tài sản. Mã tài sản được tự động sinh.
-     * Trả về asset_id vừa tạo (dùng để insert ảnh), trả -1 nếu lỗi.
+     * Thêm mới tài sản. Mã tài sản được tự động sinh. Trả về asset_id vừa tạo
+     * (dùng để insert ảnh), trả -1 nếu lỗi.
      */
     public int insertAsset(Asset asset) {
         String generatedCode = generateAssetCode(asset.getCategoryId());
-        if (generatedCode == null)
+        if (generatedCode == null) {
             return -1;
+        }
 
         asset.setAssetCode(generatedCode);
 
@@ -197,8 +191,7 @@ public class AssetDAO {
                 + "price, purchase_date, warranty_expiry_date, status, quantity, description, created_at) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, asset.getAssetCode());
             ps.setString(2, asset.getAssetName());
@@ -235,8 +228,7 @@ public class AssetDAO {
     public boolean insertImage(int assetId, String imageUrl, String description) {
         String sql = "INSERT INTO asset_images (asset_id, image_url, description) VALUES (?, ?, ?)";
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, assetId);
             ps.setString(2, imageUrl);
@@ -255,8 +247,7 @@ public class AssetDAO {
         List<AssetImage> images = new ArrayList<>();
         String sql = "SELECT * FROM asset_images WHERE asset_id = ? ORDER BY uploaded_at DESC";
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, assetId);
             ResultSet rs = ps.executeQuery();
@@ -281,8 +272,7 @@ public class AssetDAO {
     public boolean deleteImage(int imageId) {
         String sql = "DELETE FROM asset_images WHERE image_id = ?";
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, imageId);
             return ps.executeUpdate() > 0;
@@ -298,8 +288,7 @@ public class AssetDAO {
     public AssetImage getImageById(int imageId) {
         String sql = "SELECT * FROM asset_images WHERE image_id = ?";
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, imageId);
             ResultSet rs = ps.executeQuery();
@@ -327,8 +316,7 @@ public class AssetDAO {
                 + "room_id = ?, price = ?, purchase_date = ?, warranty_expiry_date = ?, "
                 + "quantity = ?, description = ? WHERE asset_id = ?";
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, asset.getAssetName());
             ps.setInt(2, asset.getCategoryId());
@@ -350,14 +338,13 @@ public class AssetDAO {
 
     // UC09: Cập nhật trạng thái tài sản
     /**
-     * Cập nhật trạng thái tài sản: New, In_Use, Maintenance, Broken, Liquidated,
-     * Lost.
+     * Cập nhật trạng thái tài sản: New, In_Use, Maintenance, Broken,
+     * Liquidated, Lost.
      */
     public boolean updateStatus(int assetId, String newStatus) {
         String sql = "UPDATE assets SET status = ? WHERE asset_id = ?";
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, newStatus);
             ps.setInt(2, assetId);
@@ -377,14 +364,11 @@ public class AssetDAO {
     }
 
     // Dropdown data: Lấy danh sách Category, Supplier, Room cho form
-
     public List<Category> getAllCategories() {
         List<Category> list = new ArrayList<>();
         String sql = "SELECT * FROM categories ORDER BY category_name";
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Category c = new Category();
@@ -404,9 +388,7 @@ public class AssetDAO {
         List<Supplier> list = new ArrayList<>();
         String sql = "SELECT * FROM suppliers ORDER BY supplier_name";
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Supplier s = new Supplier();
@@ -424,9 +406,7 @@ public class AssetDAO {
         List<Room> list = new ArrayList<>();
         String sql = "SELECT * FROM rooms ORDER BY room_name";
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Room r = new Room();
@@ -511,33 +491,42 @@ public class AssetDAO {
         }
     }
 
-    /** Set params cho PreparedStatement từ List<Object>. */
+    /**
+     * Set params cho PreparedStatement từ List<Object>.
+     */
     private void setParams(PreparedStatement ps, List<Object> params) throws Exception {
         for (int i = 0; i < params.size(); i++) {
             Object p = params.get(i);
-            if (p instanceof String)
+            if (p instanceof String) {
                 ps.setString(i + 1, (String) p);
-            else if (p instanceof Integer)
+            } else if (p instanceof Integer) {
                 ps.setInt(i + 1, (Integer) p);
+            }
         }
     }
 
-    /** Set int hoặc NULL nếu giá trị <= 0. */
+    /**
+     * Set int hoặc NULL nếu giá trị <= 0.
+     */
     private void setNullableInt(PreparedStatement ps, int index, int value) throws Exception {
-        if (value > 0)
+        if (value > 0) {
             ps.setInt(index, value);
-        else
+        } else {
             ps.setNull(index, java.sql.Types.INTEGER);
+        }
     }
 
-    /** Set Date hoặc NULL. */
+    /**
+     * Set Date hoặc NULL.
+     */
     private void setNullableDate(PreparedStatement ps, int index, java.util.Date value) throws Exception {
-        if (value != null)
+        if (value != null) {
             ps.setDate(index, new java.sql.Date(value.getTime()));
-        else
+        } else {
             ps.setNull(index, java.sql.Types.DATE);
+        }
     }
-    
+
     /*Phần của pvtung*/
     public List<Asset> getByRoomId(int id) {
         String sql = "SELECT * FROM assets WHERE room_id = ?";
@@ -554,6 +543,39 @@ public class AssetDAO {
                 assets.add(a);
             }
             return assets;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void setRoomId(int roomId, int assetId) {
+        String sql = "UPDATE assets SET room_id = ? WHERE asset_id = ?";
+
+        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, roomId);
+            ps.setInt(2, assetId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public Asset getById2(int id) {
+        String sql = "SELECT * FROM assets WHERE asset_id = ?";
+        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Asset a = new Asset();
+                a.setAssetId(rs.getInt("asset_id"));
+                a.setAssetCode(rs.getString("asset_code"));
+                a.setAssetName(rs.getString("asset_name"));
+                a.setStatus(rs.getString("status"));
+                return a;
+            }
+            return null;
 
         } catch (Exception e) {
             e.printStackTrace();
