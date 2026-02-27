@@ -19,7 +19,7 @@ import java.util.List;
  *
  * @author Nguyen Dinh Giap
  */
-@WebServlet(name="AdminController", urlPatterns={"/admin/user-list"})
+@WebServlet(name="AdminController", urlPatterns={"/user-mgt/user-list"})
 public class UserManagementController extends HttpServlet {
    
     @Override
@@ -33,7 +33,7 @@ public class UserManagementController extends HttpServlet {
         request.setAttribute("list", list);
         
         //forward sang trang jsp
-        request.getRequestDispatcher("/views/admin/user-list.jsp").forward(request, response);
+        request.getRequestDispatcher("/views/user-mgt/user-list.jsp").forward(request, response);
     } 
 
 }

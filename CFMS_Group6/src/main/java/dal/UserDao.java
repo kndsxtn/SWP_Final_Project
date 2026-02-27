@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class UserDao {
 
-    //login
+    // login
     public UserDto checkLogin(String userName, String password) {
         String sql = "SELECT u.*, r.role_name FROM Users u "
                 + "JOIN Roles r ON u.role_id = r.role_id "
@@ -36,7 +36,7 @@ public class UserDao {
         return null;
     }
 
-    //get profile
+    // get profile
     public UserDto getUserByid(int userId) {
         String sql = "SELECT u.*, r.role_name FROM Users u "
                 + "JOIN Roles r ON u.role_id = r.role_id "
@@ -53,7 +53,7 @@ public class UserDao {
         return null;
     }
 
-    //update profile
+    // update profile
     public boolean updateProfile(UserDto user) {
         String sql = "UPDATE Users SET full_name=?,"
                 + " phone=?, email=? WHERE user_id=?";
@@ -69,7 +69,7 @@ public class UserDao {
         return false;
     }
 
-    //change password
+    // change password
     public boolean changePassword(int userId, String newPass) {
         String sql = "UPDATE Users SET password_hash=? WHERE user_id=?";
         try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -81,29 +81,31 @@ public class UserDao {
         }
         return false;
     }
-    
-    //lay pasword bang usename
-    public String getPasswordByUserName(String username){
+
+    // lay pasword bang usename
+    public String getPasswordByUserName(String username) {
         String sql = "SELECT [password_hash] FROM Users WHERE username = ?";
         try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, username);
-            try(ResultSet rs  = ps.executeQuery()) {
-                if(rs.next()){
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
                     return rs.getString("password_hash");
                 }
-            } 
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    //get all user
+    // get all user
     public List<UserDto> getAllUser() {
         List<UserDto> list = new ArrayList<>();
         String sql = "SELECT u.*, r.role_name FROM Users u "
                 + "JOIN Roles r ON u.role_id = r.role_id";
-        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 list.add(mapUserDto(rs));
@@ -114,35 +116,78 @@ public class UserDao {
         return list;
     }
 
-    //kiem tra xem user co ton tai ko
-   public UserDto getUserByUserName(String userName) {
-    String sql = "SELECT u.*, r.role_name "
-            + "FROM Users u "
-            + "JOIN Roles r ON u.role_id = r.role_id "
-            + "WHERE u.username = ?";
+    // kiem tra xem user co ton tai ko
+    public UserDto getUserByUserName(String userName) {
+        String sql = "SELECT u.*, r.role_name "
+                + "FROM Users u "
+                + "JOIN Roles r ON u.role_id = r.role_id "
+                + "WHERE u.username = ?";
 
-    try (Connection con = new DBContext().getConnection(); 
-         PreparedStatement ps = con.prepareStatement(sql)) {
-        
-        // truyen gia tri ?
-        ps.setString(1, userName);
-        
-        // thuc thi cau lenh sql
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                
-                //Map data
-                return mapUserDto(rs);
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+
+            // truyen gia tri ?
+            ps.setString(1, userName);
+
+            // thuc thi cau lenh sql
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+
+                    // Map data
+                    return mapUserDto(rs);
+                }
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-    } catch (Exception e) {
-        e.printStackTrace();
+        return null;
     }
-    return null;
-}
 
-    //mapping
+    // them nguoi dung moi vao DB, mat khau luu dang plain (co the hash sau)
+    public boolean createUser(String username, String password, String fullName,
+            String email, String phone, int roleId) {
+        // kiem tra username da ton tai chua
+        if (getUserByUserName(username) != null) {
+            return false;
+        }
+        String sql = "INSERT INTO Users (username, password_hash, full_name, email, phone, role_id, status) "
+                + "VALUES (?, ?, ?, ?, ?, ?, 'Active')";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ps.setString(3, fullName);
+            ps.setString(4, email);
+            ps.setString(5, phone);
+            ps.setInt(6, roleId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // lay danh sach tat ca role de hien thi dropdown trong form
+    public List<model.Role> getAllRoles() {
+        List<model.Role> roles = new ArrayList<>();
+        String sql = "SELECT role_id, role_name FROM Roles";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                model.Role r = new model.Role();
+                r.setRoleId(rs.getInt("role_id"));
+                r.setRoleName(rs.getString("role_name"));
+                roles.add(r);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return roles;
+    }
+
+    // mapping
     private UserDto mapUserDto(ResultSet rs) throws Exception {
         UserDto user = new UserDto();
         user.setUserId(rs.getInt("user_id"));
