@@ -32,8 +32,8 @@ public class AssetDAO {
             + "LEFT JOIN suppliers s ON a.supplier_id = s.supplier_id "
             + "LEFT JOIN rooms r ON a.room_id = r.room_id ";
 
-    // UC06: Xem danh sách (có search, filter, paging)
     /**
+     * UC06: Xem danh sách (có search, filter, paging)
      * Lấy tất cả tài sản (không paging – dùng cho export hoặc dropdown).
      */
     public List<Asset> getAll() {
@@ -110,11 +110,8 @@ public class AssetDAO {
         return 0;
     }
 
-    // ═══════════════════════════════════════════
-    // UC07: Xem chi tiết tài sản
-    // ═══════════════════════════════════════════
-
     /**
+     * UC07: Xem chi tiết tài sản
      * Lấy 1 tài sản theo ID, kèm thông tin category/supplier/room.
      */
     public Asset getById(int assetId) {
@@ -134,8 +131,8 @@ public class AssetDAO {
         return null;
     }
 
-    // UC05: Thêm mới tài sản
     /**
+     * UC05: Thêm mới tài sản
      * Sinh mã tài sản tự động theo format: PREFIX-YYYY-NNN (VD: LAP-2026-001).
      */
     public String generateAssetCode(int categoryId) {
@@ -228,8 +225,8 @@ public class AssetDAO {
         return -1;
     }
 
-    // Quản lý ảnh tài sản (asset_images)
     /**
+     * Quản lý ảnh tài sản (asset_images)
      * Thêm 1 bản ghi ảnh cho tài sản.
      */
     public boolean insertImage(int assetId, String imageUrl, String description) {
@@ -318,8 +315,8 @@ public class AssetDAO {
         return null;
     }
 
-    // UC08: Cập nhật thông tin tài sản
     /**
+     * UC08: Cập nhật thông tin tài sản
      * Cập nhật thông tin chi tiết tài sản (không đổi mã, trạng thái, ngày tạo).
      */
     public boolean updateAsset(Asset asset) {
@@ -348,8 +345,8 @@ public class AssetDAO {
         }
     }
 
-    // UC09: Cập nhật trạng thái tài sản
     /**
+     * UC09: Cập nhật trạng thái tài sản
      * Cập nhật trạng thái tài sản: New, In_Use, Maintenance, Broken, Liquidated,
      * Lost.
      */
@@ -368,8 +365,8 @@ public class AssetDAO {
         }
     }
 
-    // UC10: Thanh lý tài sản (đánh dấu Liquidated)
     /**
+     * UC10: Thanh lý tài sản (đánh dấu Liquidated)
      * Đánh dấu tài sản là đã thanh lý.
      */
     public boolean liquidateAsset(int assetId) {
@@ -537,4 +534,51 @@ public class AssetDAO {
         else
             ps.setNull(index, java.sql.Types.DATE);
     }
+
+    // // Author Phạm Văn Tùng
+    // public List<Asset> getByRoomId(int id) {
+    // String sql = "SELECT * FROM assets WHERE room_id = ?";
+    // try (Connection con = new DBContext().getConnection(); PreparedStatement ps =
+    // con.prepareStatement(sql)) {
+    // ps.setInt(1, id);
+    // ResultSet rs = ps.executeQuery();
+    // List<Asset> assets = new ArrayList<>();
+    // while (rs.next()) {
+    // Asset a = new Asset();
+    // a.setAssetId(rs.getInt("asset_id"));
+    // a.setAssetCode(rs.getString("asset_code"));
+    // a.setAssetName(rs.getString("asset_name"));
+    // a.setStatus(rs.getString("status"));
+    // assets.add(a);
+    // }
+    // return assets;
+
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // return null;
+    // }
+
+    // public Asset getById(int id) {
+    // String sql = "SELECT * FROM assets WHERE asset_id = ?";
+    // try (Connection con = new DBContext().getConnection(); PreparedStatement ps =
+    // con.prepareStatement(sql)) {
+    // ps.setInt(1, id);
+    // ResultSet rs = ps.executeQuery();
+    // if (rs.next()) {
+    // Asset a = new Asset();
+    // a.setAssetId(rs.getInt("asset_id"));
+    // a.setAssetCode(rs.getString("asset_code"));
+    // a.setAssetName(rs.getString("asset_name"));
+    // a.setStatus(rs.getString("status"));
+    // return a;
+    // }
+    // return null;
+
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // return null;
+    // }
+
 }
