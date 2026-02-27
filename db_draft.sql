@@ -197,7 +197,7 @@ CREATE TABLE transfer_orders (
     FOREIGN KEY (approved_by) REFERENCES users(user_id), 
     FOREIGN KEY (rejected_by) REFERENCES users(user_id), 
     
-    CONSTRAINT CHK_TransferStatus CHECK (status IN (N'Pending', N'Approved', N'Rejected', N'Completed'))
+    CONSTRAINT CHK_TransferStatus CHECK (status IN ( N'Pending', N'Ongoing', N'Completed', N'Cancelled', N'Rejected', N'Failed', N'Approved', N'Returned', N'Return_Confirmed'))
 );
 GO
 

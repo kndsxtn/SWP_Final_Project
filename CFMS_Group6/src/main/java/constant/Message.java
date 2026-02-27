@@ -17,5 +17,5 @@ public class Message {
     public static final String TP_TAI_CHINH = "Finance Head";
     public static final String NV_QUAN_LY = "Asset Staff";
     public static final String TRUONG_BAN = "Head of Dept";
-    
+
 }
