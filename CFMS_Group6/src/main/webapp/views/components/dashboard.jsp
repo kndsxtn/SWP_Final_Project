@@ -225,13 +225,15 @@
                                 <h6 class="section-heading">Truy cập nhanh</h6>
                                 <div class="row g-3">
                                     <div class="col-md-4">
-                                        <a href="${pageContext.request.contextPath}/admin/user-list" class="quick-link">
+                                        <a href="${pageContext.request.contextPath}/user-mgt/user-list"
+                                            class="quick-link">
                                             <i class="bi bi-people"></i>
                                             <span>Quản lý người dùng</span>
                                         </a>
                                     </div>
                                     <div class="col-md-4">
-                                        <a href="${pageContext.request.contextPath}/admin/role-list" class="quick-link">
+                                        <a href="${pageContext.request.contextPath}/user-mgt/role-list"
+                                            class="quick-link">
                                             <i class="bi bi-shield-lock"></i>
                                             <span>Quản lý vai trò</span>
                                         </a>
