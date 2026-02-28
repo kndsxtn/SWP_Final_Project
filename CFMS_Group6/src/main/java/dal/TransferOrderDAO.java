@@ -226,8 +226,24 @@ public class TransferOrderDAO {
         }
     }
 
+// set id người duyệt và thời gian duyệt đơn
     public void setApproveBy(int transferId, int userId) {
-        String sql = "UPDATE transfer_orders SET approved_by = ? WHERE transfer_id = ?";
+        String sql = "UPDATE transfer_orders SET approved_by = ?, approved_date = GETDATE() WHERE transfer_id = ?";
+
+        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ps.setInt(2, transferId);
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    // set id người duyệt và thời gian duyệt đơn
+    public void setRejectedBy(int transferId, int userId) {
+        String sql = "UPDATE transfer_orders SET rejected_by = ?, rejected_date = GETDATE() WHERE transfer_id = ?";
 
         try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
