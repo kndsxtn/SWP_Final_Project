@@ -28,26 +28,29 @@
 
                         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
-                            <div
-                                class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-dark">
+                            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                                <h1 class="h2 text-secondary" style="font-weight: 500;">Danh sách yêu cầu điều chuyển</h1>
+                            </div>
+                            
+                            <div class="table-responsive shadow-sm rounded bg-white p-3 mb-4">
+                                <table class="table table-hover align-middle border-bottom" style="color: #495057;">
+                                    <thead class="table-light text-muted" style="border-bottom: 2px solid #dee2e6;">
                                         <tr>
-                                            <th>#</th>
-                                            <th>Mã phiếu</th>
-                                            <th>Người tạo</th>
-                                            <th>Phòng nguồn</th>
-                                            <th>Phòng đích</th>
-                                            <th>Ngày tạo</th>
-                                            <th>Trạng thái</th>
-                                            <th>Hành động</th>
+                                            <th class="fw-semibold">#</th>
+                                            <th class="fw-semibold">Mã phiếu</th>
+                                            <th class="fw-semibold">Người tạo</th>
+                                            <th class="fw-semibold">Phòng nguồn</th>
+                                            <th class="fw-semibold">Phòng đích</th>
+                                            <th class="fw-semibold">Ngày tạo</th>
+                                            <th class="fw-semibold">Trạng thái</th>
+                                            <th class="fw-semibold text-center">Hành động</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody style="border-top: none;">
                                         <c:forEach items="${list}" var="t" varStatus="st">
                                             <tr>
-                                                <td>${st.index + 1}</td>
-                                                <td>${t.transferId}</td>
+                                                <td class="text-muted">${st.index + 1}</td>
+                                                <td class="fw-medium text-primary">${t.transferId}</td>
                                                 <td>${t.creator.fullName}</td>
                                                 <td>${t.sourceRoom.roomName}</td>
                                                 <td>${t.destRoom.roomName}</td>
@@ -56,61 +59,58 @@
                                                 <td>
                                                     <c:choose>
                                                         <c:when test="${t.status == 'Pending'}">
-                                                            <span class="badge bg-warning">Chờ duyệt</span>
+                                                            <span class="badge bg-warning text-dark border border-warning-subtle rounded-pill px-3 py-2 fw-normal" style="background-color: #fff3cd !important;">Chờ duyệt</span>
                                                         </c:when>
                                                         <c:when test="${t.status == 'Ongoing'}">
-                                                            <span class="badge bg-info text-dark">Đang vận chuyển
-                                                                (On-going)</span>
+                                                            <span class="badge bg-info text-dark border border-info-subtle rounded-pill px-3 py-2 fw-normal" style="background-color: #cff4fc !important;">Đang vận chuyển</span>
                                                         </c:when>
                                                         <c:when test="${t.status == 'Approved'}">
-                                                            <span class="badge bg-success">Đã duyệt</span>
+                                                            <span class="badge bg-success border border-success-subtle rounded-pill px-3 py-2 fw-normal" style="background-color: #d1e7dd !important; color: #0f5132 !important;">Đã duyệt</span>
                                                         </c:when>
                                                         <c:when test="${t.status == 'Rejected'}">
-                                                            <span class="badge bg-danger">Từ chối duyệt</span>
+                                                            <span class="badge bg-danger border border-danger-subtle rounded-pill px-3 py-2 fw-normal" style="background-color: #f8d7da !important; color: #842029 !important;">Từ chối duyệt</span>
                                                         </c:when>
                                                         <c:when test="${t.status == 'Completed'}">
-                                                            <span class="badge bg-success">Đã hoàn thành</span>
+                                                            <span class="badge bg-success border border-success-subtle rounded-pill px-3 py-2 fw-normal" style="background-color: #d1e7dd !important; color: #0f5132 !important;">Hoàn thành</span>
                                                         </c:when>
                                                         <c:when test="${t.status == 'Cancelled'}">
-                                                            <span class="badge bg-danger">Đã huỷ</span>
+                                                            <span class="badge bg-secondary border border-secondary-subtle rounded-pill px-3 py-2 fw-normal" style="background-color: #e2e3e5 !important; color: #41464b !important;">Đã huỷ</span>
                                                         </c:when>
                                                         <c:when test="${t.status == 'Returned'}">
-                                                            <span class="badge bg-warning text-dark">Đã trả hàng</span>
+                                                            <span class="badge bg-warning text-dark border border-warning-subtle rounded-pill px-3 py-2 fw-normal" style="background-color: #fff3cd !important; color: #664d03 !important;">Đã trả hàng</span>
                                                         </c:when>
                                                     </c:choose>
                                                 </td>
 
-                                                <td>
-                                                    <a href="${pageContext.request.contextPath}/transfer/detail?id=${t.transferId}"
-                                                        class="btn btn-sm btn-primary">
-                                                        <i class="bi bi-eye"></i> Xem
-                                                    </a>
+                                                <td class="text-center">
+                                                    <div class="btn-group" role="group">
+                                                        <a href="${pageContext.request.contextPath}/transfer/detail?id=${t.transferId}"
+                                                            class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                                            <i class="bi bi-eye"></i>
+                                                        </a>
 
-                                                    <c:if
-                                                        test="${sessionScope.user.roleName== 'Asset Staff' && t.status == 'Pending'}">
-                                                        <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Cancelled"
-                                                            class="btn btn-sm btn-danger">
-                                                            <i class="bi bi-x">Huỷ đơn</i>
-                                                        </a>
-                                                    </c:if>
-                                                    <c:if
-                                                        test="${sessionScope.user.roleName== 'Finance Head' && t.status == 'Pending'}">
-                                                        <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Approved"
-                                                            class="btn btn-sm btn-success">
-                                                            <i class="bi bi-x">Duyệt đơn</i>
-                                                        </a>
-                                                        <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Rejected"
-                                                            class="btn btn-sm btn-warning">
-                                                            <i class="bi bi-x">Từ chối đơn</i>
-                                                        </a>
-                                                    </c:if>
+                                                        <c:if test="${sessionScope.user.roleName== 'Asset Staff' && t.status == 'Pending'}">
+                                                            <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Cancelled"
+                                                                class="btn btn-sm btn-outline-danger" title="Huỷ đơn">
+                                                                <i class="bi bi-x-circle"></i>
+                                                            </a>
+                                                        </c:if>
+                                                        <c:if test="${sessionScope.user.roleName== 'Finance Head' && t.status == 'Pending'}">
+                                                            <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Approved"
+                                                                class="btn btn-sm btn-outline-success" title="Duyệt đơn">
+                                                                <i class="bi bi-check-circle"></i>
+                                                            </a>
+                                                            <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Rejected"
+                                                                class="btn btn-sm btn-outline-warning" title="Từ chối">
+                                                                <i class="bi bi-x-square"></i>
+                                                            </a>
+                                                        </c:if>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         </c:forEach>
                                     </tbody>
                                 </table>
-
-
                             </div>
 
                             <div class="row">
