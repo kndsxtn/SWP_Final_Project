@@ -61,10 +61,26 @@
                                 </table>
                             </div>
 
-                            <a href="${pageContext.request.contextPath}/transfer/list"
-                                class="btn btn-outline-secondary px-4 shadow-sm">
-                                <i class="bi bi-arrow-left"></i> Trở về danh sách
-                            </a>
+                            <c:choose>
+                                <c:when test="${param.from == 'handover'}">
+                                    <a href="${pageContext.request.contextPath}/transfer/handover"
+                                        class="btn btn-outline-secondary px-4 shadow-sm">
+                                        <i class="bi bi-arrow-left"></i> Trở về đơn bàn giao
+                                    </a>
+                                </c:when>
+                                <c:when test="${param.from == 'receive'}">
+                                    <a href="${pageContext.request.contextPath}/transfer/receive"
+                                        class="btn btn-outline-secondary px-4 shadow-sm">
+                                        <i class="bi bi-arrow-left"></i> Trở về đơn nhận
+                                    </a>
+                                </c:when>
+                                <c:otherwise>
+                                    <a href="${pageContext.request.contextPath}/transfer/list"
+                                        class="btn btn-outline-secondary px-4 shadow-sm">
+                                        <i class="bi bi-arrow-left"></i> Trở về danh sách
+                                    </a>
+                                </c:otherwise>
+                            </c:choose>
 
 
 

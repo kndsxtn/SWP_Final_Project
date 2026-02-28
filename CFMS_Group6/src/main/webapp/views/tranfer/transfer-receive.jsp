@@ -33,10 +33,10 @@
                             </div>
 
                             <c:if test="${param.msg == 'return_success'}">
-                                <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert"
-                                    style="background-color: #d1e7dd; color: #0f5132; border-color: #badbcc;">
-                                    <strong>Thành công!</strong> Trả hàng thành công. Tài sản đã được hoàn trả về phòng
-                                    nguồn.
+                                <div class="alert alert-info alert-dismissible fade show shadow-sm" role="alert"
+                                    style="background-color: #cff4fc; color: #055160; border-color: #b6effb;">
+                                    <strong>Đã gửi yêu cầu!</strong> Yêu cầu trả hàng đã được gửi. Chờ bên cung cấp sẽ
+                                    trả lại tài sản.
                                     <button type="button" class="btn-close" data-bs-dismiss="alert"
                                         aria-label="Close"></button>
                                 </div>
@@ -86,15 +86,21 @@
                                                             <c:when test="${t.status == 'Returned'}">
                                                                 <span
                                                                     class="badge bg-warning text-dark border border-warning-subtle rounded-pill px-3 py-2 fw-normal"
-                                                                    style="background-color: #fff3cd !important; color: #664d03 !important;">Trả
-                                                                    hàng thành công</span>
+                                                                    style="background-color: #fff3cd !important; color: #664d03 !important;">Chờ
+                                                                    xác nhận trả hàng</span>
+                                                            </c:when>
+                                                            <c:when test="${t.status == 'Return_Confirmed'}">
+                                                                <span
+                                                                    class="badge bg-secondary border border-secondary-subtle rounded-pill px-3 py-2 fw-normal"
+                                                                    style="background-color: #e2e3e5 !important; color: #41464b !important;">Trả
+                                                                    hàng hoàn tất</span>
                                                             </c:when>
                                                         </c:choose>
                                                     </td>
 
                                                     <td class="text-center">
                                                         <div class="d-flex gap-2 justify-content-center flex-wrap">
-                                                            <a href="${pageContext.request.contextPath}/transfer/detail?id=${t.transferId}"
+                                                            <a href="${pageContext.request.contextPath}/transfer/detail?id=${t.transferId}&from=receive"
                                                                 class="btn btn-sm btn-outline-primary shadow-sm">
                                                                 <i class="bi bi-eye"></i> Xem chi tiết
                                                             </a>
