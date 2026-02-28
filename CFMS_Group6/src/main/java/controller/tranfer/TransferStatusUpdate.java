@@ -92,8 +92,12 @@ public class TransferStatusUpdate extends HttpServlet {
             }
             response.sendRedirect(request.getContextPath() + "/transfer/handover");
         }
-        if (status.equals("Approved") || status.equals("Rejected")) {
+        if (status.equals("Approved")) {
             tDao.setApproveBy(id, u.getUserId());
+            response.sendRedirect(request.getContextPath() + "/transfer/list");
+        }
+        if (status.equals("Rejected")) {
+            tDao.setRejectedBy(id, u.getUserId());
             response.sendRedirect(request.getContextPath() + "/transfer/list");
         }
         if (status.equals("Cancelled")) {
