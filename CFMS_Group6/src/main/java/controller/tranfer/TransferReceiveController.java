@@ -22,17 +22,17 @@ import model.TransferOrder;
  *
  * @author Pham Van Tung
  */
-@WebServlet(name = "TransferReceiveController", urlPatterns = {"/transfer/receive"})
+@WebServlet(name = "TransferReceiveController", urlPatterns = { "/transfer/receive" })
 public class TransferReceiveController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -51,14 +51,15 @@ public class TransferReceiveController extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the
+    // + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -70,6 +71,7 @@ public class TransferReceiveController extends HttpServlet {
         int deptId = user.getDeptId();
         list = tdao.selectByDeptId2(deptId);
         request.setAttribute("list", list);
+        request.setAttribute("userDeptId", deptId);
         request.getRequestDispatcher("/views/tranfer/transfer-receive.jsp").forward(request, response);
 
     }
@@ -77,10 +79,10 @@ public class TransferReceiveController extends HttpServlet {
     /**
      * Handles the HTTP <code>POST</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

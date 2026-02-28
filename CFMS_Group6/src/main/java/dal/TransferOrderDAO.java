@@ -48,7 +48,9 @@ public class TransferOrderDAO {
                 + "JOIN rooms dr ON t.dest_room_id = dr.room_id\n"
                 + "ORDER BY t.created_date DESC;";
 
-        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 TransferOrder t = new TransferOrder();
@@ -66,13 +68,13 @@ public class TransferOrderDAO {
                 u.setFullName(rs.getString("full_name"));
                 t.setCreator(u);
 
-                //map src_room
+                // map src_room
                 Room src_room = new Room();
                 src_room.setRoomId(rs.getInt("src_id"));
                 src_room.setRoomName(rs.getString("src_name"));
                 t.setSourceRoom(src_room);
 
-                //map src_room
+                // map src_room
                 Room dest_room = new Room();
                 dest_room.setRoomId(rs.getInt("dest_id"));
                 dest_room.setRoomName(rs.getString("dest_name"));
@@ -133,13 +135,13 @@ public class TransferOrderDAO {
                     u.setFullName(rs.getString("full_name"));
                     t.setCreator(u);
 
-                    //map src_room
+                    // map src_room
                     Room src_room = new Room();
                     src_room.setRoomId(rs.getInt("src_id"));
                     src_room.setRoomName(rs.getString("src_name"));
                     t.setSourceRoom(src_room);
 
-                    //map src_room
+                    // map src_room
                     Room dest_room = new Room();
                     dest_room.setRoomId(rs.getInt("dest_id"));
                     dest_room.setRoomName(rs.getString("dest_name"));
@@ -188,7 +190,8 @@ public class TransferOrderDAO {
     public int create(TransferOrder t) {
         String sql = "INSERT INTO transfer_orders (created_by, source_room_id, dest_room_id, status, note) VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, t.getCreatedBy());
             ps.setInt(2, t.getSourceRoomId());
@@ -222,7 +225,7 @@ public class TransferOrderDAO {
             e.printStackTrace();
         }
     }
-    
+
     public void setApproveBy(int transferId, int userId) {
         String sql = "UPDATE transfer_orders SET approved_by = ? WHERE transfer_id = ?";
 
@@ -237,7 +240,7 @@ public class TransferOrderDAO {
         }
     }
 
-/// lấy thông tin transfer order theo phòng nguồn
+    /// lấy thông tin transfer order theo phòng nguồn
     public List<TransferOrder> selectByDeptId(int deptId) {
         List<TransferOrder> list = new ArrayList<>();
         String sql = " SELECT \n"
@@ -286,13 +289,13 @@ public class TransferOrderDAO {
                     u.setFullName(rs.getString("full_name"));
                     t.setCreator(u);
 
-                    //map src_room
+                    // map src_room
                     Room src_room = new Room();
                     src_room.setRoomId(rs.getInt("src_id"));
                     src_room.setRoomName(rs.getString("src_name"));
                     t.setSourceRoom(src_room);
 
-                    //map src_room
+                    // map src_room
                     Room dest_room = new Room();
                     dest_room.setRoomId(rs.getInt("dest_id"));
                     dest_room.setRoomName(rs.getString("dest_name"));
@@ -361,16 +364,18 @@ public class TransferOrderDAO {
                     u.setFullName(rs.getString("full_name"));
                     t.setCreator(u);
 
-                    //map src_room
+                    // map src_room
                     Room src_room = new Room();
                     src_room.setRoomId(rs.getInt("src_id"));
                     src_room.setRoomName(rs.getString("src_name"));
+                    src_room.setDeptId(rs.getInt("src_dept"));
                     t.setSourceRoom(src_room);
 
-                    //map src_room
+                    // map dest_room
                     Room dest_room = new Room();
                     dest_room.setRoomId(rs.getInt("dest_id"));
                     dest_room.setRoomName(rs.getString("dest_name"));
+                    dest_room.setDeptId(rs.getInt("dest_dept"));
                     t.setDestRoom(dest_room);
 
                     // Map User

@@ -1,107 +1,123 @@
-<%-- 
-    Document   : transfer-receive
-    Created on : Feb 13, 2026, 2:28:33 PM
-    Author     : Pham Van Tung
---%>
+<%-- Document : transfer-receive Created on : Feb 13, 2026, 2:28:33 PM Author : Pham Van Tung --%>
 
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-        <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <%@page contentType="text/html" pageEncoding="UTF-8" %>
+        <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+            <!DOCTYPE html>
+            <html>
 
-    </head>
-    <body class="d-flex flex-column">
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                <title>JSP Page</title>
+                <link rel="stylesheet"
+                    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+                <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        <jsp:include page="../components/header.jsp"></jsp:include>
+            </head>
 
-            <div class="container-fluid flex-grow-1">
-                <div class="row h-100"> 
+            <body class="d-flex flex-column">
 
-                <jsp:include page="../components/sidebar.jsp">
-                    <jsp:param name="page" value="transfer_list"/>
-                </jsp:include>
+                <jsp:include page="../components/header.jsp"></jsp:include>
 
-                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                    <h1>Đơn nhận tài sản</h1>
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <table class="table table-bordered table-hover">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Mã phiếu</th>
-                                    <th>Phòng nguồn</th>
-                                    <th>Phòng đích</th>
-                                    <th>Ngày tạo</th>
-                                    <th>Trạng thái</th>
-                                    <th>Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach items="${list}" var="t">
-                                    <c:if test="${t.status != 'Pending' && t.status != 'Rejected' && t.status != 'Cancelled'}">
+                <div class="container-fluid flex-grow-1">
+                    <div class="row h-100">
+
+                        <jsp:include page="../components/sidebar.jsp">
+                            <jsp:param name="page" value="transfer_list" />
+                        </jsp:include>
+
+                        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                            <h1>Đơn nhận tài sản</h1>
+                            <c:if test="${param.msg == 'return_success'}">
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <strong>Thành công!</strong> Trả hàng thành công. Tài sản đã được hoàn trả về phòng
+                                    nguồn.
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                </div>
+                            </c:if>
+                            <div
+                                class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-dark">
                                         <tr>
-                                            <td>${t.transferId}</td>                                      
-                                            <td>${t.sourceRoom.roomName}</td>
-                                            <td>${t.destRoom.roomName}</td>
-                                            <td>${t.createdDate}</td>
-
-                                            <td>
-                                                <c:choose>
-                                                    <c:when test="${t.status == 'Approved'}">
-                                                        <span class="badge bg-success">Chưa Bàn Giao</span>
-                                                    </c:when>
-                                                    <c:when test="${t.status == 'Ongoing'}">
-                                                        <span class="badge bg-danger">Đã Bàn Giao</span>
-                                                    </c:when>
-                                                    <c:when test="${t.status == 'Completed'}">
-                                                        <span class="badge bg-success">Đã hoàn thành</span>
-                                                    </c:when>
-                                                    <c:when test="${t.status == 'Failed'}">
-                                                        <span class="badge bg-success">Đã từ chối nhận tài sản</span>
-                                                    </c:when>
-                                                </c:choose>
-                                            </td>
-
-                                            <td>
-                                                <a href="${pageContext.request.contextPath}/transfer/detail?id=${t.transferId}" class="btn btn-sm btn-primary">
-                                                    <i class="bi bi-eye"></i> Xem tài sản được bàn giao
-                                                </a>
-
-                                                <c:if test="${t.status == 'Ongoing'}">
-                                                    <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Completed&room=${t.destRoom.roomName}" class="btn btn-sm btn-success">
-                                                        <i class="bi ">Đòng ý nhận tài sản</i>
-                                                    </a>
-                                                    <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Failed&room=${t.sourceRoom.roomName}" class="btn btn-sm btn-danger">
-                                                        <i class="bi ">Từ chối nhận tài sản</i>
-                                                    </a>
-                                                </c:if>
-                                            </td>
+                                            <th>Mã phiếu</th>
+                                            <th>Phòng nguồn</th>
+                                            <th>Phòng đích</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Trạng thái</th>
+                                            <th>Hành động</th>
                                         </tr>
-                                    </c:if>
-                                </c:forEach>
-                            </tbody>
-                        </table>
-                        
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach items="${list}" var="t">
+                                            <c:if
+                                                test="${t.status != 'Pending' && t.status != 'Rejected' && t.status != 'Cancelled'}">
+                                                <tr>
+                                                    <td>${t.transferId}</td>
+                                                    <td>${t.sourceRoom.roomName}</td>
+                                                    <td>${t.destRoom.roomName}</td>
+                                                    <td>${t.createdDate}</td>
 
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${t.status == 'Approved'}">
+                                                                <span class="badge bg-success">Chưa Bàn Giao</span>
+                                                            </c:when>
+                                                            <c:when test="${t.status == 'Ongoing'}">
+                                                                <span class="badge bg-info text-dark">Đang vận chuyển
+                                                                    (On-going)</span>
+                                                            </c:when>
+                                                            <c:when test="${t.status == 'Completed'}">
+                                                                <span class="badge bg-success">Đã hoàn thành</span>
+                                                            </c:when>
+                                                            <c:when test="${t.status == 'Returned'}">
+                                                                <span class="badge bg-warning text-dark">Đã trả hàng
+                                                                    thành công</span>
+                                                            </c:when>
+                                                        </c:choose>
+                                                    </td>
+
+                                                    <td>
+                                                        <a href="${pageContext.request.contextPath}/transfer/detail?id=${t.transferId}"
+                                                            class="btn btn-sm btn-primary">
+                                                            <i class="bi bi-eye"></i> Xem tài sản được bàn giao
+                                                        </a>
+
+                                                        <c:if
+                                                            test="${t.status == 'Ongoing' && t.destRoom.deptId == userDeptId}">
+                                                            <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Completed&room=${t.destRoom.roomName}"
+                                                                class="btn btn-sm btn-success">
+                                                                <i class="bi ">Đồng ý nhận tài sản</i>
+                                                            </a>
+                                                            <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Returned&room=${t.sourceRoom.roomName}"
+                                                                class="btn btn-sm btn-danger">
+                                                                <i class="bi ">Từ chối nhận tài sản (Trả hàng)</i>
+                                                            </a>
+                                                        </c:if>
+                                                    </td>
+                                                </tr>
+                                            </c:if>
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
+
+
+
+                            </div>
+                            <a href="${pageContext.request.contextPath}/transfer/confirm"
+                                class="btn btn-sm btn-warning">
+                                <i class="bi ">Trở về</i>
+                            </a>
+
+
+                        </main>
 
                     </div>
-                    <a href="${pageContext.request.contextPath}/transfer/confirm" class="btn btn-sm btn-warning">
-                    <i class="bi ">Trở về</i>
-                </a>
+                </div>
 
+                <jsp:include page="../components/footer.jsp"></jsp:include>
 
-                </main>
+            </body>
 
-            </div>
-        </div>
-
-        <jsp:include page="../components/footer.jsp"></jsp:include>
-
-    </body>
-</html>
-
+            </html>
