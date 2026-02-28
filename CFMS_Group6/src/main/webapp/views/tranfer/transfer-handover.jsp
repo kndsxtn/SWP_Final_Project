@@ -32,6 +32,15 @@
                                 <h1 class="h2 text-secondary" style="font-weight: 500;">Đơn bàn giao</h1>
                             </div>
 
+                            <c:if test="${param.msg == 'return_confirmed'}">
+                                <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert"
+                                    style="background-color: #d1e7dd; color: #0f5132; border-color: #badbcc;">
+                                    <strong>Thành công!</strong> Xác nhận trả hàng thành công. Tài sản đã được nhận lại.
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                </div>
+                            </c:if>
+
                             <div class="table-responsive shadow-sm rounded bg-white p-3 mb-4">
                                 <table class="table table-hover align-middle border-bottom" style="color: #495057;">
                                     <thead class="table-light text-muted" style="border-bottom: 2px solid #dee2e6;">
@@ -76,16 +85,22 @@
                                                             </c:when>
                                                             <c:when test="${t.status == 'Returned'}">
                                                                 <span
+                                                                    class="badge bg-warning text-dark border border-warning-subtle rounded-pill px-3 py-2 fw-normal"
+                                                                    style="background-color: #fff3cd !important; color: #664d03 !important;">Đích
+                                                                    từ chối - Chờ xác nhận trả</span>
+                                                            </c:when>
+                                                            <c:when test="${t.status == 'Return_Confirmed'}">
+                                                                <span
                                                                     class="badge bg-secondary border border-secondary-subtle rounded-pill px-3 py-2 fw-normal"
-                                                                    style="background-color: #e2e3e5 !important; color: #41464b !important;">Đích
-                                                                    từ chối (Đã nhận lại)</span>
+                                                                    style="background-color: #e2e3e5 !important; color: #41464b !important;">Đã
+                                                                    xác nhận trả hàng</span>
                                                             </c:when>
                                                         </c:choose>
                                                     </td>
 
                                                     <td class="text-center">
                                                         <div class="d-flex gap-2 justify-content-center flex-wrap">
-                                                            <a href="${pageContext.request.contextPath}/transfer/detail?id=${t.transferId}"
+                                                            <a href="${pageContext.request.contextPath}/transfer/detail?id=${t.transferId}&from=handover"
                                                                 class="btn btn-sm btn-outline-primary shadow-sm">
                                                                 <i class="bi bi-eye"></i> Xem tài sản
                                                             </a>
@@ -94,6 +109,15 @@
                                                                 <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Ongoing&room=${t.sourceRoom.roomName}"
                                                                     class="btn btn-sm btn-outline-success shadow-sm">
                                                                     <i class="bi bi-box-seam"></i> Bàn giao
+                                                                </a>
+                                                            </c:if>
+
+                                                            <c:if test="${t.status == 'Returned'}">
+                                                                <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Return_Confirmed&room=${t.sourceRoom.roomName}"
+                                                                    class="btn btn-sm btn-outline-warning shadow-sm"
+                                                                    onclick="return confirm('Xác nhận đã nhận lại tài sản trả về?');">
+                                                                    <i class="bi bi-arrow-return-left"></i> Xác nhận trả
+                                                                    hàng
                                                                 </a>
                                                             </c:if>
                                                         </div>
