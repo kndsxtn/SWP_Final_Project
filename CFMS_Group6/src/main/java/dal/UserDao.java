@@ -116,6 +116,43 @@ public class UserDao {
         return list;
     }
 
+    // dem tong so user
+    public int countAllUser() {
+        String sql = "SELECT COUNT(*) FROM Users";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // lay danh sach user theo trang (phan trang)
+    public List<UserDto> getUsersByPage(int page, int pageSize) {
+        List<UserDto> list = new ArrayList<>();
+        String sql = "SELECT u.*, r.role_name FROM Users u "
+                + "JOIN Roles r ON u.role_id = r.role_id "
+                + "ORDER BY u.user_id "
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, (page - 1) * pageSize);
+            ps.setInt(2, pageSize);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapUserDto(rs));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     // kiem tra xem user co ton tai ko
     public UserDto getUserByUserName(String userName) {
         String sql = "SELECT u.*, r.role_name "
@@ -185,6 +222,34 @@ public class UserDao {
             e.printStackTrace();
         }
         return roles;
+    }
+
+    // cap nhat role cho user
+    public boolean updateUserRole(int userId, int roleId) {
+        String sql = "UPDATE Users SET role_id = ? WHERE user_id = ?";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, roleId);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // cap nhat trang thai user (Active / Inactive)
+    public boolean updateUserStatus(int userId, String status) {
+        String sql = "UPDATE Users SET status = ? WHERE user_id = ?";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     // mapping

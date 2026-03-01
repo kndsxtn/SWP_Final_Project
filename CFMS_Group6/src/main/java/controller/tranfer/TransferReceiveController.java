@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
 import model.TransferOrder;
 
@@ -61,19 +60,41 @@ public class TransferReceiveController extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException      if an I/O error occurs
      */
+    private static final int PAGE_SIZE = 5;
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         TransferOrderDAO tdao = new TransferOrderDAO();
-        List<TransferOrder> list = new ArrayList<>();
         UserDto user = (UserDto) session.getAttribute("user");
         int deptId = user.getDeptId();
-        list = tdao.selectByDeptId2(deptId);
+
+        // parse page
+        int page = 1;
+        String pageStr = request.getParameter("page");
+        if (pageStr != null) {
+            try {
+                page = Integer.parseInt(pageStr);
+                if (page < 1)
+                    page = 1;
+            } catch (NumberFormatException e) {
+                page = 1;
+            }
+        }
+
+        int totalItems = tdao.countByDestDept(deptId);
+        int totalPages = (int) Math.ceil((double) totalItems / PAGE_SIZE);
+        if (page > totalPages && totalPages > 0)
+            page = totalPages;
+
+        List<TransferOrder> list = tdao.selectByDeptId2ByPage(deptId, page, PAGE_SIZE);
         request.setAttribute("list", list);
         request.setAttribute("userDeptId", deptId);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalItems", totalItems);
         request.getRequestDispatcher("/views/tranfer/transfer-receive.jsp").forward(request, response);
-
     }
 
     /**
