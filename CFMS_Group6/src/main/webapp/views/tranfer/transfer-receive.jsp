@@ -43,7 +43,8 @@
                             </c:if>
 
                             <div class="table-responsive shadow-sm rounded bg-white p-3 mb-4">
-                                <table class="table table-hover align-middle border-bottom" style="color: #495057;">
+                                <table id="receiveTable" class="table table-hover align-middle border-bottom"
+                                    style="color: #495057;">
                                     <thead class="table-light text-muted" style="border-bottom: 2px solid #dee2e6;">
                                         <tr>
                                             <th class="fw-semibold">Mã phiếu</th>
@@ -56,80 +57,107 @@
                                     </thead>
                                     <tbody style="border-top: none;">
                                         <c:forEach items="${list}" var="t">
-                                            <c:if
-                                                test="${t.status != 'Pending' && t.status != 'Rejected' && t.status != 'Cancelled'}">
-                                                <tr>
-                                                    <td class="fw-medium text-primary">${t.transferId}</td>
-                                                    <td>${t.sourceRoom.roomName}</td>
-                                                    <td>${t.destRoom.roomName}</td>
-                                                    <td>${t.createdDate}</td>
+                                            <tr>
+                                                <td class="fw-medium text-primary">${t.transferId}</td>
+                                                <td>${t.sourceRoom.roomName}</td>
+                                                <td>${t.destRoom.roomName}</td>
+                                                <td>${t.createdDate}</td>
 
-                                                    <td>
-                                                        <c:choose>
-                                                            <c:when test="${t.status == 'Approved'}">
-                                                                <span
-                                                                    class="badge bg-light text-dark border border-secondary-subtle rounded-pill px-3 py-2 fw-normal">Chưa
-                                                                    Bàn Giao</span>
-                                                            </c:when>
-                                                            <c:when test="${t.status == 'Ongoing'}">
-                                                                <span
-                                                                    class="badge bg-info text-dark border border-info-subtle rounded-pill px-3 py-2 fw-normal"
-                                                                    style="background-color: #cff4fc !important;">Đang
-                                                                    vận chuyển</span>
-                                                            </c:when>
-                                                            <c:when test="${t.status == 'Completed'}">
-                                                                <span
-                                                                    class="badge bg-success border border-success-subtle rounded-pill px-3 py-2 fw-normal"
-                                                                    style="background-color: #d1e7dd !important; color: #0f5132 !important;">Đã
-                                                                    hoàn thành</span>
-                                                            </c:when>
-                                                            <c:when test="${t.status == 'Returned'}">
-                                                                <span
-                                                                    class="badge bg-warning text-dark border border-warning-subtle rounded-pill px-3 py-2 fw-normal"
-                                                                    style="background-color: #fff3cd !important; color: #664d03 !important;">Chờ
-                                                                    xác nhận trả hàng</span>
-                                                            </c:when>
-                                                            <c:when test="${t.status == 'Return_Confirmed'}">
-                                                                <span
-                                                                    class="badge bg-secondary border border-secondary-subtle rounded-pill px-3 py-2 fw-normal"
-                                                                    style="background-color: #e2e3e5 !important; color: #41464b !important;">Trả
-                                                                    hàng hoàn tất</span>
-                                                            </c:when>
-                                                        </c:choose>
-                                                    </td>
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${t.status == 'Approved'}">
+                                                            <span
+                                                                class="badge bg-light text-dark border border-secondary-subtle rounded-pill px-3 py-2 fw-normal">Chưa
+                                                                Bàn Giao</span>
+                                                        </c:when>
+                                                        <c:when test="${t.status == 'Ongoing'}">
+                                                            <span
+                                                                class="badge bg-info text-dark border border-info-subtle rounded-pill px-3 py-2 fw-normal"
+                                                                style="background-color: #cff4fc !important;">Đang
+                                                                vận chuyển</span>
+                                                        </c:when>
+                                                        <c:when test="${t.status == 'Completed'}">
+                                                            <span
+                                                                class="badge bg-success border border-success-subtle rounded-pill px-3 py-2 fw-normal"
+                                                                style="background-color: #d1e7dd !important; color: #0f5132 !important;">Đã
+                                                                hoàn thành</span>
+                                                        </c:when>
+                                                        <c:when test="${t.status == 'Returned'}">
+                                                            <span
+                                                                class="badge bg-warning text-dark border border-warning-subtle rounded-pill px-3 py-2 fw-normal"
+                                                                style="background-color: #fff3cd !important; color: #664d03 !important;">Chờ
+                                                                xác nhận trả hàng</span>
+                                                        </c:when>
+                                                        <c:when test="${t.status == 'Return_Confirmed'}">
+                                                            <span
+                                                                class="badge bg-secondary border border-secondary-subtle rounded-pill px-3 py-2 fw-normal"
+                                                                style="background-color: #e2e3e5 !important; color: #41464b !important;">Trả
+                                                                hàng hoàn tất</span>
+                                                        </c:when>
+                                                    </c:choose>
+                                                </td>
 
-                                                    <td class="text-center">
-                                                        <div class="d-flex gap-2 justify-content-center flex-wrap">
-                                                            <a href="${pageContext.request.contextPath}/transfer/detail?id=${t.transferId}&from=receive"
-                                                                class="btn btn-sm btn-outline-primary shadow-sm">
-                                                                <i class="bi bi-eye"></i> Xem chi tiết
+                                                <td class="text-center">
+                                                    <div class="d-flex gap-2 justify-content-center flex-wrap">
+                                                        <a href="${pageContext.request.contextPath}/transfer/detail?id=${t.transferId}&from=receive"
+                                                            class="btn btn-sm btn-outline-primary shadow-sm">
+                                                            <i class="bi bi-eye"></i> Xem chi tiết
+                                                        </a>
+
+                                                        <c:if
+                                                            test="${t.status == 'Ongoing' && t.destRoom.deptId == userDeptId}">
+                                                            <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Completed&room=${t.destRoom.roomName}"
+                                                                class="btn btn-sm btn-outline-success shadow-sm">
+                                                                <i class="bi bi-check-circle"></i> Nhận
                                                             </a>
-
-                                                            <c:if
-                                                                test="${t.status == 'Ongoing' && t.destRoom.deptId == userDeptId}">
-                                                                <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Completed&room=${t.destRoom.roomName}"
-                                                                    class="btn btn-sm btn-outline-success shadow-sm">
-                                                                    <i class="bi bi-check-circle"></i> Nhận
-                                                                </a>
-                                                                <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Returned&room=${t.sourceRoom.roomName}"
-                                                                    class="btn btn-sm btn-outline-danger shadow-sm">
-                                                                    <i class="bi bi-x-circle"></i> Trả hàng
-                                                                </a>
-                                                            </c:if>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </c:if>
+                                                            <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Returned&room=${t.sourceRoom.roomName}"
+                                                                class="btn btn-sm btn-outline-danger shadow-sm">
+                                                                <i class="bi bi-x-circle"></i> Trả hàng
+                                                            </a>
+                                                        </c:if>
+                                                    </div>
+                                                </td>
+                                            </tr>
                                         </c:forEach>
                                     </tbody>
                                 </table>
                             </div>
 
+                            <c:if test="${totalPages > 1}">
+                                <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                                    <div class="text-muted small">
+                                        Trang <strong>${currentPage}</strong> / <strong>${totalPages}</strong>
+                                        (Tổng: <strong>${totalItems}</strong> phiếu)
+                                    </div>
+                                    <nav>
+                                        <ul class="pagination pagination-sm mb-0">
+                                            <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                                <a class="page-link"
+                                                    href="${pageContext.request.contextPath}/transfer/receive?page=${currentPage - 1}">
+                                                    <i class="bi bi-chevron-left"></i>
+                                                </a>
+                                            </li>
+                                            <c:forEach begin="1" end="${totalPages}" var="i">
+                                                <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                                    <a class="page-link"
+                                                        href="${pageContext.request.contextPath}/transfer/receive?page=${i}">${i}</a>
+                                                </li>
+                                            </c:forEach>
+                                            <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                                <a class="page-link"
+                                                    href="${pageContext.request.contextPath}/transfer/receive?page=${currentPage + 1}">
+                                                    <i class="bi bi-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </c:if>
+
                             <a href="${pageContext.request.contextPath}/transfer/confirm"
                                 class="btn btn-outline-secondary px-4 shadow-sm">
                                 <i class="bi bi-arrow-left"></i> Trở về
                             </a>
-
 
                         </main>
 

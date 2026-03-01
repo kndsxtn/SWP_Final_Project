@@ -28,12 +28,7 @@
                                     <i class="bi bi-people"></i> Quản lý người dùng
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link ${param.page == 'role' ? 'active' : ''}"
-                                    href="${pageContext.request.contextPath}/user-mgt/role-list">
-                                    <i class="bi bi-shield-lock"></i> Quản lý vai trò
-                                </a>
-                            </li>
+
                         </c:if>
 
                         <!-- ========== STAFF (Asset Management Staff) ========== -->
