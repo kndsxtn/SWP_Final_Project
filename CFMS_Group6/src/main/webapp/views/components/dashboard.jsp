@@ -231,14 +231,7 @@
                                             <span>Quản lý người dùng</span>
                                         </a>
                                     </div>
-                                    <div class="col-md-4">
-                                        <a href="${pageContext.request.contextPath}/user-mgt/role-list"
-                                            class="quick-link">
-                                            <i class="bi bi-shield-lock"></i>
-                                            <span>Quản lý vai trò</span>
-                                        </a>
-                                    </div>
-                                </div>
+
                             </c:if>
 
                             <!-- ═════════════════════════════════════════════════════
