@@ -35,7 +35,8 @@
                             </div>
 
                             <div class="table-responsive shadow-sm rounded bg-white p-3 mb-4">
-                                <table class="table table-hover align-middle border-bottom" style="color: #495057;">
+                                <table id="transferTable" class="table table-hover align-middle border-bottom"
+                                    style="color: #495057;">
                                     <thead class="table-light text-muted" style="border-bottom: 2px solid #dee2e6;">
                                         <tr>
                                             <th class="fw-semibold">#</th>
@@ -145,13 +146,36 @@
                                 </table>
                             </div>
 
-                            <div class="row">
-                                <!-- <div class="col-md-12">
-                            <div class="alert alert-success">
-                                Chào mừng <strong>${sessionScope.user.fullName}</strong> quay trở lại hệ thống!
-                            </div>
-                        </div> -->
-                            </div>
+                            <c:if test="${totalPages > 1}">
+                                <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                                    <div class="text-muted small">
+                                        Trang <strong>${currentPage}</strong> / <strong>${totalPages}</strong>
+                                        (Tổng: <strong>${totalItems}</strong> phiếu)
+                                    </div>
+                                    <nav>
+                                        <ul class="pagination pagination-sm mb-0">
+                                            <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                                <a class="page-link"
+                                                    href="${pageContext.request.contextPath}/transfer/list?page=${currentPage - 1}">
+                                                    <i class="bi bi-chevron-left"></i>
+                                                </a>
+                                            </li>
+                                            <c:forEach begin="1" end="${totalPages}" var="i">
+                                                <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                                    <a class="page-link"
+                                                        href="${pageContext.request.contextPath}/transfer/list?page=${i}">${i}</a>
+                                                </li>
+                                            </c:forEach>
+                                            <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                                <a class="page-link"
+                                                    href="${pageContext.request.contextPath}/transfer/list?page=${currentPage + 1}">
+                                                    <i class="bi bi-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </c:if>
 
                         </main>
 

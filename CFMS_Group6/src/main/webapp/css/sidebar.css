@@ -1,6 +1,7 @@
 /* ============================================================
    Sidebar Styles - CFMS System
    Uses CSS variables from style.css
+   Premium Modern Design
    ============================================================ */
 
 /* --- Sidebar Container --- */
@@ -11,15 +12,20 @@
     left: 0;
     z-index: 100;
     padding: var(--header-height) 0 0;
-    background: var(--bg-white);
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafb 100%);
     border-right: 1px solid var(--border-light);
     overflow-y: auto;
     overflow-x: hidden;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.03);
 }
 
 .cfms-sidebar::-webkit-scrollbar {
-    width: 4px;
+    width: 3px;
+}
+
+.cfms-sidebar::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 .cfms-sidebar::-webkit-scrollbar-thumb {
@@ -27,55 +33,74 @@
     border-radius: 4px;
 }
 
+.cfms-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}
+
 /* --- Section Heading --- */
 .cfms-sidebar .sidebar-heading {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
+    letter-spacing: 1px;
     color: var(--text-muted);
-    padding: 1.25rem 1.25rem 0.4rem;
+    padding: 1.5rem 1.25rem 0.5rem;
     margin: 0;
+    position: relative;
+}
+
+.cfms-sidebar .sidebar-heading::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 1.25rem;
+    width: 24px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-medium));
+    border-radius: 2px;
 }
 
 /* --- Nav Links --- */
 .cfms-sidebar .nav-link {
-    font-size: 0.84rem;
+    font-size: 0.82rem;
     font-weight: 500;
     color: var(--text-body);
-    padding: 0.55rem 1.25rem;
+    padding: 0.6rem 1.25rem;
     border-radius: 0;
     display: flex;
     align-items: center;
     gap: 10px;
-    transition: all 0.15s;
+    transition: all 0.2s ease;
     border-left: 3px solid transparent;
-    margin: 1px 0;
+    margin: 2px 0;
+    position: relative;
+    line-height: 1.4;
 }
 
 .cfms-sidebar .nav-link i {
-    font-size: 1rem;
+    font-size: 0.95rem;
     width: 20px;
     text-align: center;
     color: var(--text-muted);
-    transition: color 0.15s;
+    transition: all 0.2s ease;
     flex-shrink: 0;
 }
 
 .cfms-sidebar .nav-link:hover {
     color: var(--text-dark);
-    background: var(--bg-hover);
+    background: linear-gradient(90deg, var(--bg-hover), transparent);
     border-left-color: var(--primary-medium);
 }
 
 .cfms-sidebar .nav-link:hover i {
-    color: var(--text-dark);
+    color: var(--primary);
+    transform: scale(1.05);
 }
 
 /* --- Active State --- */
 .cfms-sidebar .nav-link.active {
     color: var(--primary-darker);
-    background: var(--primary-light);
+    background: linear-gradient(90deg, var(--primary-light), rgba(231,241,255,0.3));
     border-left-color: var(--primary);
     font-weight: 600;
 }
@@ -86,7 +111,7 @@
 
 /* --- Badge (for counts) --- */
 .cfms-sidebar .sidebar-badge {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 600;
     padding: 2px 7px;
     border-radius: 10px;
@@ -100,6 +125,15 @@
     border-top: 1px solid var(--border-light);
     padding: 0.75rem 0;
     margin-top: auto;
+    background: linear-gradient(0deg, #f1f5f9 0%, transparent 100%);
+}
+
+.cfms-sidebar .sidebar-bottom .nav-link {
+    font-weight: 600;
+}
+
+.cfms-sidebar .sidebar-bottom .nav-link i {
+    color: var(--primary);
 }
 
 /* --- Responsive --- */
