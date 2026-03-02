@@ -48,7 +48,9 @@ public class TransferOrderDAO {
                 + "JOIN rooms dr ON t.dest_room_id = dr.room_id\n"
                 + "ORDER BY t.created_date DESC;";
 
-        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 TransferOrder t = new TransferOrder();
@@ -66,13 +68,13 @@ public class TransferOrderDAO {
                 u.setFullName(rs.getString("full_name"));
                 t.setCreator(u);
 
-                //map src_room
+                // map src_room
                 Room src_room = new Room();
                 src_room.setRoomId(rs.getInt("src_id"));
                 src_room.setRoomName(rs.getString("src_name"));
                 t.setSourceRoom(src_room);
 
-                //map src_room
+                // map src_room
                 Room dest_room = new Room();
                 dest_room.setRoomId(rs.getInt("dest_id"));
                 dest_room.setRoomName(rs.getString("dest_name"));
@@ -133,13 +135,13 @@ public class TransferOrderDAO {
                     u.setFullName(rs.getString("full_name"));
                     t.setCreator(u);
 
-                    //map src_room
+                    // map src_room
                     Room src_room = new Room();
                     src_room.setRoomId(rs.getInt("src_id"));
                     src_room.setRoomName(rs.getString("src_name"));
                     t.setSourceRoom(src_room);
 
-                    //map src_room
+                    // map src_room
                     Room dest_room = new Room();
                     dest_room.setRoomId(rs.getInt("dest_id"));
                     dest_room.setRoomName(rs.getString("dest_name"));
@@ -188,7 +190,8 @@ public class TransferOrderDAO {
     public int create(TransferOrder t) {
         String sql = "INSERT INTO transfer_orders (created_by, source_room_id, dest_room_id, status, note) VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, t.getCreatedBy());
             ps.setInt(2, t.getSourceRoomId());
@@ -222,9 +225,10 @@ public class TransferOrderDAO {
             e.printStackTrace();
         }
     }
-    
+
+    // set id người duyệt và thời gian duyệt đơn
     public void setApproveBy(int transferId, int userId) {
-        String sql = "UPDATE transfer_orders SET approved_by = ? WHERE transfer_id = ?";
+        String sql = "UPDATE transfer_orders SET approved_by = ?, approved_date = GETDATE() WHERE transfer_id = ?";
 
         try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -237,7 +241,22 @@ public class TransferOrderDAO {
         }
     }
 
-/// lấy thông tin transfer order theo phòng nguồn
+    // set id người duyệt và thời gian duyệt đơn
+    public void setRejectedBy(int transferId, int userId) {
+        String sql = "UPDATE transfer_orders SET rejected_by = ?, rejected_date = GETDATE() WHERE transfer_id = ?";
+
+        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ps.setInt(2, transferId);
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /// lấy thông tin transfer order theo phòng nguồn
     public List<TransferOrder> selectByDeptId(int deptId) {
         List<TransferOrder> list = new ArrayList<>();
         String sql = " SELECT \n"
@@ -286,13 +305,13 @@ public class TransferOrderDAO {
                     u.setFullName(rs.getString("full_name"));
                     t.setCreator(u);
 
-                    //map src_room
+                    // map src_room
                     Room src_room = new Room();
                     src_room.setRoomId(rs.getInt("src_id"));
                     src_room.setRoomName(rs.getString("src_name"));
                     t.setSourceRoom(src_room);
 
-                    //map src_room
+                    // map src_room
                     Room dest_room = new Room();
                     dest_room.setRoomId(rs.getInt("dest_id"));
                     dest_room.setRoomName(rs.getString("dest_name"));
@@ -361,16 +380,18 @@ public class TransferOrderDAO {
                     u.setFullName(rs.getString("full_name"));
                     t.setCreator(u);
 
-                    //map src_room
+                    // map src_room
                     Room src_room = new Room();
                     src_room.setRoomId(rs.getInt("src_id"));
                     src_room.setRoomName(rs.getString("src_name"));
+                    src_room.setDeptId(rs.getInt("src_dept"));
                     t.setSourceRoom(src_room);
 
-                    //map src_room
+                    // map dest_room
                     Room dest_room = new Room();
                     dest_room.setRoomId(rs.getInt("dest_id"));
                     dest_room.setRoomName(rs.getString("dest_name"));
+                    dest_room.setDeptId(rs.getInt("dest_dept"));
                     t.setDestRoom(dest_room);
 
                     // Map User
@@ -385,5 +406,241 @@ public class TransferOrderDAO {
             e.printStackTrace();
         }
         return list;
+    }
+
+    // ========== PAGINATION METHODS ==========
+
+    // --- Transfer List (getAll) pagination ---
+    public int countAll() {
+        String sql = "SELECT COUNT(*) FROM transfer_orders t "
+                + "JOIN users u ON t.created_by = u.user_id "
+                + "JOIN rooms sr ON t.source_room_id = sr.room_id "
+                + "JOIN rooms dr ON t.dest_room_id = dr.room_id";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            if (rs.next())
+                return rs.getInt(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countByStaff(int userId) {
+        String sql = "SELECT COUNT(*) FROM transfer_orders WHERE created_by = ?";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next())
+                    return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<TransferOrder> getAllByPage(int page, int pageSize) {
+        List<TransferOrder> list = new ArrayList<>();
+        String sql = " SELECT t.transfer_id, t.created_by, t.source_room_id, t.dest_room_id, "
+                + "t.created_date, t.status, t.note, u.user_id, u.full_name, "
+                + "sr.room_id AS src_id, sr.room_name AS src_name, "
+                + "dr.room_id AS dest_id, dr.room_name AS dest_name "
+                + "FROM transfer_orders t "
+                + "JOIN users u ON t.created_by = u.user_id "
+                + "JOIN rooms sr ON t.source_room_id = sr.room_id "
+                + "JOIN rooms dr ON t.dest_room_id = dr.room_id "
+                + "ORDER BY t.created_date DESC "
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, (page - 1) * pageSize);
+            ps.setInt(2, pageSize);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapTransferAll(rs));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<TransferOrder> getByStaffByPage(int userId, int page, int pageSize) {
+        List<TransferOrder> list = new ArrayList<>();
+        String sql = " SELECT t.transfer_id, t.created_by, t.source_room_id, t.dest_room_id, "
+                + "t.created_date, t.status, t.note, u.user_id, u.full_name, "
+                + "sr.room_id AS src_id, sr.room_name AS src_name, "
+                + "dr.room_id AS dest_id, dr.room_name AS dest_name "
+                + "FROM transfer_orders t "
+                + "JOIN users u ON t.created_by = u.user_id "
+                + "JOIN rooms sr ON t.source_room_id = sr.room_id "
+                + "JOIN rooms dr ON t.dest_room_id = dr.room_id "
+                + "WHERE u.user_id = ? "
+                + "ORDER BY t.created_date DESC "
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, (page - 1) * pageSize);
+            ps.setInt(3, pageSize);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapTransferAll(rs));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // helper map cho getAll/getByStaff (khong co dept_id)
+    private TransferOrder mapTransferAll(ResultSet rs) throws Exception {
+        TransferOrder t = new TransferOrder();
+        t.setTransferId(rs.getInt("transfer_id"));
+        t.setCreatedBy(rs.getInt("created_by"));
+        t.setSourceRoomId(rs.getInt("source_room_id"));
+        t.setDestRoomId(rs.getInt("dest_room_id"));
+        t.setStatus(rs.getString("status"));
+        t.setNote(rs.getString("note"));
+        t.setCreatedDate(rs.getTimestamp("created_date"));
+        User u = new User();
+        u.setUserId(rs.getInt("user_id"));
+        u.setFullName(rs.getString("full_name"));
+        t.setCreator(u);
+        Room src = new Room();
+        src.setRoomId(rs.getInt("src_id"));
+        src.setRoomName(rs.getString("src_name"));
+        t.setSourceRoom(src);
+        Room dest = new Room();
+        dest.setRoomId(rs.getInt("dest_id"));
+        dest.setRoomName(rs.getString("dest_name"));
+        t.setDestRoom(dest);
+        return t;
+    }
+
+    // --- Handover (source dept) pagination ---
+    public int countBySourceDept(int deptId) {
+        String sql = "SELECT COUNT(*) FROM transfer_orders t "
+                + "JOIN rooms sr ON t.source_room_id = sr.room_id "
+                + "WHERE sr.dept_id = ? AND t.status NOT IN ('Pending','Rejected','Cancelled')";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, deptId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next())
+                    return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<TransferOrder> selectByDeptIdByPage(int deptId, int page, int pageSize) {
+        List<TransferOrder> list = new ArrayList<>();
+        String sql = " SELECT t.transfer_id, t.created_by, t.source_room_id, t.dest_room_id, "
+                + "t.created_date, t.status, t.note, u.user_id, u.full_name, "
+                + "sr.room_id AS src_id, sr.room_name AS src_name, sr.dept_id AS src_dept, "
+                + "dr.room_id AS dest_id, dr.room_name AS dest_name, dr.dept_id AS dest_dept "
+                + "FROM transfer_orders t "
+                + "JOIN users u ON t.created_by = u.user_id "
+                + "JOIN rooms sr ON t.source_room_id = sr.room_id "
+                + "JOIN rooms dr ON t.dest_room_id = dr.room_id "
+                + "WHERE sr.dept_id = ? AND t.status NOT IN ('Pending','Rejected','Cancelled') "
+                + "ORDER BY t.created_date DESC "
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, deptId);
+            ps.setInt(2, (page - 1) * pageSize);
+            ps.setInt(3, pageSize);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapTransferDept(rs));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // --- Receive (dest dept) pagination ---
+    public int countByDestDept(int deptId) {
+        String sql = "SELECT COUNT(*) FROM transfer_orders t "
+                + "JOIN rooms dr ON t.dest_room_id = dr.room_id "
+                + "WHERE dr.dept_id = ? AND t.status NOT IN ('Pending','Rejected','Cancelled')";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, deptId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next())
+                    return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<TransferOrder> selectByDeptId2ByPage(int deptId, int page, int pageSize) {
+        List<TransferOrder> list = new ArrayList<>();
+        String sql = " SELECT t.transfer_id, t.created_by, t.source_room_id, t.dest_room_id, "
+                + "t.created_date, t.status, t.note, u.user_id, u.full_name, "
+                + "sr.room_id AS src_id, sr.room_name AS src_name, sr.dept_id AS src_dept, "
+                + "dr.room_id AS dest_id, dr.room_name AS dest_name, dr.dept_id AS dest_dept "
+                + "FROM transfer_orders t "
+                + "JOIN users u ON t.created_by = u.user_id "
+                + "JOIN rooms sr ON t.source_room_id = sr.room_id "
+                + "JOIN rooms dr ON t.dest_room_id = dr.room_id "
+                + "WHERE dr.dept_id = ? AND t.status NOT IN ('Pending','Rejected','Cancelled') "
+                + "ORDER BY t.created_date DESC "
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, deptId);
+            ps.setInt(2, (page - 1) * pageSize);
+            ps.setInt(3, pageSize);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapTransferDept(rs));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // helper map co dept_id
+    private TransferOrder mapTransferDept(ResultSet rs) throws Exception {
+        TransferOrder t = new TransferOrder();
+        t.setTransferId(rs.getInt("transfer_id"));
+        t.setCreatedBy(rs.getInt("created_by"));
+        t.setSourceRoomId(rs.getInt("source_room_id"));
+        t.setDestRoomId(rs.getInt("dest_room_id"));
+        t.setStatus(rs.getString("status"));
+        t.setNote(rs.getString("note"));
+        t.setCreatedDate(rs.getTimestamp("created_date"));
+        User u = new User();
+        u.setUserId(rs.getInt("user_id"));
+        u.setFullName(rs.getString("full_name"));
+        t.setCreator(u);
+        Room src = new Room();
+        src.setRoomId(rs.getInt("src_id"));
+        src.setRoomName(rs.getString("src_name"));
+        src.setDeptId(rs.getInt("src_dept"));
+        t.setSourceRoom(src);
+        Room dest = new Room();
+        dest.setRoomId(rs.getInt("dest_id"));
+        dest.setRoomName(rs.getString("dest_name"));
+        dest.setDeptId(rs.getInt("dest_dept"));
+        t.setDestRoom(dest);
+        return t;
     }
 }

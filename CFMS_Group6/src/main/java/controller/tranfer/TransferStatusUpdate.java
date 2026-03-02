@@ -25,17 +25,17 @@ import model.TransferOrder;
  *
  * @author Pham Van Tung
  */
-@WebServlet(name = "TransferStatusUpdate", urlPatterns = {"/transfer/update"})
+@WebServlet(name = "TransferStatusUpdate", urlPatterns = { "/transfer/update" })
 public class TransferStatusUpdate extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -54,14 +54,15 @@ public class TransferStatusUpdate extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the
+    // + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -72,7 +73,7 @@ public class TransferStatusUpdate extends HttpServlet {
         int id = Integer.parseInt(request.getParameter("id").trim());
         String status = request.getParameter("status");
         String room = request.getParameter("room");
-        
+
         System.out.println(id);
         System.out.println(status);
         System.out.println(room);
@@ -86,12 +87,17 @@ public class TransferStatusUpdate extends HttpServlet {
             TransferDetailDao tdDao = new TransferDetailDao();
             List<TransferDetail> transferDetails = tdDao.getByTransferId(id);
             for (TransferDetail t : transferDetails) {
-                assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(), "Tài sản được chuyển ra khỏi phòng " + room, "Làm theo đơn chuyển tài sản");
+                assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(),
+                        "Tài sản được chuyển ra khỏi phòng " + room, "Làm theo đơn chuyển tài sản");
             }
             response.sendRedirect(request.getContextPath() + "/transfer/handover");
         }
-        if (status.equals("Approved") || status.equals("Rejected")) {
+        if (status.equals("Approved")) {
             tDao.setApproveBy(id, u.getUserId());
+            response.sendRedirect(request.getContextPath() + "/transfer/list");
+        }
+        if (status.equals("Rejected")) {
+            tDao.setRejectedBy(id, u.getUserId());
             response.sendRedirect(request.getContextPath() + "/transfer/list");
         }
         if (status.equals("Cancelled")) {
@@ -113,27 +119,40 @@ public class TransferStatusUpdate extends HttpServlet {
             List<TransferDetail> transferDetails = tdDao.getByTransferId(id);
             for (TransferDetail t : transferDetails) {
                 assetDao.setRoomId(transferOrder.getDestRoomId(), t.getAssetId());
-                assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(), "Tài sản được chuyển vào phòng " + room, "Làm theo đơn chuyển tài sản");
+                assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(),
+                        "Tài sản được chuyển vào phòng " + room, "Làm theo đơn chuyển tài sản");
             }
             response.sendRedirect(request.getContextPath() + "/transfer/receive");
         }
-        if (status.equals("Failed")) {
+        if (status.equals("Returned")) {
             TransferDetailDao tdDao = new TransferDetailDao();
             List<TransferDetail> transferDetails = tdDao.getByTransferId(id);
             for (TransferDetail t : transferDetails) {
-                assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(), "Tài sản trả về phòng " + room, "Làm theo đơn chuyển tài sản");
+                assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(),
+                        "Phòng đích từ chối nhận tài sản",
+                        "Phòng đích từ chối nhận, yêu cầu trả hàng");
             }
-            response.sendRedirect(request.getContextPath() + "/transfer/receive");
+            response.sendRedirect(request.getContextPath() + "/transfer/receive?msg=return_success");
+        }
+        if (status.equals("Return_Confirmed")) {
+            TransferDetailDao tdDao = new TransferDetailDao();
+            List<TransferDetail> transferDetails = tdDao.getByTransferId(id);
+            for (TransferDetail t : transferDetails) {
+                assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(),
+                        "Tài sản được xác nhận trả về phòng " + room,
+                        "Bên nguồn xác nhận nhận lại tài sản");
+            }
+            response.sendRedirect(request.getContextPath() + "/transfer/handover?msg=return_confirmed");
         }
     }
 
     /**
      * Handles the HTTP <code>POST</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
