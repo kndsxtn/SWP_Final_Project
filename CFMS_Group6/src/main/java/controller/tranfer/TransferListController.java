@@ -15,7 +15,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
 import model.TransferOrder;
 
@@ -23,69 +22,109 @@ import model.TransferOrder;
  *
  * @author Pham Van Tung
  */
-@WebServlet(name="TransferListController", urlPatterns={"/transfer/list"})
+@WebServlet(name = "TransferListController", urlPatterns = { "/transfer/list" })
 public class TransferListController extends HttpServlet {
-   
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     * 
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet TransferListController</title>");  
+            out.println("<title>Servlet TransferListController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet TransferListController at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet TransferListController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
-    } 
+    }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the
+    // + sign on the left to edit the code.">
+    /**
      * Handles the HTTP <code>GET</code> method.
-     * @param request servlet request
+     * 
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
+    private static final int PAGE_SIZE = 5;
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         HttpSession session = request.getSession();
         TransferOrderDAO tdao = new TransferOrderDAO();
-        List<TransferOrder> list = new ArrayList<>();
-        UserDto u = (UserDto)session.getAttribute("user");
-        if (u.getRoleId() == 4) list = tdao.getByStaff(u.getUserId());
-        else list = tdao.getAll();
-        request.setAttribute("list", list);
-        request.getRequestDispatcher("/views/tranfer/transfer-list.jsp").forward(request, response);
-    } 
+        UserDto u = (UserDto) session.getAttribute("user");
 
-    /** 
+        // parse page
+        int page = 1;
+        String pageStr = request.getParameter("page");
+        if (pageStr != null) {
+            try {
+                page = Integer.parseInt(pageStr);
+                if (page < 1)
+                    page = 1;
+            } catch (NumberFormatException e) {
+                page = 1;
+            }
+        }
+
+        int totalItems;
+        List<TransferOrder> list;
+
+        if (u.getRoleId() == 4) {
+            totalItems = tdao.countByStaff(u.getUserId());
+            int totalPages = (int) Math.ceil((double) totalItems / PAGE_SIZE);
+            if (page > totalPages && totalPages > 0)
+                page = totalPages;
+            list = tdao.getByStaffByPage(u.getUserId(), page, PAGE_SIZE);
+            request.setAttribute("totalPages", totalPages);
+        } else {
+            totalItems = tdao.countAll();
+            int totalPages = (int) Math.ceil((double) totalItems / PAGE_SIZE);
+            if (page > totalPages && totalPages > 0)
+                page = totalPages;
+            list = tdao.getAllByPage(page, PAGE_SIZE);
+            request.setAttribute("totalPages", totalPages);
+        }
+
+        request.setAttribute("list", list);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalItems", totalItems);
+        request.getRequestDispatcher("/views/tranfer/transfer-list.jsp").forward(request, response);
+    }
+
+    /**
      * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
+     * 
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /** 
+    /**
      * Returns a short description of the servlet.
+     * 
      * @return a String containing servlet description
      */
     @Override
