@@ -324,13 +324,8 @@ public class AllocationRequestDao {
                 + "WHERE ad.request_id = ? "
                 + "ORDER BY ad.detail_id";
 
-        // Khả dụng = (số lượng New trong kho) - (số lượng đã cấp phát trong yêu cầu Completed).
-        // VD: tổng 8, 2 cái đã cấp phát ra phòng → khả dụng 6.
-        String sqlAvailable = "SELECT (COALESCE(a.quantity, 0) - COALESCE(("
-                + " SELECT SUM(ad.quantity) FROM allocation_details ad "
-                + " JOIN allocation_requests ar ON ad.request_id = ar.request_id "
-                + " WHERE ad.asset_id = a.asset_id AND ar.status = N'Completed'"
-                + "), 0)) AS ok "
+        // Khả dụng = số lượng trong kho (assets.quantity đã được trừ khi hoàn thành cấp phát).
+        String sqlAvailable = "SELECT COALESCE(a.quantity, 0) AS ok "
                 + "FROM assets a "
                 + "WHERE a.asset_id = ? AND a.status = N'New' "
                 + "AND (a.room_id IS NULL OR EXISTS ("
@@ -410,12 +405,8 @@ public class AllocationRequestDao {
             if (i > 0) placeholders.append(",");
             placeholders.append("?");
         }
-        // Khả dụng = (số lượng New trong kho) - (đã cấp phát Completed) cho từng asset_id.
-        String sql = "SELECT a.asset_id, (COALESCE(a.quantity, 0) - COALESCE(("
-                + " SELECT SUM(ad.quantity) FROM allocation_details ad "
-                + " JOIN allocation_requests ar ON ad.request_id = ar.request_id "
-                + " WHERE ad.asset_id = a.asset_id AND ar.status = N'Completed'"
-                + "), 0)) AS qty "
+        // Khả dụng = số lượng trong kho (assets.quantity đã được trừ khi hoàn thành cấp phát).
+        String sql = "SELECT a.asset_id, COALESCE(a.quantity, 0) AS qty "
                 + "FROM assets a "
                 + "WHERE a.asset_id IN (" + placeholders + ") AND a.status = N'New' "
                 + "AND (a.room_id IS NULL OR EXISTS ("
@@ -453,11 +444,8 @@ public class AllocationRequestDao {
                 + "WHERE ad.request_id = ? "
                 + "GROUP BY ad.asset_id";
 
-        String sqlIsAvailable = "SELECT (COALESCE(a.quantity, 0) - COALESCE(("
-                + " SELECT SUM(ad.quantity) FROM allocation_details ad "
-                + " JOIN allocation_requests ar ON ad.request_id = ar.request_id "
-                + " WHERE ad.asset_id = a.asset_id AND ar.status = N'Completed'"
-                + "), 0)) AS ok "
+        // Khả dụng = số lượng trong kho (assets.quantity đã được trừ khi hoàn thành cấp phát).
+        String sqlIsAvailable = "SELECT COALESCE(a.quantity, 0) AS ok "
                 + "FROM assets a "
                 + "WHERE a.asset_id = ? AND a.status = N'New' "
                 + "AND (a.room_id IS NULL OR EXISTS ("
@@ -678,25 +666,76 @@ public class AllocationRequestDao {
     }
 
     /**
-     * Đánh dấu yêu cầu cấp phát là đã hoàn thành cấp phát (Completed).
+     * Đánh dấu yêu cầu cấp phát là đã hoàn thành (Completed) và trừ số lượng tài sản trong kho.
      * Chỉ áp dụng cho các yêu cầu đã được duyệt (Approved_By_Staff / Approved_By_VP / Approved_By_Principal).
+     * Trong cùng transaction: cập nhật status + completed_date, rồi giảm assets.quantity theo từng dòng allocation_details.
      */
     public boolean markCompleted(int requestId) {
-        String sql = "UPDATE allocation_requests "
-                + "SET status = N'Completed', completed_date = GETDATE() "
-                + "WHERE request_id = ? "
-                + "AND status IN (N'Approved_By_Staff', N'Approved_By_VP', N'Approved_By_Principal')";
+        Connection con = null;
+        try {
+            con = new DBContext().getConnection();
+            con.setAutoCommit(false);
 
-        try (Connection con = new DBContext().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+            // 1) Lấy danh sách (asset_id, quantity) của yêu cầu
+            String sqlDetails = "SELECT asset_id, quantity FROM allocation_details WHERE request_id = ?";
+            List<int[]> details = new ArrayList<>();
+            try (PreparedStatement psDet = con.prepareStatement(sqlDetails)) {
+                psDet.setInt(1, requestId);
+                try (ResultSet rs = psDet.executeQuery()) {
+                    while (rs.next()) {
+                        details.add(new int[]{rs.getInt("asset_id"), rs.getInt("quantity")});
+                    }
+                }
+            }
 
-            ps.setInt(1, requestId);
-            return ps.executeUpdate() > 0;
+            // 2) Cập nhật trạng thái yêu cầu
+            String sqlStatus = "UPDATE allocation_requests "
+                    + "SET status = N'Completed', completed_date = GETDATE() "
+                    + "WHERE request_id = ? "
+                    + "AND status IN (N'Approved_By_Staff', N'Approved_By_VP', N'Approved_By_Principal')";
+            try (PreparedStatement psReq = con.prepareStatement(sqlStatus)) {
+                psReq.setInt(1, requestId);
+                if (psReq.executeUpdate() <= 0) {
+                    con.rollback();
+                    return false;
+                }
+            }
+
+            // 3) Trừ số lượng trong bảng assets cho từng tài sản
+            String sqlUpdateQty = "UPDATE assets SET quantity = quantity - ? WHERE asset_id = ?";
+            try (PreparedStatement psAsset = con.prepareStatement(sqlUpdateQty)) {
+                for (int[] row : details) {
+                    int assetId = row[0];
+                    int qty = row[1];
+                    if (qty <= 0) continue;
+                    psAsset.setInt(1, qty);
+                    psAsset.setInt(2, assetId);
+                    psAsset.executeUpdate();
+                }
+            }
+
+            con.commit();
+            return true;
 
         } catch (Exception e) {
             e.printStackTrace();
+            if (con != null) {
+                try {
+                    con.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } finally {
+            if (con != null) {
+                try {
+                    con.setAutoCommit(true);
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-
         return false;
     }
 
