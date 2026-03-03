@@ -153,6 +153,33 @@
                     </c:if>
                 </div>
 
+                <!-- ===== Complete Allocation (Hoàn thành cấp phát) ===== -->
+                <c:if test="${sessionScope.user.roleName == 'Asset Staff'
+                             && (req.status == 'Approved_By_Staff'
+                                 || req.status == 'Approved_By_VP'
+                                 || req.status == 'Approved_By_Principal')}">
+                    <div class="detail-card">
+                        <h5><i class="bi bi-check2-square me-2"></i>Hoàn thành cấp phát</h5>
+                        <p class="mb-3 text-muted small">
+                            Sử dụng khi tài sản đã được cấp phát đầy đủ cho đơn vị yêu cầu.
+                            Hệ thống sẽ chuyển trạng thái yêu cầu sang <strong>Hoàn thành (Completed)</strong>.
+                        </p>
+
+                        <form id="allocationCompleteForm" method="post"
+                              action="${pageContext.request.contextPath}/request/complete">
+                            <input type="hidden" name="id" value="${req.requestId}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check2-square me-1"></i>Hoàn thành cấp phát
+                            </button>
+                            <c:if test="${req.stockStatus != 'FULL'}">
+                                <span class="text-danger small ms-2">
+                                    Lưu ý: tồn kho hiện chưa đủ số lượng. Hệ thống sẽ không cho phép hoàn thành.
+                                </span>
+                            </c:if>
+                        </form>
+                    </div>
+                </c:if>
+
                 <!-- ===== Approve / Reject Actions (UC14) ===== -->
                 <c:if test="${req.status == 'Pending' && sessionScope.user.roleName == 'Asset Staff'}">
                     <div class="detail-card">
