@@ -18,7 +18,7 @@ import java.util.*;
         // Danh sách các URL cần bảo vệ quyền hạn
         "/category/create", "/category/update", "/category/delete",
         "/asset/create", "/asset/update", "/asset/status", "/asset/delete", "/asset/deleteImage",
-        "/request/create", "/request/cancel", "/request/approve", "/request/check-stock",
+        "/request/create", "/request/cancel", "/request/approve", "/request/check-stock", "/request/complete",
         "/request/procurement-create", "/request/procurement-update", "/request/procurement-cancel",
         "/request/procurement-approve", "/request/procurement-reject",
         "/procurement/create", "/procurement/cancel", "/procurement/approve",
@@ -50,6 +50,7 @@ public class RoleFilter implements Filter {
         routeRoles.put("/request/cancel", Arrays.asList(Message.TRUONG_BAN)); // UC15
         routeRoles.put("/request/check-stock", Arrays.asList(Message.NV_QUAN_LY)); // UC13
         routeRoles.put("/request/approve", Arrays.asList(Message.NV_QUAN_LY)); // UC14
+        routeRoles.put("/request/complete", Arrays.asList(Message.NV_QUAN_LY)); // Hoàn thành cấp phát
 
         // --- NHÓM 3: MUA SẮM (UC16-UC19) ---
         routeRoles.put("/request/procurement-create", Arrays.asList(Message.NV_QUAN_LY)); // UC16: Tạo yêu cầu mua sắm
