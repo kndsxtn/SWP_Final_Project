@@ -677,6 +677,29 @@ public class AllocationRequestDao {
         return false;
     }
 
+    /**
+     * Đánh dấu yêu cầu cấp phát là đã hoàn thành cấp phát (Completed).
+     * Chỉ áp dụng cho các yêu cầu đã được duyệt (Approved_By_Staff / Approved_By_VP / Approved_By_Principal).
+     */
+    public boolean markCompleted(int requestId) {
+        String sql = "UPDATE allocation_requests "
+                + "SET status = N'Completed', completed_date = GETDATE() "
+                + "WHERE request_id = ? "
+                + "AND status IN (N'Approved_By_Staff', N'Approved_By_VP', N'Approved_By_Principal')";
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, requestId);
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
     // ─── Update request (only allowed when status is Pending) ───
     public boolean updateRequest(int requestId, int createdByUserId, String reason,
                                  int[] assetIds, int[] quantities, String[] notes) {

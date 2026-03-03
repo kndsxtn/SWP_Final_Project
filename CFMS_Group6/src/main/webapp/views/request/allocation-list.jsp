@@ -316,6 +316,20 @@
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </c:if>
+
+                                                <!-- Complete allocation for Asset Staff when approved & stock is FULL -->
+                                                <c:if test="${sessionScope.user.roleName == 'Asset Staff'
+                                                             && (req.status == 'Approved_By_Staff'
+                                                                 || req.status == 'Approved_By_VP'
+                                                                 || req.status == 'Approved_By_Principal')
+                                                             && req.stockStatus == 'FULL'}">
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-primary ms-1 btn-alloc-complete"
+                                                            data-req-id="${req.requestId}"
+                                                            title="Hoàn thành cấp phát">
+                                                        <i class="bi bi-check2-square"></i>
+                                                    </button>
+                                                </c:if>
                                             </td>
                                         </tr>
                                     </c:forEach>
@@ -337,6 +351,12 @@
                 <form id="allocationCancelForm" method="post"
                       action="${pageContext.request.contextPath}/request/cancel" class="d-none">
                     <input type="hidden" name="id" id="cancelRequestId">
+                </form>
+
+                <!-- Hidden form for complete (Asset Staff) -->
+                <form id="allocationCompleteFormList" method="post"
+                      action="${pageContext.request.contextPath}/request/complete" class="d-none">
+                    <input type="hidden" name="id" id="completeRequestIdList">
                 </form>
 
                 <!-- ===== Pagination ===== -->
@@ -522,6 +542,36 @@
                                 if (confirm(message)) {
                                     cancelIdInput.value = reqId;
                                     cancelForm.submit();
+                                }
+                            }
+                        });
+                    });
+                }
+
+                // Complete buttons (Asset Staff) from list
+                var completeForm = document.getElementById('allocationCompleteFormList');
+                var completeIdInput = document.getElementById('completeRequestIdList');
+                if (completeForm && completeIdInput) {
+                    document.querySelectorAll('.btn-alloc-complete').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            var reqId = btn.getAttribute('data-req-id');
+                            var message = 'Bạn có chắc chắn muốn đánh dấu hoàn thành cấp phát cho REQ-' + reqId + ' ?';
+
+                            if (window.CFMS_CONFIRM) {
+                                CFMS_CONFIRM({
+                                    title: 'Hoàn thành cấp phát',
+                                    message: message,
+                                    danger: false,
+                                    requireReason: false,
+                                    onConfirm: function () {
+                                        completeIdInput.value = reqId;
+                                        completeForm.submit();
+                                    }
+                                });
+                            } else {
+                                if (confirm(message)) {
+                                    completeIdInput.value = reqId;
+                                    completeForm.submit();
                                 }
                             }
                         });
