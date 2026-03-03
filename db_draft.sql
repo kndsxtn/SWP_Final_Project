@@ -111,7 +111,7 @@ CREATE TABLE assets (
 
     -- Giả lập ENUM cho Status
     CONSTRAINT CHK_AssetStatus CHECK (status IN (N'New', N'In_Use', N'Maintenance', N'Broken', N'Liquidated', N'Lost')),
-    CONSTRAINT CHK_AssetQuantity CHECK (quantity >= 1)
+    CONSTRAINT CHK_AssetQuantity CHECK (quantity >= 0)
 );
 GO
 
