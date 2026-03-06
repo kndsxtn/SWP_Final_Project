@@ -21,7 +21,7 @@ import model.Category;
  * @author quang
  */
 @WebServlet(name = "UpdateCategoryController", urlPatterns = {"/category/UpdateCategoryController"})
-public class UpdateCategoryController extends HttpServlet {
+public class UpdateCategory extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -31,7 +31,7 @@ public class UpdateCategoryController extends HttpServlet {
         UserDto user = (UserDto) session.getAttribute("user");
         if (user == null || (!user.getRoleName().equals("Asset Staff") && !user.getRoleName().equals("Finance Head"))) {
             request.setAttribute("status", "Bạn không có quyền thực hiện hành động này!");
-            request.getRequestDispatcher("/category/ViewCategoryController").forward(request, response);
+            request.getRequestDispatcher("/category/ViewCategory").forward(request, response);
             return;
         }
         String idStr = request.getParameter("id");
@@ -39,7 +39,7 @@ public class UpdateCategoryController extends HttpServlet {
         if (idStr == null || idStr.isBlank()) {
             status = "Lỗi: Id Trống";
             request.getSession().setAttribute("status", status);
-            response.sendRedirect("ViewCategoryController");
+            response.sendRedirect("ViewCategory");
             return;
         }
         try {
@@ -47,7 +47,7 @@ public class UpdateCategoryController extends HttpServlet {
         } catch (NumberFormatException e) {
             status = "Lỗi: " + e.getMessage();
             request.getSession().setAttribute("status", status);
-            response.sendRedirect("ViewCategoryController");
+            response.sendRedirect("ViewCategory");
             return;
         }
 
@@ -56,7 +56,7 @@ public class UpdateCategoryController extends HttpServlet {
         if (category == null) {
             status = "Lỗi: Không tìm thấy danh mục";
             request.getSession().setAttribute("status", status);
-            response.sendRedirect("ViewCategoryController");
+            response.sendRedirect("ViewCategory");
             return;
         }
         request.setAttribute("category", category);
@@ -79,7 +79,7 @@ public class UpdateCategoryController extends HttpServlet {
             if (!checkUpdate) {
                 status = "Cập nhật thất bại";
                 request.getSession().setAttribute("status", status);
-                response.sendRedirect("ViewCategoryController");
+                response.sendRedirect("ViewCategory");
                 return;
             }
         } catch (IOException e) {
@@ -90,6 +90,6 @@ public class UpdateCategoryController extends HttpServlet {
         }
         status = "Cập nhật thành công";
         request.getSession().setAttribute("status", status);
-        response.sendRedirect("ViewCategoryController");
+        response.sendRedirect("ViewCategory");
     }
 }
