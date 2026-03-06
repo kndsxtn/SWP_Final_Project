@@ -15,8 +15,8 @@ import java.sql.SQLException;
  *
  * @author quang
  */
-@WebServlet(name = "DeleteCategoryController", urlPatterns = {"/category/DeleteCategoryController"})
-public class DeleteCategoryController extends HttpServlet {
+@WebServlet(name = "DeleteCategory", urlPatterns = {"/category/DeleteCategory"})
+public class DeleteCategory extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -42,7 +42,7 @@ public class DeleteCategoryController extends HttpServlet {
         } catch (ClassNotFoundException | SQLException e) {
 
         }
-        response.sendRedirect("ViewCategoryController");
+        response.sendRedirect("ViewCategory");
     }
 
 }

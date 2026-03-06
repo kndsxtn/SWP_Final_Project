@@ -45,7 +45,7 @@
                     </c:if>
                     <!-- ===== Filter & Search Bar ===== -->
                     <form class="cfms-filter" method ="get"
-                          action="${pageContext.request.contextPath}/category/ViewCategoryController">
+                          action="${pageContext.request.contextPath}/category/ViewCategory">
 
                         <!-- Search input -->
                         <div class="filter-search">
@@ -72,7 +72,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-search me-1"></i>Tìm kiếm
                             </button>
-                            <a href="${pageContext.request.contextPath}/category/ViewCategoryController"
+                            <a href="${pageContext.request.contextPath}/category/ViewCategory"
                                class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-counterclockwise me-1"></i>Xóa lọc
                             </a>
@@ -102,11 +102,11 @@
                                         </td>
                                         <td>${c.description}</td>
                                         <td class="text-center">
-                                            <a href="${pageContext.request.contextPath}/category/UpdateCategoryController?id=${c.categoryId}"
+                                            <a href="${pageContext.request.contextPath}/category/UpdateCategory?id=${c.categoryId}"
                                                class="btn btn-sm btn-light me-1" title="Sửa">
                                                 <i class="bi bi-pencil-square text-primary"></i>
                                             </a>
-                                            <a href="${pageContext.request.contextPath}/category/DeleteCategoryController?id=${c.categoryId}"
+                                            <a href="${pageContext.request.contextPath}/category/DeleteCategory?id=${c.categoryId}"
                                                class="btn btn-sm btn-light"
                                                onclick="return confirm('Bạn có chắc muốn xóa?');"
                                                title="Xóa">

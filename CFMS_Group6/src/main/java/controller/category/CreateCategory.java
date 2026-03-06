@@ -14,8 +14,8 @@ import jakarta.servlet.http.HttpSession;
  *
  * @author quang
  */
-@WebServlet(name = "CreateCategoryController", urlPatterns = {"/category/CreateCategoryController"})
-public class CreateCategoryController extends HttpServlet {
+@WebServlet(name = "CreateCategory", urlPatterns = {"/category/CreateCategory"})
+public class CreateCategory extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
