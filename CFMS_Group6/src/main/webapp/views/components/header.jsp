@@ -18,7 +18,7 @@
         </span>
         <span>
             <span class="d-block">CFMS</span>
-            <span class="brand-text-sub d-none d-sm-block">Campus Facility Management</span>
+            <span class="brand-text-sub d-none d-sm-block">Classroom Facility Management System</span>
         </span>
     </a>
 
