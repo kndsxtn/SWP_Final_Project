@@ -7,6 +7,6 @@
     </session-config>
     <context-param>
         <param-name>nrpp</param-name>
-        <param-value>2</param-value>
+        <param-value>6</param-value>
     </context-param>
 </web-app>
