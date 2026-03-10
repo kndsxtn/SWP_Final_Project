@@ -89,10 +89,12 @@
                                     <th>Tên danh mục</th>
                                     <th>Mã hậu tố</th>
                                     <th>Mô tả</th>
-                                    <th class="text-center" <c:if test="${ role ne 'Finance Head' && role ne 'Asset Staff'}">hidden</c:if>>Hành động</th>
-                                    </tr>     
-                                </thead>
-                                <tbody>
+                                        <c:if test="${user.roleName == 'Finance Head' || user.roleName == 'Asset Staff'}">
+                                        <th class="text-center">Hành động</th>
+                                        </c:if>
+                                </tr>     
+                            </thead>
+                            <tbody>
                                 <c:forEach items="${catList}" var="c" begin="${tool.start}" end="${tool.end}">
                                     <tr>
                                         <td class="text-muted">${c.categoryId}</td>
@@ -103,18 +105,21 @@
                                             </span>
                                         </td>
                                         <td>${c.description}</td>
-                                        <td class="text-center" <c:if test="${ role ne 'Finance Head' && role ne 'Asset Staff'}">hidden</c:if>>
-                                            <a href="${pageContext.request.contextPath}/category/UpdateCategoryController?id=${c.categoryId}"
-                                               class="btn btn-sm btn-light me-1" title="Sửa">
-                                                <i class="bi bi-pencil-square text-primary"></i>
-                                            </a>
-                                            <a href="${pageContext.request.contextPath}/category/DeleteCategoryController?id=${c.categoryId}"
-                                               class="btn btn-sm btn-light"
-                                               onclick="return confirm('Bạn có chắc muốn xóa?');"
-                                               title="Xóa">
-                                                <i class="bi bi-trash text-danger"></i>
-                                            </a>
-                                        </td>
+                                        <c:if test="${user.roleName == 'Finance Head' || user.roleName == 'Asset Staff'}">
+                                            <td class="text-center">
+                                                <a href="${pageContext.request.contextPath}/category/UpdateCategoryController?id=${c.categoryId}"
+                                                   class="btn btn-sm btn-light me-1" title="Sửa">
+                                                    <i class="bi bi-pencil-square text-primary"></i>
+                                                </a>
+                                                <a href="${pageContext.request.contextPath}/category/DeleteCategoryController?id=${c.categoryId}"
+                                                   class="btn btn-sm btn-light"
+                                                   onclick="return confirm('Bạn có chắc muốn xóa?');"
+                                                   title="Xóa">
+                                                    <i class="bi bi-trash text-danger"></i>
+                                                </a>
+                                            </td>
+                                        </c:if>
+
                                     </tr>
                                 </c:forEach>
 
@@ -130,7 +135,7 @@
                         <hr/>
                         <!-- Paging -->
                         <div class ="cfms-paging" ${tool.totalPage <=1 ? 'hidden':''}>
-                            
+
                             <ul class="pagination">
                                 <c:if test='${tool.index!=0}'>
                                     <a class="page-link" href='ViewCategoryController?index=0'>Home</a>
