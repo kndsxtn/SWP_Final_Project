@@ -15,7 +15,7 @@ import java.sql.SQLException;
  *
  * @author quang
  */
-@WebServlet(name = "DeleteCategory", urlPatterns = {"/category/DeleteCategory"})
+@WebServlet(name = "DeleteCategoryController", urlPatterns = {"/category/DeleteCategoryController"})
 public class DeleteCategoryController extends HttpServlet {
 
     @Override
@@ -37,12 +37,12 @@ public class DeleteCategoryController extends HttpServlet {
                 cDao.deleteCategory(id);
             } else {
                 status = "Lỗi: Danh mục đang chứa các tài sản khác.";
-                request.setAttribute("status", status);
+                request.getSession().setAttribute("FLASH_MSG", status);
             }
         } catch (ClassNotFoundException | SQLException e) {
 
         }
-        response.sendRedirect("ViewCategory");
+        response.sendRedirect("ViewCategoryController?status");
     }
 
 }
