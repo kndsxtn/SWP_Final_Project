@@ -62,7 +62,7 @@
 
                     <div class="card-body p-4">
                         <c:if test="${categoryForm == 'create'}">
-                            <form action="${pageContext.request.contextPath}/category/CreateCategory" method = post>
+                            <form action="${pageContext.request.contextPath}/category/CreateCategoryController" method = post>
                                 <div class="row">
                                     <div class="col-md-8 mb-3">
                                         <label for="catName" class="form-label fw-semibold">Tên danh mục <span class="text-danger">*</span></label>
@@ -89,7 +89,7 @@
                             </form>
                         </c:if>
                         <c:if test="${categoryForm == 'update'}">
-                            <form action="${pageContext.request.contextPath}/category/UpdateCategory" method = post>
+                            <form action="${pageContext.request.contextPath}/category/UpdateCategoryController" method = post>
                                 <input type="hidden" name="category_id" value="${category.categoryId}" />
 
                                 <div class="row">
@@ -115,7 +115,7 @@
                                 </div>
 
                                 <div class="d-flex justify-content-end gap-2">
-                                    <a href="${pageContext.request.contextPath}/category/ViewCategory" class="btn btn-secondary">
+                                    <a href="${pageContext.request.contextPath}/category/ViewCategoryController" class="btn btn-secondary">
                                         Hủy bỏ
                                     </a>
                                     <button type="submit" class="btn btn-warning text-white px-4">
