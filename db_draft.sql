@@ -89,28 +89,24 @@ GO
 -- 3. NHÓM QUẢN LÝ TÀI SẢN (ASSET INVENTORY)
 -- ==========================================================
 
--- Bảng Assets: Tài sản chính
+-- Bảng Assets: Tài sản chính (thông tin chung của lô/loại tài sản)
+-- room_id và status được quản lý ở bảng asset_details (từng cá thể)
 CREATE TABLE assets (
     asset_id INT IDENTITY(1,1) PRIMARY KEY,
     asset_code VARCHAR(50) NOT NULL UNIQUE,
     asset_name NVARCHAR(150) NOT NULL,
     category_id INT NOT NULL,
     supplier_id INT,
-    room_id INT, 
     price DECIMAL(15, 2) DEFAULT 0,
     purchase_date DATE,
     warranty_expiry_date DATE,
     quantity INT NOT NULL DEFAULT 1, 
-    status NVARCHAR(50) DEFAULT N'New',
     description NVARCHAR(MAX),
     created_at DATETIME DEFAULT GETDATE(),
 
     FOREIGN KEY (category_id) REFERENCES categories(category_id),
     FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id) ON DELETE SET NULL,
-    FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE SET NULL,
 
-    -- Giả lập ENUM cho Status
-    CONSTRAINT CHK_AssetStatus CHECK (status IN (N'New', N'In_Use', N'Maintenance', N'Broken', N'Liquidated', N'Lost')),
     CONSTRAINT CHK_AssetQuantity CHECK (quantity >= 0)
 );
 GO
@@ -126,16 +122,32 @@ CREATE TABLE asset_images (
 );
 GO
 
--- Bảng Asset_History
+-- Bảng Asset_Details: Truy vết từng cá thể tài sản
+CREATE TABLE asset_details (
+    instance_id INT IDENTITY(1,1) PRIMARY KEY,
+    asset_id INT NOT NULL,
+    instance_code VARCHAR(50) NOT NULL UNIQUE,  -- Mã định danh cá thể, VD: LAP-2026-001-001
+    room_id INT,
+    status NVARCHAR(50) DEFAULT N'New',
+
+    FOREIGN KEY (asset_id) REFERENCES assets(asset_id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE SET NULL,
+
+    -- Trạng thái từng cá thể
+    CONSTRAINT CHK_InstanceStatus CHECK (status IN (N'New', N'In_Use', N'Maintenance', N'Broken', N'Liquidated', N'Lost'))
+);
+GO
+
+-- Bảng Asset_History: Lịch sử thao tác trên từng cá thể tài sản
 CREATE TABLE asset_history (
     history_id INT IDENTITY(1,1) PRIMARY KEY,
-    asset_id INT NOT NULL,
+    instance_id INT NOT NULL,               -- FK → asset_details (truy vết cá thể)
     action NVARCHAR(50) NOT NULL, 
     performed_by INT, 
     description NVARCHAR(MAX), 
     action_date DATETIME DEFAULT GETDATE(),
 
-    FOREIGN KEY (asset_id) REFERENCES assets(asset_id) ON DELETE CASCADE,
+    FOREIGN KEY (instance_id) REFERENCES asset_details(instance_id) ON DELETE CASCADE,
     FOREIGN KEY (performed_by) REFERENCES users(user_id) ON DELETE SET NULL
 );
 GO
@@ -204,18 +216,18 @@ GO
 CREATE TABLE transfer_details (
     detail_id INT IDENTITY(1,1) PRIMARY KEY,
     transfer_id INT NOT NULL,
-    asset_id INT NOT NULL,
+    instance_id INT NOT NULL,               -- FK → asset_details (truy vết cá thể)
     status_at_transfer NVARCHAR(50),
     transfer_date DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (transfer_id) REFERENCES transfer_orders(transfer_id) ON DELETE CASCADE,
-    FOREIGN KEY (asset_id) REFERENCES assets(asset_id)
+    FOREIGN KEY (instance_id) REFERENCES asset_details(instance_id)
 );
 GO
 
 -- C. Bảo trì (Maintenance)
 CREATE TABLE maintenance_requests (
     request_id INT IDENTITY(1,1) PRIMARY KEY,
-    asset_id INT, 
+    instance_id INT,                         -- FK → asset_details (truy vết cá thể)
     reported_by_guest NVARCHAR(100), 
     reported_by_user_id INT, 
     reported_date DATETIME DEFAULT GETDATE(),
@@ -225,7 +237,7 @@ CREATE TABLE maintenance_requests (
     cost DECIMAL(15, 2) DEFAULT 0, 
     technician_note NVARCHAR(MAX),
     
-    FOREIGN KEY (asset_id) REFERENCES assets(asset_id) ON DELETE SET NULL,
+    FOREIGN KEY (instance_id) REFERENCES asset_details(instance_id) ON DELETE SET NULL,
     FOREIGN KEY (reported_by_user_id) REFERENCES users(user_id) ON DELETE SET NULL,
 
     CONSTRAINT CHK_MaintStatus CHECK (status IN (N'Reported', N'Verified', N'In_Progress', N'Fixed', N'Cannot_Fix'))
@@ -272,16 +284,22 @@ GO
 -- 5. INDEX ĐỂ TỐI ƯU QUERY
 -- ==========================================================
 
--- Index cho việc tìm kiếm tài sản theo category và room
-CREATE INDEX IX_Assets_CategoryRoom 
-ON assets(category_id, room_id) 
-INCLUDE (status, quantity);
+-- Index cho việc tìm kiếm tài sản theo category
+CREATE INDEX IX_Assets_Category 
+ON assets(category_id) 
+INCLUDE (asset_code, asset_name, quantity);
 GO
 
--- Index cho việc tìm kiếm tài sản theo status
-CREATE INDEX IX_Assets_Status 
-ON assets(status) 
-INCLUDE (asset_code, asset_name, quantity);
+-- Index cho việc tìm kiếm cá thể theo asset_id và status
+CREATE INDEX IX_AssetDetails_AssetStatus 
+ON asset_details(asset_id, status) 
+INCLUDE (instance_code, room_id);
+GO
+
+-- Index cho việc tìm kiếm cá thể theo room
+CREATE INDEX IX_AssetDetails_Room 
+ON asset_details(room_id) 
+INCLUDE (instance_code, status);
 GO
 
 -- Index cho việc tìm allocation request theo status và người tạo
