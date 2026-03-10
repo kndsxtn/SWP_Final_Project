@@ -20,6 +20,8 @@
         <link href="${pageContext.request.contextPath}/css/table.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/filter.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/message.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/css/paging.css" rel="stylesheet">
+
     </head>
     <body class="d-flex flex-column">
 
@@ -88,10 +90,10 @@
                                     <th>Mã hậu tố</th>
                                     <th>Mô tả</th>
                                     <th class="text-center" <c:if test="${ role ne 'Finance Head' && role ne 'Asset Staff'}">hidden</c:if>>Hành động</th>
-                                </tr>     
-                            </thead>
-                            <tbody>
-                                <c:forEach items="${catList}" var="c">
+                                    </tr>     
+                                </thead>
+                                <tbody>
+                                <c:forEach items="${catList}" var="c" begin="${tool.start}" end="${tool.end}">
                                     <tr>
                                         <td class="text-muted">${c.categoryId}</td>
                                         <td class="fw-semibold">${c.categoryName}</td>
@@ -101,31 +103,48 @@
                                             </span>
                                         </td>
                                         <td>${c.description}</td>
-                                    <td class="text-center" <c:if test="${ role ne 'Finance Head' && role ne 'Asset Staff'}">hidden</c:if>>
-                                        <a href="${pageContext.request.contextPath}/category/UpdateCategoryController?id=${c.categoryId}"
-                                       class="btn btn-sm btn-light me-1" title="Sửa">
-                                        <i class="bi bi-pencil-square text-primary"></i>
-                                    </a>
-                                    <a href="${pageContext.request.contextPath}/category/DeleteCategoryController?id=${c.categoryId}"
-                                       class="btn btn-sm btn-light"
-                                       onclick="return confirm('Bạn có chắc muốn xóa?');"
-                                       title="Xóa">
-                                        <i class="bi bi-trash text-danger"></i>
-                                    </a>
-                                    </td>
-                                </tr>
-                            </c:forEach>
+                                        <td class="text-center" <c:if test="${ role ne 'Finance Head' && role ne 'Asset Staff'}">hidden</c:if>>
+                                            <a href="${pageContext.request.contextPath}/category/UpdateCategoryController?id=${c.categoryId}"
+                                               class="btn btn-sm btn-light me-1" title="Sửa">
+                                                <i class="bi bi-pencil-square text-primary"></i>
+                                            </a>
+                                            <a href="${pageContext.request.contextPath}/category/DeleteCategoryController?id=${c.categoryId}"
+                                               class="btn btn-sm btn-light"
+                                               onclick="return confirm('Bạn có chắc muốn xóa?');"
+                                               title="Xóa">
+                                                <i class="bi bi-trash text-danger"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
 
-                            <c:if test="${empty catList}">
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted py-4">
-                                        Không có danh mục nào
-                                    </td>
-                                </tr>
-                            </c:if>
+                                <c:if test="${empty catList}">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            Không có danh mục nào
+                                        </td>
+                                    </tr>
+                                </c:if>
                             </tbody>
                         </table>
-
+                        <hr/>
+                        <!-- Paging -->
+                        <div class ="cfms-paging">
+                            
+                            <ul class="pagination">
+                                <c:if test='${tool.index!=0}'>
+                                    <a class="page-link" href='ViewCategoryController?index=0'>Home</a>
+                                    <a class="page-link" href='ViewCategoryController?index=${tool.index-1}'>Previous</a>
+                                </c:if>
+                                <c:forEach var = 'index' begin ='${tool.pageStart}' end ='${tool.pageEnd}'>
+                                    <a class="page-link" href='ViewCategoryController?index=${index}'>${index+1}</a>
+                                </c:forEach>
+                                <c:if test='${tool.index!=tool.totalPage-1}'>
+                                    <a class="page-link" href='ViewCategoryController?index=${tool.index+1}'>Next</a>
+                                    <a class="page-link" href='ViewCategoryController?index=${tool.totalPage-1}'>End</a>
+                                </c:if>
+                            </ul>
+                        </div>
                     </div>
 
                 </main>
