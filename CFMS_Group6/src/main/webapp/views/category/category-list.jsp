@@ -40,10 +40,17 @@
                     <div class="cfms-page-header">
                         <h2><i class="bi bi-tags"></i> Danh sách danh mục tài sản</h2>
                     </div>
+                    <!-- ===== Status ===== -->
                     <c:if test ="${not empty status}">
                         <div class="col-md-8 ms-auto mb-3 cfms-msg text-end">
-                            ${status}
+                           <i class="bi bi-info-circle me-1"></i> ${status}
                         </div>
+                    </c:if>
+                    <c:if test="${not empty sessionScope.FLASH_MSG}">
+                        <div class="col-md-8 ms-auto mb-3 cfms-msg text-end">
+                            <i class="bi bi-info-circle me-1"></i> ${sessionScope.FLASH_MSG}
+                        </div>
+                        <c:remove var="FLASH_MSG" scope="session" />
                     </c:if>
                     <!-- ===== Filter & Search Bar ===== -->
                     <form class="cfms-filter" method ="get"
