@@ -129,7 +129,7 @@
                         </table>
                         <hr/>
                         <!-- Paging -->
-                        <div class ="cfms-paging">
+                        <div class ="cfms-paging" ${tool.totalPage <=1 ? 'hidden':''}>
                             
                             <ul class="pagination">
                                 <c:if test='${tool.index!=0}'>
