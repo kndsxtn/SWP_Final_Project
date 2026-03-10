@@ -5,4 +5,8 @@
             30
         </session-timeout>
     </session-config>
+    <context-param>
+        <param-name>nrpp</param-name>
+        <param-value>2</param-value>
+    </context-param>
 </web-app>

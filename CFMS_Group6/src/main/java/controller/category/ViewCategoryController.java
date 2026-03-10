@@ -1,5 +1,6 @@
 package controller.category;
 
+import Tool.PagingTool;
 import dal.CategoryDao;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -34,6 +35,17 @@ public class ViewCategoryController extends HttpServlet {
         } else {
             catList = cDao.loadCategory();
         }
+        int size = catList.size();
+        int nrpp = Integer.parseInt(request.getServletContext().getInitParameter("nrpp"));
+        int index = -1;
+        try{
+            index = Integer.parseInt(request.getParameter("index"));
+        }catch(Exception e){
+            index = -1;
+        }
+        PagingTool tool = new PagingTool(size, nrpp, index);
+        tool.caclPaging();
+        request.setAttribute("tool", tool);
         request.setAttribute("catList", catList);
         request.getRequestDispatcher("/views/category/category-list.jsp").forward(request, response);
     }
