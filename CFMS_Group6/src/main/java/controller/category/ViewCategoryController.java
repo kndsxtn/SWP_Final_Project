@@ -14,8 +14,8 @@ import model.Category;
  *
  * @author quang
  */
-@WebServlet(name = "ViewCategory", urlPatterns = {"/category/ViewCategory"})
-public class ViewCategory extends HttpServlet {
+@WebServlet(name = "ViewCategoryController", urlPatterns = {"/category/ViewCategoryController"})
+public class ViewCategoryController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

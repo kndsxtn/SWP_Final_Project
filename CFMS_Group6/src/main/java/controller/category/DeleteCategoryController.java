@@ -16,7 +16,7 @@ import java.sql.SQLException;
  * @author quang
  */
 @WebServlet(name = "DeleteCategory", urlPatterns = {"/category/DeleteCategory"})
-public class DeleteCategory extends HttpServlet {
+public class DeleteCategoryController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

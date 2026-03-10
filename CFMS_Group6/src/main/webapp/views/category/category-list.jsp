@@ -45,7 +45,7 @@
                     </c:if>
                     <!-- ===== Filter & Search Bar ===== -->
                     <form class="cfms-filter" method ="get"
-                          action="${pageContext.request.contextPath}/category/ViewCategory">
+                          action="${pageContext.request.contextPath}/category/ViewCategoryController">
 
                         <!-- Search input -->
                         <div class="filter-search">
@@ -72,7 +72,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-search me-1"></i>Tìm kiếm
                             </button>
-                            <a href="${pageContext.request.contextPath}/category/ViewCategory"
+                            <a href="${pageContext.request.contextPath}/category/ViewCategoryController"
                                class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-counterclockwise me-1"></i>Xóa lọc
                             </a>
@@ -87,7 +87,7 @@
                                     <th>Tên danh mục</th>
                                     <th>Mã hậu tố</th>
                                     <th>Mô tả</th>
-                                    <th class="text-center">Hành động</th>
+                                    <th class="text-center" <c:if test="${ role ne 'Finance Head' && role ne 'Asset Staff'}">hidden</c:if>>Hành động</th>
                                 </tr>     
                             </thead>
                             <tbody>
@@ -101,28 +101,28 @@
                                             </span>
                                         </td>
                                         <td>${c.description}</td>
-                                        <td class="text-center">
-                                            <a href="${pageContext.request.contextPath}/category/UpdateCategory?id=${c.categoryId}"
-                                               class="btn btn-sm btn-light me-1" title="Sửa">
-                                                <i class="bi bi-pencil-square text-primary"></i>
-                                            </a>
-                                            <a href="${pageContext.request.contextPath}/category/DeleteCategory?id=${c.categoryId}"
-                                               class="btn btn-sm btn-light"
-                                               onclick="return confirm('Bạn có chắc muốn xóa?');"
-                                               title="Xóa">
-                                                <i class="bi bi-trash text-danger"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
+                                    <td class="text-center" <c:if test="${ role ne 'Finance Head' && role ne 'Asset Staff'}">hidden</c:if>>
+                                        <a href="${pageContext.request.contextPath}/category/UpdateCategoryController?id=${c.categoryId}"
+                                       class="btn btn-sm btn-light me-1" title="Sửa">
+                                        <i class="bi bi-pencil-square text-primary"></i>
+                                    </a>
+                                    <a href="${pageContext.request.contextPath}/category/DeleteCategoryController?id=${c.categoryId}"
+                                       class="btn btn-sm btn-light"
+                                       onclick="return confirm('Bạn có chắc muốn xóa?');"
+                                       title="Xóa">
+                                        <i class="bi bi-trash text-danger"></i>
+                                    </a>
+                                    </td>
+                                </tr>
+                            </c:forEach>
 
-                                <c:if test="${empty catList}">
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted py-4">
-                                            Không có danh mục nào
-                                        </td>
-                                    </tr>
-                                </c:if>
+                            <c:if test="${empty catList}">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        Không có danh mục nào
+                                    </td>
+                                </tr>
+                            </c:if>
                             </tbody>
                         </table>
 
