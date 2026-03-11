@@ -5,8 +5,10 @@
 package controller.tranfer;
 
 import dal.AssetDAO;
+import dal.AssetDetailDAO;
 import dal.RoomDao;
 import dal.TransferDao;
+import dto.CreateTransferDto;
 import dto.UserDto;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.Asset;
+import model.AssetDetail;
 import model.Room;
 import model.TransferOrder;
 import model.User;
@@ -91,9 +94,9 @@ public class TransferAdd2 extends HttpServlet {
         List<Room> rooms = rDao.getAll();
         request.setAttribute("rooms", rooms);
         if (srcRoomId != null) {
-            AssetDAO aDao = new AssetDAO();
-            List<Asset> assets = aDao.getByRoomId(srcRoomId);
-            request.setAttribute("assets", assets);
+            AssetDetailDAO assetDetailDao = new AssetDetailDAO();
+            List<CreateTransferDto> assetDetailList = assetDetailDao.getByRoomId(srcRoomId);
+            request.setAttribute("assetDetailList", assetDetailList);
         }
         request.getRequestDispatcher("/views/tranfer/transfer-add-step1.jsp").forward(request, response);
     }
@@ -118,7 +121,7 @@ public class TransferAdd2 extends HttpServlet {
             }
         }
         TransferDao tDao = new TransferDao();
-        AssetDAO aDao = new AssetDAO();
+        AssetDetailDAO aDao = new AssetDetailDAO();
         TransferOrder t = new TransferOrder();
 
         System.out.println("Selected assets: " + selectedAssetIds);
@@ -134,10 +137,12 @@ public class TransferAdd2 extends HttpServlet {
             return;
         }
 
-        List<Asset> selectedAssetList = new ArrayList<>();
+        List<CreateTransferDto> selectedAssetList = new ArrayList<>();
         for (int id : selectedAssetIds) {
-            Asset a = aDao.getById2(id);
-            selectedAssetList.add(a);
+            CreateTransferDto a = aDao.getById(id);
+            if (a != null) {
+                selectedAssetList.add(a);
+            }
         }
         t.setCreatedBy(u.getUserId());
         t.setDestRoomId(dest);
