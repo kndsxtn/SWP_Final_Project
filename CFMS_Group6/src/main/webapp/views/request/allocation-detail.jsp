@@ -255,6 +255,26 @@
                                 </c:if>
                             </div>
 
+                            <!-- Allocated instances (only when request is Completed) -->
+                            <c:if test="${req.status == 'Completed'}">
+                                <c:set var="allocatedList" value="${allocatedInstancesByAsset[d.assetId]}"/>
+                                <div class="mt-3">
+                                    <span class="info-label">Cá thể đã cấp phát: </span>
+                                    <c:choose>
+                                        <c:when test="${empty allocatedList}">
+                                            <span class="text-muted">–</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                                <c:forEach items="${allocatedList}" var="ins">
+                                                    <span class="badge bg-secondary">${ins.instanceCode}</span>
+                                                </c:forEach>
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </c:if>
+
                             <!-- Asset Images -->
                             <c:choose>
                                 <c:when test="${not empty d.asset.images}">

@@ -19,27 +19,41 @@ public class InventoryDao {
         List<Asset> list = new ArrayList<>();
 
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT a.*, ")
-                .append("c.category_id, c.category_name, c.prefix_code, c.description AS cat_desc ")
+        sb.append("SELECT ")
+                .append(" a.asset_id, a.asset_code, a.asset_name, a.category_id, a.supplier_id, ")
+                .append(" a.price, a.purchase_date, a.warranty_expiry_date, a.quantity, a.description, a.created_at, ")
+                .append(" c.category_name, c.prefix_code, c.description AS cat_desc, ")
+                .append(" COUNT(ad.instance_id) AS instance_total, ")
+                .append(" SUM(CASE WHEN ad.status = N'In_Stock' THEN 1 ELSE 0 END) AS cnt_new_total, ")
+                .append(" SUM(CASE WHEN ad.status = N'In_Stock' AND ad.room_id IS NULL THEN 1 ELSE 0 END) AS cnt_available, ")
+                .append(" SUM(CASE WHEN ad.status = N'In_Use' THEN 1 ELSE 0 END) AS cnt_in_use, ")
+                .append(" SUM(CASE WHEN ad.status = N'Maintenance' THEN 1 ELSE 0 END) AS cnt_maintenance, ")
+                .append(" SUM(CASE WHEN ad.status = N'Broken' THEN 1 ELSE 0 END) AS cnt_broken, ")
+                .append(" SUM(CASE WHEN ad.status = N'Lost' THEN 1 ELSE 0 END) AS cnt_lost, ")
+                .append(" SUM(CASE WHEN ad.status = N'Liquidated' THEN 1 ELSE 0 END) AS cnt_liquidated ")
                 .append("FROM assets a ")
-                .append("JOIN categories c ON a.category_id = c.category_id ");
+                .append("JOIN categories c ON a.category_id = c.category_id ")
+                .append("LEFT JOIN asset_details ad ON ad.asset_id = a.asset_id ")
+                .append("LEFT JOIN rooms r ON ad.room_id = r.room_id ");
 
-        boolean hasWhere = false;
-        if (statusFilter != null && !statusFilter.isEmpty()) {
-            sb.append("WHERE EXISTS (SELECT 1 FROM asset_details ad ")
-                    .append("WHERE ad.asset_id = a.asset_id AND ad.status = ?) ");
-            hasWhere = true;
-        }
+        // WHERE only for keyword (non-aggregate)
         if (keyword != null && !keyword.isEmpty()) {
-            String whereOrAnd = hasWhere ? "AND " : "WHERE ";
-            sb.append(whereOrAnd)
-                    .append("(")
-                    .append("a.asset_code LIKE ? OR ")
-                    .append("a.asset_name LIKE ? OR ")
-                    .append("a.description LIKE ? OR ")
-                    .append("c.category_name LIKE ? OR ")
-                    .append("c.prefix_code LIKE ?")
-                    .append(") ");
+            sb.append("WHERE (a.asset_code LIKE ? OR a.asset_name LIKE ? OR a.description LIKE ? ")
+                    .append("OR c.category_name LIKE ? OR c.prefix_code LIKE ?) ");
+        }
+
+        sb.append("GROUP BY ")
+                .append(" a.asset_id, a.asset_code, a.asset_name, a.category_id, a.supplier_id, ")
+                .append(" a.price, a.purchase_date, a.warranty_expiry_date, a.quantity, a.description, a.created_at, ")
+                .append(" c.category_name, c.prefix_code, c.description ");
+
+        // HAVING for statusFilter (aggregate)
+        if (statusFilter != null && !statusFilter.isEmpty()) {
+            if ("In_Stock".equals(statusFilter)) {
+                sb.append("HAVING SUM(CASE WHEN ad.status = N'In_Stock' AND ad.room_id IS NULL THEN 1 ELSE 0 END) > 0 ");
+            } else {
+                sb.append("HAVING SUM(CASE WHEN ad.status = ? THEN 1 ELSE 0 END) > 0 ");
+            }
         }
 
         sb.append("ORDER BY c.category_name, a.asset_code ");
@@ -49,9 +63,6 @@ public class InventoryDao {
              PreparedStatement ps = con.prepareStatement(sb.toString())) {
 
             int idx = 1;
-            if (statusFilter != null && !statusFilter.isEmpty()) {
-                ps.setString(idx++, statusFilter);
-            }
             if (keyword != null && !keyword.isEmpty()) {
                 String kw = "%" + keyword + "%";
                 ps.setString(idx++, kw);
@@ -59,6 +70,9 @@ public class InventoryDao {
                 ps.setString(idx++, kw);
                 ps.setString(idx++, kw);
                 ps.setString(idx++, kw);
+            }
+            if (statusFilter != null && !statusFilter.isEmpty() && !"In_Stock".equals(statusFilter)) {
+                ps.setString(idx++, statusFilter);
             }
             ps.setInt(idx++, (page - 1) * pageSize);
             ps.setInt(idx, pageSize);
@@ -74,7 +88,6 @@ public class InventoryDao {
                     asset.setPrice(rs.getBigDecimal("price"));
                     asset.setPurchaseDate(rs.getDate("purchase_date"));
                     asset.setWarrantyExpiryDate(rs.getDate("warranty_expiry_date"));
-                    asset.setStatus(rs.getString("status"));
                     asset.setQuantity(rs.getInt("quantity"));
                     asset.setDescription(rs.getString("description"));
                     asset.setCreatedAt(rs.getTimestamp("created_at"));
@@ -86,6 +99,16 @@ public class InventoryDao {
                     cat.setPrefixCode(rs.getString("prefix_code"));
                     cat.setDescription(rs.getString("cat_desc"));
                     asset.setCategory(cat);
+
+                    // Gắn aggregate counts từ asset_details
+                    asset.setInstanceTotal(rs.getInt("instance_total"));
+                    asset.setCountNewTotal(rs.getInt("cnt_new_total"));
+                    asset.setCountAvailableInStock(rs.getInt("cnt_available"));
+                    asset.setCountInUse(rs.getInt("cnt_in_use"));
+                    asset.setCountMaintenance(rs.getInt("cnt_maintenance"));
+                    asset.setCountBroken(rs.getInt("cnt_broken"));
+                    asset.setCountLost(rs.getInt("cnt_lost"));
+                    asset.setCountLiquidated(rs.getInt("cnt_liquidated"));
 
                     // Gắn danh sách ảnh
                     asset.setImages(getImagesByAssetId(con, asset.getAssetId()));
@@ -102,15 +125,28 @@ public class InventoryDao {
 
     public Map<String, Integer> getInventoryCountByStatus() {
         Map<String, Integer> counts = new HashMap<>();
-        String sql = "SELECT status, COUNT(*) AS cnt FROM asset_details GROUP BY status";
+        String sqlAvailable = "SELECT COUNT(*) AS cnt "
+                + "FROM asset_details ad "
+                + "WHERE ad.status = N'In_Stock' AND ad.room_id IS NULL";
 
-        try (Connection con = new DBContext().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                String status = rs.getString("status");
-                int cnt = rs.getInt("cnt");
-                counts.put(status != null ? status : "Unknown", cnt);
+        String sqlOther = "SELECT status, COUNT(*) AS cnt FROM asset_details "
+                + "WHERE status <> N'In_Stock' GROUP BY status";
+
+        try (Connection con = new DBContext().getConnection()) {
+            try (PreparedStatement psA = con.prepareStatement(sqlAvailable);
+                 ResultSet rsA = psA.executeQuery()) {
+                if (rsA.next()) {
+                    counts.put("In_Stock", rsA.getInt("cnt"));
+                }
+            }
+
+            try (PreparedStatement ps = con.prepareStatement(sqlOther);
+                 ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String status = rs.getString("status");
+                    int cnt = rs.getInt("cnt");
+                    counts.put(status != null ? status : "Unknown", cnt);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,35 +157,36 @@ public class InventoryDao {
     // ─── Count for paging ───
     public int countAssetsForInventory(String statusFilter, String keyword) {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT COUNT(*) ")
+        sb.append("SELECT COUNT(*) FROM (");
+        sb.append("SELECT a.asset_id ")
                 .append("FROM assets a ")
-                .append("JOIN categories c ON a.category_id = c.category_id ");
+                .append("JOIN categories c ON a.category_id = c.category_id ")
+                .append("LEFT JOIN asset_details ad ON ad.asset_id = a.asset_id ")
+                .append("LEFT JOIN rooms r ON ad.room_id = r.room_id ");
 
-        boolean hasWhere = false;
-        if (statusFilter != null && !statusFilter.isEmpty()) {
-            sb.append("WHERE EXISTS (SELECT 1 FROM asset_details ad ")
-                    .append("WHERE ad.asset_id = a.asset_id AND ad.status = ?) ");
-            hasWhere = true;
-        }
         if (keyword != null && !keyword.isEmpty()) {
-            String whereOrAnd = hasWhere ? "AND " : "WHERE ";
-            sb.append(whereOrAnd)
-                    .append("(")
-                    .append("a.asset_code LIKE ? OR ")
-                    .append("a.asset_name LIKE ? OR ")
-                    .append("a.description LIKE ? OR ")
-                    .append("c.category_name LIKE ? OR ")
-                    .append("c.prefix_code LIKE ?")
-                    .append(") ");
+            sb.append("WHERE (a.asset_code LIKE ? OR a.asset_name LIKE ? OR a.description LIKE ? ")
+                    .append("OR c.category_name LIKE ? OR c.prefix_code LIKE ?) ");
         }
+
+        sb.append("GROUP BY a.asset_id, a.asset_code, a.asset_name, a.category_id, a.supplier_id, ")
+                .append("a.price, a.purchase_date, a.warranty_expiry_date, a.quantity, a.description, a.created_at, ")
+                .append("c.category_name, c.prefix_code, c.description ");
+
+            if (statusFilter != null && !statusFilter.isEmpty()) {
+            if ("In_Stock".equals(statusFilter)) {
+                sb.append("HAVING SUM(CASE WHEN ad.status = N'In_Stock' AND ad.room_id IS NULL THEN 1 ELSE 0 END) > 0 ");
+            } else {
+                sb.append("HAVING SUM(CASE WHEN ad.status = ? THEN 1 ELSE 0 END) > 0 ");
+            }
+        }
+
+        sb.append(") t");
 
         try (Connection con = new DBContext().getConnection();
              PreparedStatement ps = con.prepareStatement(sb.toString())) {
 
             int idx = 1;
-            if (statusFilter != null && !statusFilter.isEmpty()) {
-                ps.setString(idx++, statusFilter);
-            }
             if (keyword != null && !keyword.isEmpty()) {
                 String kw = "%" + keyword + "%";
                 ps.setString(idx++, kw);
@@ -157,6 +194,9 @@ public class InventoryDao {
                 ps.setString(idx++, kw);
                 ps.setString(idx++, kw);
                 ps.setString(idx++, kw);
+            }
+            if (statusFilter != null && !statusFilter.isEmpty() && !"In_Stock".equals(statusFilter)) {
+                ps.setString(idx++, statusFilter);
             }
 
             try (ResultSet rs = ps.executeQuery()) {
