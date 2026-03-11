@@ -17,7 +17,7 @@ import model.TransferDetail;
  *
  * @author Admin
  */
-public class TransferDetailDao {
+public class TransferDetailDAO {
 
     public List<TransferDetail> getByTransferId(int id) {
         String sql = "SELECT td.*, ad.instance_code, a.asset_name " +

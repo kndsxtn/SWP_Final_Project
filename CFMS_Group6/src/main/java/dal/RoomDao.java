@@ -15,7 +15,7 @@ import model.Room;
  *
  * @author Admin
  */
-public class RoomDao {
+public class RoomDAO {
     public List<Room> getByDeptId(int deptId) {
         String sql = "SELECT * FROM rooms WHERE dept_id = ? ORDER BY room_name";
         try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {

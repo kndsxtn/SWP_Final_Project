@@ -5,7 +5,7 @@
 package controller.tranfer;
 
 import dal.AssetDAO;
-import dal.RoomDao;
+import dal.RoomDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -65,7 +65,7 @@ public class TransferAdd extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        RoomDao rDao = new RoomDao();
+        RoomDAO rDao = new RoomDAO();
         List<Room> rooms = rDao.getAll();
         request.setAttribute("rooms", rooms);
         HttpSession session = request.getSession();

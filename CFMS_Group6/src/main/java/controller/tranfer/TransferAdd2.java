@@ -6,8 +6,8 @@ package controller.tranfer;
 
 import dal.AssetDAO;
 import dal.AssetDetailDAO;
-import dal.RoomDao;
-import dal.TransferDao;
+import dal.RoomDAO;
+import dal.TransferDAO;
 import dto.CreateTransferDto;
 import dto.UserDto;
 import java.io.IOException;
@@ -90,7 +90,7 @@ public class TransferAdd2 extends HttpServlet {
             destRoomId = Integer.parseInt(destParam);
             session.setAttribute("destRoomId", destRoomId);
         }
-        RoomDao rDao = new RoomDao();
+        RoomDAO rDao = new RoomDAO();
         List<Room> rooms = rDao.getAll();
         request.setAttribute("rooms", rooms);
         if (srcRoomId != null) {
@@ -120,7 +120,7 @@ public class TransferAdd2 extends HttpServlet {
                 selectedAssetIds.add(Integer.parseInt(id));
             }
         }
-        TransferDao tDao = new TransferDao();
+        TransferDAO tDao = new TransferDAO();
         AssetDetailDAO aDao = new AssetDetailDAO();
         TransferOrder t = new TransferOrder();
 

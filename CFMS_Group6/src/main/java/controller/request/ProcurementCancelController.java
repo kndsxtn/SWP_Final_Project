@@ -1,6 +1,6 @@
 package controller.request;
 
-import dal.ProcurementRequestDao;
+import dal.ProcurementRequestDAO;
 import dto.UserDto;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -35,7 +35,7 @@ public class ProcurementCancelController extends HttpServlet {
             return;
         }
 
-        ProcurementRequestDao dao = new ProcurementRequestDao();
+        ProcurementRequestDAO dao = new ProcurementRequestDAO();
         ProcurementRequest proc = dao.getProcurementById(procurementId);
 
         if (proc == null) {

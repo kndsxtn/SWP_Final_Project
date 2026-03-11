@@ -1,6 +1,6 @@
 package controller.request;
 
-import dal.AllocationRequestDao;
+import dal.AllocationRequestDAO;
 import dal.AssetDetailDAO;
 import dal.DBContext;
 import dto.UserDto;
@@ -34,7 +34,7 @@ import model.AssetDetail;
 @WebServlet(name = "AllocationAssignInstanceController", urlPatterns = {"/request/allocation-assign"})
 public class AllocationAssignInstanceController extends HttpServlet {
 
-    private final AllocationRequestDao allocationDao = new AllocationRequestDao();
+    private final AllocationRequestDAO allocationDao = new AllocationRequestDAO();
     private final AssetDetailDAO assetDetailDao = new AssetDetailDAO();
 
     @Override

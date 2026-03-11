@@ -1,6 +1,6 @@
 package controller.asset;
 
-import dal.InventoryDao;
+import dal.InventoryDAO;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +18,7 @@ public class InventoryController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        InventoryDao dao = new InventoryDao();
+        InventoryDAO dao = new InventoryDAO();
         final int PAGE_SIZE = 10;
 
         // --- Filter param ---

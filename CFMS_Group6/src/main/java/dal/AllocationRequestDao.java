@@ -20,7 +20,7 @@ import model.User;
  *
  * @author Nguyen Dang Khang
  */
-public class AllocationRequestDao {
+public class AllocationRequestDAO {
 
     // ─── List requests with optional status filter, search keyword + paging ───
     public List<AllocationRequest> getRequests(String statusFilter, String keyword, int page, int pageSize) {
