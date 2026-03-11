@@ -20,14 +20,12 @@ import model.Category;
     "/request/procurement-create"
 })
 public class ProcurementCreateController extends HttpServlet {
-
     private final AssetDAO assetDao = new AssetDAO();
     private final ProcurementRequestDAO procurementDao = new ProcurementRequestDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/loginHome");
@@ -48,7 +46,6 @@ public class ProcurementCreateController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         request.setCharacterEncoding("UTF-8");
 
         HttpSession session = request.getSession(false);

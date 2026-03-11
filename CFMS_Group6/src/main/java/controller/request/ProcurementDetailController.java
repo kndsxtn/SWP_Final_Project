@@ -11,13 +11,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.ProcurementDetail;
 import model.ProcurementRequest;
-
-/**
- * Controller for procurement detail page.
- */
 @WebServlet(name = "ProcurementDetailController", urlPatterns = {"/request/procurement-detail"})
 public class ProcurementDetailController extends HttpServlet {
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

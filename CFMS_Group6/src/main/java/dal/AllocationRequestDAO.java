@@ -15,14 +15,8 @@ import model.Asset;
 import model.AssetImage;
 import model.Category;
 import model.User;
-
-/**
- *
- * @author Nguyen Dang Khang
- */
 public class AllocationRequestDAO {
 
-    // ─── List requests with optional status filter, search keyword + paging ───
     public List<AllocationRequest> getRequests(String statusFilter, String keyword, int page, int pageSize) {
         List<AllocationRequest> list = new ArrayList<>();
 
@@ -31,7 +25,6 @@ public class AllocationRequestDAO {
         sb.append("FROM allocation_requests ar ");
         sb.append("JOIN users u ON ar.created_by = u.user_id ");
 
-        // Build WHERE clauses
         List<String> conditions = new ArrayList<>();
         if (statusFilter != null && !statusFilter.isEmpty()) {
             conditions.add("ar.status = ?");
@@ -86,7 +79,6 @@ public class AllocationRequestDAO {
         return list;
     }
 
-    // ─── Count total (for paging) ───
     public int countRequests(String statusFilter, String keyword) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT COUNT(*) FROM allocation_requests ar ");
@@ -140,7 +132,6 @@ public class AllocationRequestDAO {
         return 0;
     }
 
-    // ─── List requests of a specific creator (\"Yêu cầu của tôi\") ───
     public List<AllocationRequest> getRequestsByCreator(int creatorUserId, String statusFilter,
                                                         String keyword, int page, int pageSize) {
         List<AllocationRequest> list = new ArrayList<>();
@@ -207,7 +198,6 @@ public class AllocationRequestDAO {
         return list;
     }
 
-    // ─── Count requests of a specific creator (for paging \"Yêu cầu của tôi\") ───
     public int countRequestsByCreator(int creatorUserId, String statusFilter, String keyword) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT COUNT(*) FROM allocation_requests ar ");
@@ -265,7 +255,6 @@ public class AllocationRequestDAO {
         return 0;
     }
 
-    // ─── Delete a pending request created by specific user (for UC15) ───
     public boolean deletePendingRequest(int requestId, int creatorUserId) {
         String sql = "DELETE FROM allocation_requests "
                 + "WHERE request_id = ? AND created_by = ? AND status = 'Pending' "
@@ -286,7 +275,6 @@ public class AllocationRequestDAO {
         return false;
     }
 
-    // ─── Get details for a specific request ───
     public List<AllocationDetail> getDetailsByRequestId(int requestId) {
         List<AllocationDetail> list = new ArrayList<>();
         String sql = "SELECT ad.*, a.asset_code, a.asset_name, a.category_id, "
@@ -377,10 +365,6 @@ public class AllocationRequestDAO {
         }
     }
 
-    /**
-     * Điền số lượng tồn kho hiện có (availableInStock) cho từng detail.
-     * Dùng để hiển thị cột Tồn kho theo từng tài sản trong list.
-     */
     public void populateDetailsStockInfo(List<AllocationDetail> details) {
         if (details == null || details.isEmpty()) {
             return;
@@ -572,7 +556,6 @@ public class AllocationRequestDAO {
         return -1;
     }
 
-    // ─── Get single request by ID (for detail page) ───
     public AllocationRequest getRequestById(int requestId) {
         String sql = "SELECT ar.*, u.full_name AS creator_name "
                 + "FROM allocation_requests ar "
@@ -594,7 +577,6 @@ public class AllocationRequestDAO {
         return null;
     }
 
-    // ─── Get full details with asset info + images (for detail page) ───
     public List<AllocationDetail> getDetailsFullByRequestId(int requestId) {
         List<AllocationDetail> list = new ArrayList<>();
         String sql = "SELECT ad.*, a.asset_id AS a_id, a.asset_code, a.asset_name, "
@@ -618,7 +600,6 @@ public class AllocationRequestDAO {
                     asset.setPrice(rs.getBigDecimal("price"));
                     asset.setDescription(rs.getString("asset_desc"));
 
-                    // Load images for this asset
                     asset.setImages(getImagesByAssetId(con, asset.getAssetId()));
 
                     list.add(d);
@@ -630,10 +611,6 @@ public class AllocationRequestDAO {
         return list;
     }
 
-    /**
-     * Lấy danh sách cá thể (instance) đã được cấp phát cho một yêu cầu REQ-x.
-     * Dựa trên asset_history được ghi khi cấp phát (action = 'Allocated').
-     */
     public java.util.Map<Integer, java.util.List<model.AssetDetail>> getAllocatedInstancesByRequestId(int requestId) {
         java.util.Map<Integer, java.util.List<model.AssetDetail>> map = new java.util.HashMap<>();
 
@@ -694,19 +671,12 @@ public class AllocationRequestDAO {
         return false;
     }
 
-    /**
-     * Đánh dấu yêu cầu cấp phát là đã hoàn thành (Completed).
-     * Chỉ áp dụng cho các yêu cầu đã được duyệt (Approved_By_Staff / Approved_By_VP / Approved_By_Principal).
-     *
-     * Schema mới quản lý tồn kho theo bảng asset_details (cá thể). Vì vậy KHÔNG trừ assets.quantity ở đây.
-     */
     public boolean markCompleted(int requestId) {
         Connection con = null;
         try {
             con = new DBContext().getConnection();
             con.setAutoCommit(false);
 
-            // 1) Cập nhật trạng thái yêu cầu
             String sqlStatus = "UPDATE allocation_requests "
                     + "SET status = N'Completed', completed_date = GETDATE() "
                     + "WHERE request_id = ? "
@@ -744,7 +714,6 @@ public class AllocationRequestDAO {
         return false;
     }
 
-    // ─── Update request (only allowed when status is Pending) ───
     public boolean updateRequest(int requestId, int createdByUserId, int targetRoomId, String reason,
                                  int[] assetIds, int[] quantities, String[] notes) {
         if (assetIds == null || quantities == null || assetIds.length == 0 || assetIds.length != quantities.length) {
@@ -756,30 +725,28 @@ public class AllocationRequestDAO {
             con = new DBContext().getConnection();
             con.setAutoCommit(false);
 
-            // 1) Verify request exists, is Pending, and belongs to the user
             String checkSql = "SELECT status, created_by FROM allocation_requests WHERE request_id = ?";
             try (PreparedStatement psCheck = con.prepareStatement(checkSql)) {
                 psCheck.setInt(1, requestId);
                 try (ResultSet rs = psCheck.executeQuery()) {
                     if (!rs.next()) {
                         con.rollback();
-                        return false; // Request not found
+                        return false;
                     }
                     String status = rs.getString("status");
                     int createdBy = rs.getInt("created_by");
-                    
+
                     if (!"Pending".equals(status)) {
                         con.rollback();
-                        return false; // Can only edit Pending requests
+                        return false;
                     }
                     if (createdBy != createdByUserId) {
                         con.rollback();
-                        return false; // User must be the creator
+                        return false;
                     }
                 }
             }
 
-            // 2) Update target room + reason
             String updateReasonSql = "UPDATE allocation_requests SET target_room_id = ?, reason = ? WHERE request_id = ?";
             try (PreparedStatement psReason = con.prepareStatement(updateReasonSql)) {
                 psReason.setInt(1, targetRoomId);
@@ -792,14 +759,12 @@ public class AllocationRequestDAO {
                 psReason.executeUpdate();
             }
 
-            // 3) Delete existing details
             String deleteDetailsSql = "DELETE FROM allocation_details WHERE request_id = ?";
             try (PreparedStatement psDelete = con.prepareStatement(deleteDetailsSql)) {
                 psDelete.setInt(1, requestId);
                 psDelete.executeUpdate();
             }
 
-            // 4) Insert new details
             String insertDetailSql = "INSERT INTO allocation_details (request_id, asset_id, quantity, note) "
                     + "VALUES (?, ?, ?, ?)";
 
@@ -855,7 +820,6 @@ public class AllocationRequestDAO {
         return false;
     }
 
-    // ─── Get images for an asset (reuses existing connection) ───
     private List<AssetImage> getImagesByAssetId(Connection con, int assetId) throws Exception {
         List<AssetImage> images = new ArrayList<>();
         String sql = "SELECT * FROM asset_images WHERE asset_id = ? ORDER BY image_id";
@@ -877,8 +841,6 @@ public class AllocationRequestDAO {
         return images;
     }
 
-    // ─── Mapping helpers ───
-
     private AllocationRequest mapRequest(ResultSet rs) throws Exception {
         AllocationRequest req = new AllocationRequest();
         req.setRequestId(rs.getInt("request_id"));
@@ -889,7 +851,6 @@ public class AllocationRequestDAO {
         req.setReason(rs.getString("reason"));
         req.setReasonReject(rs.getString("reason_reject"));
 
-        // Attach creator (lightweight – only full_name needed for the list)
         User creator = new User();
         creator.setUserId(rs.getInt("created_by"));
         creator.setFullName(rs.getString("creator_name"));
@@ -906,7 +867,6 @@ public class AllocationRequestDAO {
         d.setQuantity(rs.getInt("quantity"));
         d.setNote(rs.getString("note"));
 
-        // Attach asset with its category
         Asset asset = new Asset();
         asset.setAssetId(rs.getInt("asset_id"));
         asset.setAssetCode(rs.getString("asset_code"));

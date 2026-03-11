@@ -16,7 +16,6 @@ import model.ProcurementRequest;
     "/request/procurement-reject"
 })
 public class ProcurementApproveController extends HttpServlet {
-
     private final ProcurementRequestDAO dao = new ProcurementRequestDAO();
 
     @Override

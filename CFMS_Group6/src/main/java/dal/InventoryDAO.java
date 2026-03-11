@@ -14,7 +14,6 @@ import model.Room;
 
 public class InventoryDAO {
 
-    // ─── List assets for inventory with optional search + status filter + paging ───
     public List<Asset> getAssetsForInventory(String statusFilter, String keyword, int page, int pageSize) {
         List<Asset> list = new ArrayList<>();
 
@@ -36,7 +35,6 @@ public class InventoryDAO {
                 .append("LEFT JOIN asset_details ad ON ad.asset_id = a.asset_id ")
                 .append("LEFT JOIN rooms r ON ad.room_id = r.room_id ");
 
-        // WHERE only for keyword (non-aggregate)
         if (keyword != null && !keyword.isEmpty()) {
             sb.append("WHERE (a.asset_code LIKE ? OR a.asset_name LIKE ? OR a.description LIKE ? ")
                     .append("OR c.category_name LIKE ? OR c.prefix_code LIKE ?) ");
@@ -47,7 +45,6 @@ public class InventoryDAO {
                 .append(" a.price, a.purchase_date, a.warranty_expiry_date, a.quantity, a.description, a.created_at, ")
                 .append(" c.category_name, c.prefix_code, c.description ");
 
-        // HAVING for statusFilter (aggregate)
         if (statusFilter != null && !statusFilter.isEmpty()) {
             if ("In_Stock".equals(statusFilter)) {
                 sb.append("HAVING SUM(CASE WHEN ad.status = N'In_Stock' AND ad.room_id IS NULL THEN 1 ELSE 0 END) > 0 ");
@@ -92,7 +89,6 @@ public class InventoryDAO {
                     asset.setDescription(rs.getString("description"));
                     asset.setCreatedAt(rs.getTimestamp("created_at"));
 
-                    // Gắn category
                     Category cat = new Category();
                     cat.setCategoryId(rs.getInt("category_id"));
                     cat.setCategoryName(rs.getString("category_name"));
@@ -100,7 +96,6 @@ public class InventoryDAO {
                     cat.setDescription(rs.getString("cat_desc"));
                     asset.setCategory(cat);
 
-                    // Gắn aggregate counts từ asset_details
                     asset.setInstanceTotal(rs.getInt("instance_total"));
                     asset.setCountNewTotal(rs.getInt("cnt_new_total"));
                     asset.setCountAvailableInStock(rs.getInt("cnt_available"));
@@ -110,7 +105,6 @@ public class InventoryDAO {
                     asset.setCountLost(rs.getInt("cnt_lost"));
                     asset.setCountLiquidated(rs.getInt("cnt_liquidated"));
 
-                    // Gắn danh sách ảnh
                     asset.setImages(getImagesByAssetId(con, asset.getAssetId()));
 
                     list.add(asset);
@@ -154,7 +148,6 @@ public class InventoryDAO {
         return counts;
     }
 
-    // ─── Count for paging ───
     public int countAssetsForInventory(String statusFilter, String keyword) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT COUNT(*) FROM (");
@@ -211,7 +204,6 @@ public class InventoryDAO {
         return 0;
     }
 
-    // ─── Load images for an asset ───
     private List<AssetImage> getImagesByAssetId(Connection con, int assetId) throws Exception {
         List<AssetImage> images = new ArrayList<>();
         String sql = "SELECT * FROM asset_images WHERE asset_id = ? ORDER BY image_id";
