@@ -17,22 +17,14 @@ import java.sql.ResultSet;
 import java.util.List;
 import model.ProcurementDetail;
 import model.ProcurementRequest;
-
-/**
- * UC: Nhập kho từ yêu cầu mua sắm đã được duyệt.
- * Nếu procurement có liên kết allocation_request_id, sau khi nhập kho sẽ hiển thị nút
- * để chuyển sang màn chọn cá thể cấp phát.
- */
 @WebServlet(name = "ProcurementStockInController", urlPatterns = {"/request/procurement-stockin"})
 public class ProcurementStockInController extends HttpServlet {
-
     private final ProcurementRequestDAO procurementDao = new ProcurementRequestDAO();
     private final AssetDetailDAO assetDetailDAO = new AssetDetailDAO();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/loginHome");

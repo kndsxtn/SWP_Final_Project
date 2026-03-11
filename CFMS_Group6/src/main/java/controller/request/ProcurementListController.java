@@ -11,13 +11,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.ProcurementDetail;
 import model.ProcurementRequest;
-
-/**
- * Controller for procurement list page.
- */
 @WebServlet(name = "ProcurementListController", urlPatterns = {"/request/procurement-list"})
 public class ProcurementListController extends HttpServlet {
-
     private static final int PAGE_SIZE = 5;
 
     @Override

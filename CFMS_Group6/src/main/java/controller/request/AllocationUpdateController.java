@@ -18,18 +18,11 @@ import model.AllocationRequest;
 import model.Asset;
 import model.Category;
 import model.Room;
-
-/**
- * Controller for updating allocation requests (only when status is Pending)
- * 
- * @author Nguyen Dang Khang
- */
 @WebServlet(name = "AllocationUpdateController", urlPatterns = {
     "/request/allocation-edit",
     "/request/update"
 })
 public class AllocationUpdateController extends HttpServlet {
-
     private final AssetDAO assetDao = new AssetDAO();
     private final AllocationRequestDAO allocationDao = new AllocationRequestDAO();
     private final RoomDAO roomDao = new RoomDAO();

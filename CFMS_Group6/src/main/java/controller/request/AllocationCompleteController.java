@@ -11,11 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.AllocationRequest;
-
-/**
- * Hoàn thành cấp phát tài sản cho các yêu cầu đã được duyệt
- * và kho hiện tại đủ số lượng (status -> Completed).
- */
 @WebServlet(name = "AllocationCompleteController", urlPatterns = {"/request/complete"})
 public class AllocationCompleteController extends HttpServlet {
 
