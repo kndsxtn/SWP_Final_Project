@@ -21,15 +21,12 @@ import java.time.LocalDate;
  */
 public class AssetDAO {
 
-    // ─── SQL chung dùng JOIN để lấy tên category, supplier, room ───
     private static final String SELECT_WITH_JOIN = "SELECT a.*, "
             + "c.category_name, c.prefix_code, "
-            + "s.supplier_name, "
-            + "r.room_name "
+            + "s.supplier_name "
             + "FROM assets a "
             + "LEFT JOIN categories c ON a.category_id = c.category_id "
-            + "LEFT JOIN suppliers s ON a.supplier_id = s.supplier_id "
-            + "LEFT JOIN rooms r ON a.room_id = r.room_id ";
+            + "LEFT JOIN suppliers s ON a.supplier_id = s.supplier_id ";
 
     // UC06: Xem danh sách (có search, filter, paging)
     /**
@@ -187,9 +184,9 @@ public class AssetDAO {
 
         asset.setAssetCode(generatedCode);
 
-        String sql = "INSERT INTO assets (asset_code, asset_name, category_id, supplier_id, room_id, "
-                + "price, purchase_date, warranty_expiry_date, status, quantity, description, created_at) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO assets (asset_code, asset_name, category_id, supplier_id, "
+                + "price, purchase_date, warranty_expiry_date, quantity, description, created_at) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -197,14 +194,12 @@ public class AssetDAO {
             ps.setString(2, asset.getAssetName());
             ps.setInt(3, asset.getCategoryId());
             setNullableInt(ps, 4, asset.getSupplierId());
-            setNullableInt(ps, 5, asset.getRoomId());
-            ps.setBigDecimal(6, asset.getPrice());
-            setNullableDate(ps, 7, asset.getPurchaseDate());
-            setNullableDate(ps, 8, asset.getWarrantyExpiryDate());
-            ps.setString(9, "New");
-            ps.setInt(10, Math.max(asset.getQuantity(), 1));
-            ps.setString(11, asset.getDescription());
-            ps.setTimestamp(12, new java.sql.Timestamp(System.currentTimeMillis()));
+            ps.setBigDecimal(5, asset.getPrice());
+            setNullableDate(ps, 6, asset.getPurchaseDate());
+            setNullableDate(ps, 7, asset.getWarrantyExpiryDate());
+            ps.setInt(8, Math.max(asset.getQuantity(), 1));
+            ps.setString(9, asset.getDescription());
+            ps.setTimestamp(10, new java.sql.Timestamp(System.currentTimeMillis()));
 
             int rows = ps.executeUpdate();
             if (rows > 0) {
@@ -313,7 +308,7 @@ public class AssetDAO {
      */
     public boolean updateAsset(Asset asset) {
         String sql = "UPDATE assets SET asset_name = ?, category_id = ?, supplier_id = ?, "
-                + "room_id = ?, price = ?, purchase_date = ?, warranty_expiry_date = ?, "
+                + "price = ?, purchase_date = ?, warranty_expiry_date = ?, "
                 + "quantity = ?, description = ? WHERE asset_id = ?";
 
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -321,13 +316,12 @@ public class AssetDAO {
             ps.setString(1, asset.getAssetName());
             ps.setInt(2, asset.getCategoryId());
             setNullableInt(ps, 3, asset.getSupplierId());
-            setNullableInt(ps, 4, asset.getRoomId());
-            ps.setBigDecimal(5, asset.getPrice());
-            setNullableDate(ps, 6, asset.getPurchaseDate());
-            setNullableDate(ps, 7, asset.getWarrantyExpiryDate());
-            ps.setInt(8, Math.max(asset.getQuantity(), 1));
-            ps.setString(9, asset.getDescription());
-            ps.setInt(10, asset.getAssetId());
+            ps.setBigDecimal(4, asset.getPrice());
+            setNullableDate(ps, 5, asset.getPurchaseDate());
+            setNullableDate(ps, 6, asset.getWarrantyExpiryDate());
+            ps.setInt(7, Math.max(asset.getQuantity(), 1));
+            ps.setString(8, asset.getDescription());
+            ps.setInt(9, asset.getAssetId());
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -342,7 +336,7 @@ public class AssetDAO {
      * Liquidated, Lost.
      */
     public boolean updateStatus(int assetId, String newStatus) {
-        String sql = "UPDATE assets SET status = ? WHERE asset_id = ?";
+        String sql = "UPDATE asset_details SET status = ? WHERE asset_id = ?";
 
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -431,11 +425,9 @@ public class AssetDAO {
         a.setAssetName(rs.getString("asset_name"));
         a.setCategoryId(rs.getInt("category_id"));
         a.setSupplierId(rs.getInt("supplier_id"));
-        a.setRoomId(rs.getInt("room_id"));
         a.setPrice(rs.getBigDecimal("price"));
         a.setPurchaseDate(rs.getDate("purchase_date"));
         a.setWarrantyExpiryDate(rs.getDate("warranty_expiry_date"));
-        a.setStatus(rs.getString("status"));
         a.setQuantity(rs.getInt("quantity"));
         a.setDescription(rs.getString("description"));
         a.setCreatedAt(rs.getTimestamp("created_at"));
@@ -455,14 +447,6 @@ public class AssetDAO {
             s.setSupplierId(a.getSupplierId());
             s.setSupplierName(rs.getString("supplier_name"));
             a.setSupplier(s);
-        } catch (Exception ignored) {
-        }
-
-        try {
-            Room r = new Room();
-            r.setRoomId(a.getRoomId());
-            r.setRoomName(rs.getString("room_name"));
-            a.setRoom(r);
         } catch (Exception ignored) {
         }
 
@@ -486,7 +470,7 @@ public class AssetDAO {
             params.add(categoryId);
         }
         if (status != null && !status.trim().isEmpty()) {
-            sql.append("AND a.status = ? ");
+            sql.append("AND EXISTS (SELECT 1 FROM asset_details ad WHERE ad.asset_id = a.asset_id AND ad.status = ?) ");
             params.add(status.trim());
         }
     }
@@ -527,9 +511,9 @@ public class AssetDAO {
         }
     }
 
-    /*Phần của pvtung*/
     public List<Asset> getByRoomId(int id) {
-        String sql = "SELECT * FROM assets WHERE room_id = ?";
+        String sql = "SELECT DISTINCT a.asset_id, a.asset_code, a.asset_name FROM assets a "
+                + "JOIN asset_details ad ON a.asset_id = ad.asset_id WHERE ad.room_id = ?";
         try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -539,7 +523,6 @@ public class AssetDAO {
                 a.setAssetId(rs.getInt("asset_id"));
                 a.setAssetCode(rs.getString("asset_code"));
                 a.setAssetName(rs.getString("asset_name"));
-                a.setStatus(rs.getString("status"));
                 assets.add(a);
             }
             return assets;
@@ -551,7 +534,7 @@ public class AssetDAO {
     }
 
     public void setRoomId(int roomId, int assetId) {
-        String sql = "UPDATE assets SET room_id = ? WHERE asset_id = ?";
+        String sql = "UPDATE asset_details SET room_id = ? WHERE asset_id = ?";
 
         try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, roomId);
@@ -561,9 +544,10 @@ public class AssetDAO {
             e.printStackTrace();
         }
     }
-    
+
     public Asset getById2(int id) {
-        String sql = "SELECT * FROM assets WHERE asset_id = ?";
+        String sql = "SELECT asset_id, asset_code, asset_name, category_id, supplier_id, price, "
+                + "purchase_date, warranty_expiry_date, quantity, description, created_at FROM assets WHERE asset_id = ?";
         try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -572,7 +556,10 @@ public class AssetDAO {
                 a.setAssetId(rs.getInt("asset_id"));
                 a.setAssetCode(rs.getString("asset_code"));
                 a.setAssetName(rs.getString("asset_name"));
-                a.setStatus(rs.getString("status"));
+                a.setCategoryId(rs.getInt("category_id"));
+                a.setSupplierId(rs.getInt("supplier_id"));
+                a.setPrice(rs.getBigDecimal("price"));
+                a.setQuantity(rs.getInt("quantity"));
                 return a;
             }
             return null;

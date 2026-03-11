@@ -108,7 +108,7 @@
                                                                 <c:forEach items="${categories}" var="cat">
                                                                     <optgroup label="${cat.categoryName} (${cat.prefixCode})">
                                                                         <c:forEach items="${assets}" var="a">
-                                                                            <c:if test="${a.category.categoryId == cat.categoryId}">
+                                                                            <c:if test="${a.categoryId == cat.categoryId}">
                                                                                 <option value="${a.assetId}" ${a.assetId == d.assetId ? 'selected' : ''}>
                                                                                     ${a.assetCode} - ${a.assetName}
                                                                                 </option>
@@ -143,7 +143,7 @@
                                                             <c:forEach items="${categories}" var="cat">
                                                                 <optgroup label="${cat.categoryName} (${cat.prefixCode})">
                                                                     <c:forEach items="${assets}" var="a">
-                                                                        <c:if test="${a.category.categoryId == cat.categoryId}">
+                                                                        <c:if test="${a.categoryId == cat.categoryId}">
                                                                             <option value="${a.assetId}">
                                                                                 ${a.assetCode} - ${a.assetName}
                                                                             </option>
