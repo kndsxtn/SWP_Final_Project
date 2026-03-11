@@ -238,6 +238,16 @@
                                                    class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
                                                     <i class="bi bi-eye"></i>
                                                 </a>
+                                                <%-- Asset Staff: Stock-in khi Approved và có liên kết allocation --%>
+                                                <c:if test="${sessionScope.user.roleName == 'Asset Staff' && proc.status == 'Approved' && proc.allocationRequestId != null}">
+                                                    <form method="post" action="${pageContext.request.contextPath}/request/procurement-stockin" class="d-inline ms-1">
+                                                        <input type="hidden" name="id" value="${proc.procurementId}">
+                                                        <button type="button" class="btn btn-sm btn-primary" title="Nhập kho & cấp phát"
+                                                                onclick="(function(f){ CFMS_CONFIRM({ title: 'Nhập kho & cấp phát', message: 'Nhập kho từ PROC-${proc.procurementId} và chuyển sang cấp phát cho REQ-${proc.allocationRequestId}?', danger: false, onConfirm: function() { f.submit(); } }); })(this.closest('form'));">
+                                                            <i class="bi bi-box-arrow-in-down"></i>
+                                                        </button>
+                                                    </form>
+                                                </c:if>
                                                 <%-- Asset Staff: Edit + Cancel (chỉ khi Pending và là người tạo) --%>
                                                 <c:if test="${proc.status == 'Pending' && sessionScope.user.roleName == 'Asset Staff' && proc.createdBy == sessionScope.user.userId}">
                                                     <a href="${pageContext.request.contextPath}/request/procurement-edit?id=${proc.procurementId}"

@@ -92,6 +92,7 @@ public class AllocationAssignInstanceController extends HttpServlet {
         request.setAttribute("req", reqAlloc);
         request.setAttribute("details", details);
         request.setAttribute("instancesByAsset", instancesByAsset);
+        request.setAttribute("targetRoomId", reqAlloc.getTargetRoomId());
 
         request.getRequestDispatcher("/views/request/allocation-assign.jsp")
                 .forward(request, response);
@@ -123,15 +124,13 @@ public class AllocationAssignInstanceController extends HttpServlet {
             return;
         }
 
-        // Room đích (tùy chọn) – có thể null nếu bạn chưa thiết kế theo phòng cụ thể
-        int targetRoomId = 0;
-        try {
-            String roomParam = request.getParameter("roomId");
-            if (roomParam != null && !roomParam.isBlank()) {
-                targetRoomId = Integer.parseInt(roomParam);
-            }
-        } catch (NumberFormatException ignored) {
+        AllocationRequest reqAlloc = allocationDao.getRequestById(requestId);
+        if (reqAlloc == null) {
+            session.setAttribute("errorMsg", "Không tìm thấy yêu cầu cấp phát REQ-" + requestId);
+            response.sendRedirect(request.getContextPath() + "/request/allocation-list");
+            return;
         }
+        int targetRoomId = reqAlloc.getTargetRoomId();
 
         List<AllocationDetail> details = allocationDao.getDetailsByRequestId(requestId);
         Map<Integer, List<Integer>> selectedInstancesByDetail = new HashMap<>();

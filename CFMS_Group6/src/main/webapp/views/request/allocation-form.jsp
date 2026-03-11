@@ -81,6 +81,25 @@
                             <input type="hidden" name="requestId" value="${req.requestId}">
                         </c:if>
 
+                        <!-- Phòng dự kiến cấp phát -->
+                        <div class="form-card mb-3">
+                            <h5><i class="bi bi-geo-alt me-2"></i>Phòng dự kiến cấp phát</h5>
+                            <select name="roomId" id="roomId" class="form-select" required>
+                                <option value="">-- Chọn phòng --</option>
+                                <c:forEach items="${rooms}" var="r">
+                                    <option value="${r.roomId}" ${roomId == r.roomId ? 'selected' : ''}>
+                                        ${r.roomName}
+                                    </option>
+                                </c:forEach>
+                            </select>
+                            <div id="roomIdFeedback" class="invalid-feedback">
+                                Vui lòng chọn phòng cấp phát.
+                            </div>
+                            <div class="form-text">
+                                Phòng là bắt buộc. Hệ thống sẽ tự điền ghi chú cho các dòng tài sản đang để trống.
+                            </div>
+                        </div>
+
                         <!-- Lý do yêu cầu -->
                         <div class="form-card mb-3">
                             <h5><i class="bi bi-chat-text me-2"></i>Lý do yêu cầu cấp phát</h5>
@@ -96,7 +115,7 @@
                                         <tr>
                                             <th style="width: 55%">Tài sản (mẫu tham chiếu)</th>
                                             <th style="width: 15%">Số lượng</th>
-                                            <th style="width: 25%">Ghi chú (VD: Phòng 101)</th>
+                                            <th style="width: 25%">Ghi chú</th>
                                             <th style="width: 5%" class="text-center">Xóa</th>
                                         </tr>
                                     </thead>
@@ -115,7 +134,6 @@
                                                                             <c:if test="${a.categoryId == cat.categoryId}">
                                                                                 <option value="${a.assetId}" ${a.assetId == d.assetId ? 'selected' : ''}>
                                                                                     ${a.assetCode} - ${a.assetName}
-                                                                                    [Khả dụng]
                                                                                 </option>
                                                                             </c:if>
                                                                         </c:forEach>
@@ -129,7 +147,7 @@
                                                         </td>
                                                         <td>
                                                             <input type="text" name="note" class="form-control"
-                                                                   value="${d.note}" placeholder="VD: Cho phòng 101, lớp K68CNTT">
+                                                                   value="${d.note}" placeholder="VD: Mục đích sử dụng, lớp/bộ môn, ghi chú thêm...">
                                                         </td>
                                                         <td class="text-center">
                                                             <button type="button" class="btn btn-outline-danger btn-sm"
@@ -152,7 +170,6 @@
                                                                         <c:if test="${a.categoryId == cat.categoryId}">
                                                                             <option value="${a.assetId}">
                                                                                 ${a.assetCode} - ${a.assetName}
-                                                                                [Khả dụng]
                                                                             </option>
                                                                         </c:if>
                                                                     </c:forEach>
@@ -166,7 +183,7 @@
                                                     </td>
                                                     <td>
                                                         <input type="text" name="note" class="form-control"
-                                                               placeholder="VD: Cho phòng 101, lớp K68CNTT">
+                                                               placeholder="VD: Mục đích sử dụng, lớp/bộ môn, ghi chú thêm...">
                                                     </td>
                                                     <td class="text-center">
                                                         <button type="button" class="btn btn-outline-danger btn-sm"
@@ -194,7 +211,7 @@
                                    class="btn btn-outline-secondary">
                                     Hủy
                                 </a>
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="btnSubmitAllocation">
                                     <i class="bi ${isEdit ? 'bi-check-circle' : 'bi-send-fill'} me-1"></i>
                                     <c:choose>
                                         <c:when test="${isEdit}">Cập nhật yêu cầu</c:when>
@@ -215,6 +232,8 @@
             document.addEventListener('DOMContentLoaded', function () {
                 var btnAdd = document.getElementById('btnAddAllocationRow');
                 var tbody = document.getElementById('allocationItemRows');
+                var roomInput = document.getElementById('roomId');
+                var submitBtn = document.getElementById('btnSubmitAllocation');
 
                 if (btnAdd && tbody) {
                     btnAdd.addEventListener('click', function () {
@@ -237,6 +256,22 @@
 
                         tbody.appendChild(newRow);
                     });
+                }
+
+                function validateRoomId() {
+                    if (!roomInput || !submitBtn) return true;
+                    var v = (roomInput.value || '').trim();
+                    var ok = v.length > 0;
+                    roomInput.classList.toggle('is-invalid', !ok);
+                    roomInput.classList.toggle('is-valid', ok);
+                    submitBtn.disabled = !ok;
+                    return ok;
+                }
+
+                if (roomInput) {
+                    roomInput.addEventListener('input', validateRoomId);
+                    roomInput.addEventListener('blur', validateRoomId);
+                    validateRoomId();
                 }
             });
 

@@ -71,9 +71,10 @@
                                     <div><strong>REQ-${req.requestId}</strong></div>
                                 </div>
                                 <div class="col-sm-6">
-                                    <label for="roomId" class="form-label mb-1">Phòng đích (tùy chọn)</label>
-                                    <input type="number" class="form-control" id="roomId" name="roomId"
-                                           placeholder="Nhập room_id nếu muốn gán trực tiếp phòng cho cá thể">
+                                    <label class="form-label mb-1">Phòng đích</label>
+                                    <div>
+                                        <strong>ID: ${targetRoomId}</strong>
+                                    </div>
                                 </div>
                             </div>
                         </div>
