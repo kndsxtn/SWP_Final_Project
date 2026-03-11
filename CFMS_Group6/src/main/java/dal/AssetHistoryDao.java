@@ -6,12 +6,10 @@ package dal;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
-import model.TransferOrder;
 
 /**
  *
- * @author Admin
+ * @author admin
  */
 public class AssetHistoryDAO {
     public void create(int assetId, int userId,String action,String description) {

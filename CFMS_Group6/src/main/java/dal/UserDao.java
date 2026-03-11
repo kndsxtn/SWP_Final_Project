@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author Nguyen Dinh Giap
  */
-public class UserDao {
+public class UserDAO {
 
     // login
     public UserDto checkLogin(String userName, String password) {

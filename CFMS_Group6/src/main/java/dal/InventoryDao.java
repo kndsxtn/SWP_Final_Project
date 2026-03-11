@@ -12,7 +12,7 @@ import model.AssetImage;
 import model.Category;
 import model.Room;
 
-public class InventoryDao {
+public class InventoryDAO {
 
     // ─── List assets for inventory with optional search + status filter + paging ───
     public List<Asset> getAssetsForInventory(String statusFilter, String keyword, int page, int pageSize) {

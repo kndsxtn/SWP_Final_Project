@@ -1,8 +1,8 @@
 package controller.request;
 
-import dal.AssetDetailDao;
+import dal.AssetDetailDAO;
 import dal.DBContext;
-import dal.ProcurementRequestDao;
+import dal.ProcurementRequestDAO;
 import dto.UserDto;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -26,8 +26,8 @@ import model.ProcurementRequest;
 @WebServlet(name = "ProcurementStockInController", urlPatterns = {"/request/procurement-stockin"})
 public class ProcurementStockInController extends HttpServlet {
 
-    private final ProcurementRequestDao procurementDao = new ProcurementRequestDao();
-    private final AssetDetailDao assetDetailDao = new AssetDetailDao();
+    private final ProcurementRequestDAO procurementDao = new ProcurementRequestDAO();
+    private final AssetDetailDAO assetDetailDAO = new AssetDetailDAO();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -86,7 +86,7 @@ public class ProcurementStockInController extends HttpServlet {
 
             String desc = "Nhập kho từ yêu cầu mua sắm PROC-" + procurementId;
             for (ProcurementDetail d : details) {
-                assetDetailDao.stockInInstances(
+                assetDetailDAO.stockInInstances(
                         con,
                         d.getAssetId(),
                         (d.getAsset() != null ? d.getAsset().getAssetCode() : null),

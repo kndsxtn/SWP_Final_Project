@@ -1,8 +1,8 @@
 package controller.request;
 
-import dal.AllocationRequestDao;
+import dal.AllocationRequestDAO;
 import dal.AssetDAO;
-import dal.RoomDao;
+import dal.RoomDAO;
 import dto.UserDto;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,8 +28,8 @@ import model.Room;
 public class AllocationCreateController extends HttpServlet {
 
     private final AssetDAO assetDao = new AssetDAO();
-    private final AllocationRequestDao allocationDao = new AllocationRequestDao();
-    private final RoomDao roomDao = new RoomDao();
+    private final AllocationRequestDAO allocationDao = new AllocationRequestDAO();
+    private final RoomDAO roomDao = new RoomDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
