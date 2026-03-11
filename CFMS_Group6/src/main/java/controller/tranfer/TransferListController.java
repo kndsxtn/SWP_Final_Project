@@ -86,7 +86,7 @@ public class TransferListController extends HttpServlet {
         int totalItems;
         List<TransferOrder> list;
 
-        if (u.getRoleId() == 4) {
+        if (u.getRoleId() == 4 || u.getRoleId() == 3) {
             totalItems = tdao.countByStaff(u.getUserId());
             int totalPages = (int) Math.ceil((double) totalItems / PAGE_SIZE);
             if (page > totalPages && totalPages > 0)
