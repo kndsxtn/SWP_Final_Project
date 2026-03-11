@@ -85,7 +85,7 @@
                                 </div>
                             </div>
 
-                            <c:if test="${not empty assets}">
+                            <c:if test="${not empty assetDetailList}">
                                 <div class="card shadow-sm border-0">
                                     <div class="card-header bg-light border-bottom border-light pb-0">
                                         <h5 class="card-title mb-3 text-secondary" style="font-weight: 500;">2. Chọn tài
@@ -111,27 +111,27 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody style="border-top: none;">
-                                                        <c:forEach items="${assets}" var="a">
+                                                        <c:forEach items="${assetDetailList}" var="a">
                                                             <tr>
                                                                 <td class="text-center px-4">
                                                                     <div
                                                                         class="form-check d-flex justify-content-center">
                                                                         <input class="form-check-input" type="checkbox"
-                                                                            name="assetIds" value="${a.assetId}"
-                                                                            id="asset_${a.assetId}">
+                                                                            name="assetIds" value="${a.instanceId}"
+                                                                            id="assetDetail_${a.instanceId}">
                                                                     </div>
                                                                 </td>
                                                                 <td class="text-secondary fw-semibold">
                                                                     <label class="form-check-label w-100"
-                                                                        for="asset_${a.assetId}">${a.assetCode}</label>
+                                                                        for="assetDetail_${a.instanceId}">${a.instanceCode}</label>
                                                                 </td>
                                                                 <td class="fw-medium">
                                                                     <label class="form-check-label w-100"
-                                                                        for="asset_${a.assetId}">${a.assetName}</label>
+                                                                        for="assetDetail_${a.instanceId}">${a.assetName}</label>
                                                                 </td>
                                                                 <td>
                                                                     <label class="form-check-label w-100"
-                                                                        for="asset_${a.assetId}">
+                                                                        for="assetDetail_${a.instanceId}">
                                                                         <span
                                                                             class="badge bg-light text-dark border border-secondary-subtle px-2 py-1 fw-normal">${a.status}</span>
                                                                     </label>
