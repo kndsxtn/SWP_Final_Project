@@ -234,6 +234,20 @@ public class AllocationAssignInstanceController extends HttpServlet {
                 return;
             }
 
+            // 4) Chỉ khi cấp phát xong mới cập nhật procurement liên kết sang Completed.
+            // Điều kiện: procurement vẫn đang Approved và đã từng "Nhập kho" (Stock_In) theo PROC-id.
+            try (PreparedStatement ps = con.prepareStatement(
+                    "UPDATE pr SET pr.status = N'Completed' "
+                            + "FROM procurement_requests pr "
+                            + "WHERE pr.allocation_request_id = ? "
+                            + "AND pr.status = N'Approved' "
+                            + "AND EXISTS (SELECT 1 FROM asset_history ah "
+                            + "            WHERE ah.action = N'Stock_In' "
+                            + "              AND ah.description LIKE (N'%PROC-' + CAST(pr.procurement_id AS NVARCHAR(20)) + N'%'))")) {
+                ps.setInt(1, requestId);
+                ps.executeUpdate();
+            }
+
             con.commit();
             session.setAttribute("successMsg",
                     "Đã chọn cá thể và hoàn thành cấp phát cho yêu cầu REQ-" + requestId + ".");

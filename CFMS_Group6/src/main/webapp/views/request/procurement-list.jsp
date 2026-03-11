@@ -242,11 +242,19 @@
                                                 <c:if test="${sessionScope.user.roleName == 'Asset Staff' && proc.status == 'Approved' && proc.allocationRequestId != null}">
                                                     <form method="post" action="${pageContext.request.contextPath}/request/procurement-stockin" class="d-inline ms-1">
                                                         <input type="hidden" name="id" value="${proc.procurementId}">
-                                                        <button type="button" class="btn btn-sm btn-primary" title="Nhập kho & cấp phát"
-                                                                onclick="(function(f){ CFMS_CONFIRM({ title: 'Nhập kho & cấp phát', message: 'Nhập kho từ PROC-${proc.procurementId} và chuyển sang cấp phát cho REQ-${proc.allocationRequestId}?', danger: false, onConfirm: function() { f.submit(); } }); })(this.closest('form'));">
+                                                        <button type="button" class="btn btn-sm btn-primary" title="Nhập kho"
+                                                                onclick="(function(f){ CFMS_CONFIRM({ title: 'Nhập kho', message: 'Nhập kho từ PROC-${proc.procurementId}? Sau khi nhập kho bạn sẽ chọn cá thể cấp phát ở bước tiếp theo.', danger: false, onConfirm: function() { f.submit(); } }); })(this.closest('form'));">
                                                             <i class="bi bi-box-arrow-in-down"></i>
                                                         </button>
                                                     </form>
+                                                </c:if>
+                                                <%-- Asset Staff: After stock-in, allow assign link (proc is still Approved) --%>
+                                                <c:if test="${sessionScope.user.roleName == 'Asset Staff' && proc.status == 'Approved' && proc.allocationRequestId != null}">
+                                                    <a class="btn btn-sm btn-success ms-1"
+                                                       href="${pageContext.request.contextPath}/request/allocation-assign?id=${proc.allocationRequestId}"
+                                                       title="Chọn cá thể cấp phát">
+                                                        <i class="bi bi-list-check"></i>
+                                                    </a>
                                                 </c:if>
                                                 <%-- Asset Staff: Edit + Cancel (chỉ khi Pending và là người tạo) --%>
                                                 <c:if test="${proc.status == 'Pending' && sessionScope.user.roleName == 'Asset Staff' && proc.createdBy == sessionScope.user.userId}">

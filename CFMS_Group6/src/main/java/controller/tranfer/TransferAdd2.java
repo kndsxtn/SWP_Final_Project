@@ -94,7 +94,7 @@ public class TransferAdd2 extends HttpServlet {
         List<Room> rooms = rDao.getAll();
         request.setAttribute("rooms", rooms);
         if (srcRoomId != null) {
-            AssetDetailDao assetDetailDao = new AssetDetailDao();
+            AssetDetailDAO assetDetailDao = new AssetDetailDAO();
             List<CreateTransferDto> assetDetailList = assetDetailDao.getByRoomId(srcRoomId);
             request.setAttribute("assetDetailList", assetDetailList);
         }
