@@ -1,7 +1,7 @@
 package controller.request;
 
 import dal.AllocationRequestDao;
-import dal.AssetDetailDao;
+import dal.AssetDetailDAO;
 import dal.DBContext;
 import dto.UserDto;
 import jakarta.servlet.ServletException;
@@ -35,7 +35,7 @@ import model.AssetDetail;
 public class AllocationAssignInstanceController extends HttpServlet {
 
     private final AllocationRequestDao allocationDao = new AllocationRequestDao();
-    private final AssetDetailDao assetDetailDao = new AssetDetailDao();
+    private final AssetDetailDAO assetDetailDao = new AssetDetailDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

@@ -103,7 +103,7 @@ public class AllocationCreateController extends HttpServlet {
         if (assetIdsStr == null || qtyStrs == null || assetIdsStr.length == 0) {
             request.setAttribute("errorMsg", "Vui lòng chọn ít nhất một dòng tài sản cần cấp phát.");
             request.setAttribute("reason", reason);
-            loadFormData(request);
+            loadFormData(request, user.getDeptId());
             request.getRequestDispatcher("/views/request/allocation-form.jsp")
                     .forward(request, response);
             return;
