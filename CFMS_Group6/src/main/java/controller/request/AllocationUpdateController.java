@@ -171,7 +171,7 @@ public class AllocationUpdateController extends HttpServlet {
                 request.setAttribute("req", req);
             }
             request.setAttribute("isEdit", true);
-            loadFormData(request);
+            loadFormData(request, user.getDeptId());
             request.getRequestDispatcher("/views/request/allocation-form.jsp")
                     .forward(request, response);
             return;

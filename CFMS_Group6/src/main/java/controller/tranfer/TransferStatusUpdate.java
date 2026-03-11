@@ -5,7 +5,7 @@
 package controller.tranfer;
 
 import dal.AssetDAO;
-import dal.AssetHistoryDao;
+import dal.AssetHistoryDAO;
 import dal.TransferDetailDao;
 import dal.TransferOrderDAO;
 import dto.UserDto;
@@ -78,7 +78,7 @@ public class TransferStatusUpdate extends HttpServlet {
         System.out.println(status);
         System.out.println(room);
         TransferOrderDAO tDao = new TransferOrderDAO();
-        AssetHistoryDao assetHistoryDao = new AssetHistoryDao();
+        AssetHistoryDAO assetHistoryDao = new AssetHistoryDAO();
         AssetDAO assetDao = new AssetDAO();
         tDao.updateStatus(id, status);
         UserDto u = (UserDto) session.getAttribute("user");

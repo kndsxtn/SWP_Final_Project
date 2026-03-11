@@ -13,7 +13,7 @@ import model.TransferOrder;
  *
  * @author Admin
  */
-public class AssetHistoryDao {
+public class AssetHistoryDAO {
     public void create(int assetId, int userId,String action,String description) {
         String sql = "INSERT INTO asset_history (asset_id, action, performed_by, description) VALUES (?, ?, ?, ?)";
 
