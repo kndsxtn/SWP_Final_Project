@@ -1,0 +1,61 @@
+package model;
+
+public class AssetDetail {
+    private int instanceId;
+    private int assetId;
+    private String instanceCode;
+    private int roomId;
+    private String status;
+
+    public AssetDetail() {
+    }
+
+    public AssetDetail(int instanceId, int assetId, String instanceCode, int roomId, String status) {
+        this.instanceId = instanceId;
+        this.assetId = assetId;
+        this.instanceCode = instanceCode;
+        this.roomId = roomId;
+        this.status = status;
+    }
+
+    public int getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(int instanceId) {
+        this.instanceId = instanceId;
+    }
+
+    public int getAssetId() {
+        return assetId;
+    }
+
+    public void setAssetId(int assetId) {
+        this.assetId = assetId;
+    }
+
+    public String getInstanceCode() {
+        return instanceCode;
+    }
+
+    public void setInstanceCode(String instanceCode) {
+        this.instanceCode = instanceCode;
+    }
+
+    public int getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(int roomId) {
+        this.roomId = roomId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+}
