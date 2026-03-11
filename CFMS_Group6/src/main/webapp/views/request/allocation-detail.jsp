@@ -161,22 +161,15 @@
                     <div class="detail-card">
                         <h5><i class="bi bi-check2-square me-2"></i>Hoàn thành cấp phát</h5>
                         <p class="mb-3 text-muted small">
-                            Sử dụng khi tài sản đã được cấp phát đầy đủ cho đơn vị yêu cầu.
-                            Hệ thống sẽ chuyển trạng thái yêu cầu sang <strong>Hoàn thành (Completed)</strong>.
+                            Sử dụng khi tài sản đã được duyệt cấp phát. Bạn có thể chọn cụ thể
+                            từng cá thể (instance) để cấp phát cho đơn vị yêu cầu, sau đó hệ thống
+                            sẽ đánh dấu yêu cầu là <strong>Hoàn thành (Completed)</strong>.
                         </p>
 
-                        <form id="allocationCompleteForm" method="post"
-                              action="${pageContext.request.contextPath}/request/complete">
-                            <input type="hidden" name="id" value="${req.requestId}">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check2-square me-1"></i>Hoàn thành cấp phát
-                            </button>
-                            <c:if test="${req.stockStatus != 'FULL'}">
-                                <span class="text-danger small ms-2">
-                                    Lưu ý: tồn kho hiện chưa đủ số lượng. Hệ thống sẽ không cho phép hoàn thành.
-                                </span>
-                            </c:if>
-                        </form>
+                        <a href="${pageContext.request.contextPath}/request/allocation-assign?id=${req.requestId}"
+                           class="btn btn-primary">
+                            <i class="bi bi-list-check me-1"></i>Chọn cá thể cấp phát
+                        </a>
                     </div>
                 </c:if>
 
@@ -234,28 +227,6 @@
                                         <i class="bi bi-hash me-1"></i>Số lượng: <strong>${d.quantity}</strong>
                                     </span>
                                 </div>
-                                <div class="mt-2">
-                                    <c:choose>
-                                        <c:when test="${d.asset.status == 'New'}">
-                                            <span class="cfms-badge cfms-badge-new">Khả dụng</span>
-                                        </c:when>
-                                        <c:when test="${d.asset.status == 'In_Use'}">
-                                            <span class="cfms-badge cfms-badge-in-use">Đang dùng</span>
-                                        </c:when>
-                                        <c:when test="${d.asset.status == 'Maintenance'}">
-                                            <span class="cfms-badge cfms-badge-maintenance">Bảo trì</span>
-                                        </c:when>
-                                        <c:when test="${d.asset.status == 'Broken'}">
-                                            <span class="cfms-badge cfms-badge-broken">Hỏng</span>
-                                        </c:when>
-                                        <c:when test="${d.asset.status == 'Lost'}">
-                                            <span class="cfms-badge cfms-badge-lost">Thất lạc</span>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <span class="cfms-badge">${d.asset.status}</span>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
                             </div>
 
                             <div class="asset-info-grid">
@@ -283,6 +254,26 @@
                                     </div>
                                 </c:if>
                             </div>
+
+                            <!-- Allocated instances (only when request is Completed) -->
+                            <c:if test="${req.status == 'Completed'}">
+                                <c:set var="allocatedList" value="${allocatedInstancesByAsset[d.assetId]}"/>
+                                <div class="mt-3">
+                                    <span class="info-label">Cá thể đã cấp phát: </span>
+                                    <c:choose>
+                                        <c:when test="${empty allocatedList}">
+                                            <span class="text-muted">–</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                                <c:forEach items="${allocatedList}" var="ins">
+                                                    <span class="badge bg-secondary">${ins.instanceCode}</span>
+                                                </c:forEach>
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </c:if>
 
                             <!-- Asset Images -->
                             <c:choose>

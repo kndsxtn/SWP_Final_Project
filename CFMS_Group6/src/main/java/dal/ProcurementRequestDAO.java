@@ -13,7 +13,7 @@ import model.ProcurementDetail;
 import model.ProcurementRequest;
 import model.User;
 
-public class ProcurementRequestDao {
+public class ProcurementRequestDAO {
 
     private static final String PROC_BASE = "SELECT pr.*, u.full_name AS creator_name FROM procurement_requests pr "
             + "JOIN users u ON pr.created_by = u.user_id ";

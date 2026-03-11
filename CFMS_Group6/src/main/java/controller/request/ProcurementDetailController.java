@@ -1,6 +1,6 @@
 package controller.request;
 
-import dal.ProcurementRequestDao;
+import dal.ProcurementRequestDAO;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -36,7 +36,7 @@ public class ProcurementDetailController extends HttpServlet {
             return;
         }
 
-        ProcurementRequestDao dao = new ProcurementRequestDao();
+        ProcurementRequestDAO dao = new ProcurementRequestDAO();
         ProcurementRequest proc = dao.getProcurementById(id);
 
         if (proc == null) {

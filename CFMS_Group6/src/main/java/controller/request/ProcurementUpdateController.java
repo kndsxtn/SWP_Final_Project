@@ -1,7 +1,7 @@
 package controller.request;
 
 import dal.AssetDAO;
-import dal.ProcurementRequestDao;
+import dal.ProcurementRequestDAO;
 import dto.UserDto;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import model.ProcurementRequest;
 public class ProcurementUpdateController extends HttpServlet {
 
     private final AssetDAO assetDao = new AssetDAO();
-    private final ProcurementRequestDao procurementDao = new ProcurementRequestDao();
+    private final ProcurementRequestDAO procurementDao = new ProcurementRequestDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

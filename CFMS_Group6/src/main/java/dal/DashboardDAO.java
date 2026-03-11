@@ -19,10 +19,9 @@ public class DashboardDAO {
         return countSingle("SELECT COUNT(*) FROM assets");
     }
 
-    // ─── Thống kê tài sản theo từng trạng thái ───
     public Map<String, Integer> countAssetsByStatus() {
         Map<String, Integer> map = new LinkedHashMap<>();
-        String sql = "SELECT status, COUNT(*) AS cnt FROM assets GROUP BY status ORDER BY status";
+        String sql = "SELECT status, COUNT(*) AS cnt FROM asset_details GROUP BY status ORDER BY status";
 
         try (Connection con = new DBContext().getConnection();
                 PreparedStatement ps = con.prepareStatement(sql);
@@ -37,24 +36,24 @@ public class DashboardDAO {
         return map;
     }
 
-    // ─── Đếm tài sản đang sử dụng ───
+    // ─── Đếm cá thể tài sản đang sử dụng (schema mới: asset_details) ───
     public int countAssetsInUse() {
-        return countSingle("SELECT COUNT(*) FROM assets WHERE status = N'In_Use'");
+        return countSingle("SELECT COUNT(*) FROM asset_details WHERE status = N'In_Use'");
     }
 
-    // ─── Đếm tài sản mới (trong kho) ───
+    // ─── Đếm cá thể tài sản đang ở kho ───
     public int countAssetsNew() {
-        return countSingle("SELECT COUNT(*) FROM assets WHERE status = N'New'");
+        return countSingle("SELECT COUNT(*) FROM asset_details WHERE status = N'In_Stock' AND room_id IS NULL");
     }
 
-    // ─── Đếm tài sản đang bảo trì ───
+    // ─── Đếm cá thể tài sản đang bảo trì ───
     public int countAssetsMaintenance() {
-        return countSingle("SELECT COUNT(*) FROM assets WHERE status = N'Maintenance'");
+        return countSingle("SELECT COUNT(*) FROM asset_details WHERE status = N'Maintenance'");
     }
 
-    // ─── Đếm tài sản hỏng ───
+    // ─── Đếm cá thể tài sản hỏng ───
     public int countAssetsBroken() {
-        return countSingle("SELECT COUNT(*) FROM assets WHERE status = N'Broken'");
+        return countSingle("SELECT COUNT(*) FROM asset_details WHERE status = N'Broken'");
     }
 
     // ─── Đếm tổng danh mục tài sản ───
@@ -89,11 +88,10 @@ public class DashboardDAO {
                 userId);
     }
 
-    // ─── Đếm tài sản thuộc phòng của 1 department ───
     public int countAssetsByDept(int deptId) {
         return countSingle(
-                "SELECT COUNT(*) FROM assets a "
-                        + "JOIN rooms r ON a.room_id = r.room_id "
+                "SELECT COUNT(*) FROM asset_details ad "
+                        + "JOIN rooms r ON ad.room_id = r.room_id "
                         + "WHERE r.dept_id = ?",
                 deptId);
     }

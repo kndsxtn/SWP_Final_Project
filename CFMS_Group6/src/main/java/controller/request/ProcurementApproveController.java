@@ -1,6 +1,6 @@
 package controller.request;
 
-import dal.ProcurementRequestDao;
+import dal.ProcurementRequestDAO;
 import dto.UserDto;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -17,7 +17,7 @@ import model.ProcurementRequest;
 })
 public class ProcurementApproveController extends HttpServlet {
 
-    private final ProcurementRequestDao dao = new ProcurementRequestDao();
+    private final ProcurementRequestDAO dao = new ProcurementRequestDAO();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

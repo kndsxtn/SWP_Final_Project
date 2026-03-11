@@ -1,6 +1,6 @@
 package controller.request;
 
-import dal.AllocationRequestDao;
+import dal.AllocationRequestDAO;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -39,7 +39,7 @@ public class AllocationDetailController extends HttpServlet {
             return;
         }
 
-        AllocationRequestDao dao = new AllocationRequestDao();
+        AllocationRequestDAO dao = new AllocationRequestDAO();
         AllocationRequest req = dao.getRequestById(id);
 
         if (req == null) {
@@ -55,6 +55,11 @@ public class AllocationDetailController extends HttpServlet {
 
         // UC13: also compute stock information for this request
         dao.populateStockInfo(req);
+
+        // If request is completed, show which instances were allocated
+        if ("Completed".equals(req.getStatus())) {
+            request.setAttribute("allocatedInstancesByAsset", dao.getAllocatedInstancesByRequestId(id));
+        }
 
         request.setAttribute("req", req);
 

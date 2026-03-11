@@ -5,7 +5,7 @@
 
 package controller.tranfer;
 
-import dal.TransferDetailDao;
+import dal.TransferDetailDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -59,7 +59,7 @@ public class TransferDetailController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
-        TransferDetailDao tdDao = new TransferDetailDao();
+        TransferDetailDAO tdDao = new TransferDetailDAO();
         List<TransferDetail> transferDetails = tdDao.getByTransferId(id);
         request.setAttribute("transferDetails", transferDetails);
         request.getRequestDispatcher("/views/tranfer/transfer-detail.jsp").forward(request, response);

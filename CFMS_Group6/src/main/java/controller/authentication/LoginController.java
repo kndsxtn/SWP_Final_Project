@@ -5,7 +5,7 @@
 package controller.authentication;
 
 import constant.Message;
-import dal.UserDao;
+import dal.UserDAO;
 import dto.UserDto;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -51,7 +51,7 @@ public class LoginController extends HttpServlet {
         String password = request.getParameter("password");
 
         // call DAO
-        UserDao dao = new UserDao();
+        UserDAO dao = new UserDAO();
 
         try {
             UserDto account = dao.getUserByUserName(user);

@@ -1,6 +1,6 @@
 package controller.category;
 
-import dal.CategoryDao;
+import dal.CategoryDAO;
 import dto.UserDto;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -15,7 +15,7 @@ import java.sql.SQLException;
  *
  * @author quang
  */
-@WebServlet(name = "DeleteCategory", urlPatterns = {"/category/DeleteCategory"})
+@WebServlet(name = "DeleteCategoryController", urlPatterns = {"/category/DeleteCategoryController"})
 public class DeleteCategoryController extends HttpServlet {
 
     @Override
@@ -31,18 +31,18 @@ public class DeleteCategoryController extends HttpServlet {
         }
 
         int id = Integer.parseInt(request.getParameter("id"));
-        CategoryDao cDao = new CategoryDao();
+        CategoryDAO cDao = new CategoryDAO();
         try {
             if (cDao.isAssetInCategoryEmpty(id)) {
                 cDao.deleteCategory(id);
             } else {
                 status = "Lỗi: Danh mục đang chứa các tài sản khác.";
-                request.setAttribute("status", status);
+                request.getSession().setAttribute("FLASH_MSG", status);
             }
         } catch (ClassNotFoundException | SQLException e) {
 
         }
-        response.sendRedirect("ViewCategory");
+        response.sendRedirect("ViewCategoryController?status");
     }
 
 }

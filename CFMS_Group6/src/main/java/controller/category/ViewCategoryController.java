@@ -1,7 +1,7 @@
 package controller.category;
 
 import Tool.PagingTool;
-import dal.CategoryDao;
+import dal.CategoryDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -28,7 +28,7 @@ public class ViewCategoryController extends HttpServlet {
         }
         
         String keyword = request.getParameter("keyword");
-        CategoryDao cDao = new CategoryDao();
+        CategoryDAO cDao = new CategoryDAO();
         List<Category> catList;
         if (keyword != null && !keyword.isBlank()) {
             catList = cDao.searchCategory(keyword);
