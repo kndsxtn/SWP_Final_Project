@@ -511,6 +511,9 @@ public class AssetDAO {
         }
     }
 
+
+    /*Phần của pvtung*/
+    // không dùng nữa
     public List<Asset> getByRoomId(int id) {
         String sql = "SELECT DISTINCT a.asset_id, a.asset_code, a.asset_name FROM assets a "
                 + "JOIN asset_details ad ON a.asset_id = ad.asset_id WHERE ad.room_id = ?";
