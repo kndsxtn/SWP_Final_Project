@@ -1,6 +1,6 @@
 package controller.request;
 
-import dal.AllocationRequestDao;
+import dal.AllocationRequestDAO;
 import dto.UserDto;
 import java.io.IOException;
 import java.util.List;
@@ -58,7 +58,7 @@ public class AllocationListController extends HttpServlet {
         }
 
         // --- Query data ---
-        AllocationRequestDao dao = new AllocationRequestDao();
+        AllocationRequestDAO dao = new AllocationRequestDAO();
         List<AllocationRequest> list;
         int totalRecords;
 

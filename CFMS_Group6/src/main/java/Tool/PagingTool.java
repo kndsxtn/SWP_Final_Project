@@ -29,8 +29,8 @@ public class PagingTool {
         start = index * nrpp;
         end = start + nrpp - 1;
         end = end > size - 1 ? size - 1 : end;
-        pageStart = index-2<0?0:index-2;
-        pageEnd = index+2>totalPage-1?totalPage-1:index+2;
+        pageStart = index-3<0?0:index-3;
+        pageEnd = index+3>totalPage-1?totalPage-1:index+3;
     }
 
     public int getSize() {

@@ -15,7 +15,28 @@ import model.Room;
  *
  * @author Admin
  */
-public class RoomDao {
+public class RoomDAO {
+    public List<Room> getByDeptId(int deptId) {
+        String sql = "SELECT * FROM rooms WHERE dept_id = ? ORDER BY room_name";
+        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, deptId);
+            ResultSet rs = ps.executeQuery();
+            List<Room> rooms = new ArrayList<>();
+            while (rs.next()) {
+                Room r = new Room();
+                r.setRoomId(rs.getInt("room_id"));
+                r.setRoomName(rs.getString("room_name"));
+                r.setDeptId(rs.getInt("dept_id"));
+                r.setCapacity(rs.getInt("capacity"));
+                rooms.add(r);
+            }
+            return rooms;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
     public List<Room> getAll() {
         String sql = "SELECT * FROM rooms";
         try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {

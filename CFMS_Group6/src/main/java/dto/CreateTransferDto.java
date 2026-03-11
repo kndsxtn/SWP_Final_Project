@@ -2,28 +2,30 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package model;
+package dto;
 
 /**
  *
  * @author Admin
  */
-public class AssetDetail {
+public class CreateTransferDto {
     private int instanceId;
     private int assetId;
     private String instanceCode;
-    private Integer roomId;
+    private int roomId;
     private String status;
+    private String assetName;
 
-    public AssetDetail() {
+    public CreateTransferDto() {
     }
 
-    public AssetDetail(int instanceId, int assetId, String instanceCode, Integer roomId, String status) {
+    public CreateTransferDto(int instanceId, int assetId, String instanceCode, int roomId, String status, String assetName) {
         this.instanceId = instanceId;
         this.assetId = assetId;
         this.instanceCode = instanceCode;
         this.roomId = roomId;
         this.status = status;
+        this.assetName = assetName;
     }
 
     public int getInstanceId() {
@@ -50,11 +52,11 @@ public class AssetDetail {
         this.instanceCode = instanceCode;
     }
 
-    public Integer getRoomId() {
+    public int getRoomId() {
         return roomId;
     }
 
-    public void setRoomId(Integer roomId) {
+    public void setRoomId(int roomId) {
         this.roomId = roomId;
     }
 
@@ -66,4 +68,13 @@ public class AssetDetail {
         this.status = status;
     }
 
+    public String getAssetName() {
+        return assetName;
+    }
+
+    public void setAssetName(String assetName) {
+        this.assetName = assetName;
+    }
+    
+    
 }

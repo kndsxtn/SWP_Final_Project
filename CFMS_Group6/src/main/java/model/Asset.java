@@ -27,6 +27,16 @@ public class Asset {
     private List<AssetDetail> assetDetails;
     private List<AssetImage> images;
 
+    // Inventory / instance aggregates (derived from asset_details)
+    private int instanceTotal;
+    private int countNewTotal;
+    private int countAvailableInStock;
+    private int countInUse;
+    private int countMaintenance;
+    private int countBroken;
+    private int countLost;
+    private int countLiquidated;
+
     public Asset() {
     }
 
@@ -170,4 +180,67 @@ public class Asset {
         this.images = images;
     }
 
+    public int getInstanceTotal() {
+        return instanceTotal;
+    }
+
+    public void setInstanceTotal(int instanceTotal) {
+        this.instanceTotal = instanceTotal;
+    }
+
+    public int getCountNewTotal() {
+        return countNewTotal;
+    }
+
+    public void setCountNewTotal(int countNewTotal) {
+        this.countNewTotal = countNewTotal;
+    }
+
+    public int getCountAvailableInStock() {
+        return countAvailableInStock;
+    }
+
+    public void setCountAvailableInStock(int countAvailableInStock) {
+        this.countAvailableInStock = countAvailableInStock;
+    }
+
+    public int getCountInUse() {
+        return countInUse;
+    }
+
+    public void setCountInUse(int countInUse) {
+        this.countInUse = countInUse;
+    }
+
+    public int getCountMaintenance() {
+        return countMaintenance;
+    }
+
+    public void setCountMaintenance(int countMaintenance) {
+        this.countMaintenance = countMaintenance;
+    }
+
+    public int getCountBroken() {
+        return countBroken;
+    }
+
+    public void setCountBroken(int countBroken) {
+        this.countBroken = countBroken;
+    }
+
+    public int getCountLost() {
+        return countLost;
+    }
+
+    public void setCountLost(int countLost) {
+        this.countLost = countLost;
+    }
+
+    public int getCountLiquidated() {
+        return countLiquidated;
+    }
+
+    public void setCountLiquidated(int countLiquidated) {
+        this.countLiquidated = countLiquidated;
+    }
 }

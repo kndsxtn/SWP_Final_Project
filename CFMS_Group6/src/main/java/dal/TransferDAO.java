@@ -4,6 +4,7 @@
  */
 package dal;
 
+import dto.CreateTransferDto;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,12 +17,12 @@ import model.TransferOrder;
  *
  * @author Admin
  */
-public class TransferDao {
+public class TransferDAO {
 
-    public int createTransfer(TransferOrder t, List<Asset> assetList) throws Exception {
+    public int createTransfer(TransferOrder t, List<CreateTransferDto> assetList) throws Exception {
 
         String insertOrder = "INSERT INTO transfer_orders(created_by, source_room_id, dest_room_id, note) VALUES (?, ?, ?, ?)";
-        String insertDetail = "INSERT INTO transfer_details(transfer_id, asset_id, status_at_transfer) VALUES (?, ?, ?)";
+        String insertDetail = "INSERT INTO transfer_details(transfer_id, instance_id, status_at_transfer) VALUES (?, ?, ?)";
 
         try (Connection con = new DBContext().getConnection()) {
             con.setAutoCommit(false);
@@ -40,9 +41,9 @@ public class TransferDao {
 
             // 2️⃣ Insert details
             PreparedStatement ps2 = con.prepareStatement(insertDetail);
-            for (Asset a : assetList) {
+            for (CreateTransferDto a : assetList) {
                 ps2.setInt(1, transferId);
-                ps2.setInt(2, a.getAssetId());
+                ps2.setInt(2, a.getInstanceId());
                 ps2.setString(3, a.getStatus());
                 ps2.addBatch();
             }
