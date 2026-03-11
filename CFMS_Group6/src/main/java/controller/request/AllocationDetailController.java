@@ -11,12 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.AllocationDetail;
 import model.AllocationRequest;
-
-/**
- * UC12 – View allocation request detail.
- *
- * @author Nguyen Dang Khang
- */
 @WebServlet(name = "AllocationDetailController", urlPatterns = {"/request/allocation-detail"})
 public class AllocationDetailController extends HttpServlet {
 

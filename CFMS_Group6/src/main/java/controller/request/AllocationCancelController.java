@@ -10,11 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.AllocationRequest;
-
-/**
- * 
- * @author Nguyen Dang Khang
- */
 @WebServlet(name = "AllocationCancelController", urlPatterns = {"/request/cancel"})
 public class AllocationCancelController extends HttpServlet {
 

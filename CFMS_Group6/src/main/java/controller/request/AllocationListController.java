@@ -12,14 +12,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.AllocationDetail;
 import model.AllocationRequest;
-
-/**
- *
- * @author Nguyen Dang Khang
- */
 @WebServlet(name = "AllocationListController", urlPatterns = {"/request/allocation-list"})
 public class AllocationListController extends HttpServlet {
-
     private static final int PAGE_SIZE = 5;
 
     @Override
@@ -34,13 +28,11 @@ public class AllocationListController extends HttpServlet {
 
         UserDto user = (UserDto) session.getAttribute("user");
 
-        // --- Filter param ---
         String statusFilter = request.getParameter("status");
         if (statusFilter != null && statusFilter.isEmpty()) {
             statusFilter = null;
         }
 
-        // --- Search param ---
         String keyword = request.getParameter("keyword");
         if (keyword != null && keyword.trim().isEmpty()) {
             keyword = null;
@@ -49,7 +41,6 @@ public class AllocationListController extends HttpServlet {
             keyword = keyword.trim();
         }
 
-        // --- Page param ---
         int page = 1;
         try {
             page = Integer.parseInt(request.getParameter("page"));
@@ -57,13 +48,10 @@ public class AllocationListController extends HttpServlet {
         } catch (NumberFormatException ignored) {
         }
 
-        // --- Query data ---
         AllocationRequestDAO dao = new AllocationRequestDAO();
         List<AllocationRequest> list;
         int totalRecords;
 
-        // Asset Staff, Finance Head, Principal, Admin... xem tất cả
-        // Trưởng bộ môn (Head of Dept) chỉ xem các yêu cầu do chính mình tạo
         String roleName = user.getRoleName();
         boolean isHeadOfDept = "Head of Dept".equals(roleName);
 
@@ -86,7 +74,6 @@ public class AllocationListController extends HttpServlet {
             page = totalPages;
         }
 
-        // --- Set attributes ---
         request.setAttribute("list", list);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);

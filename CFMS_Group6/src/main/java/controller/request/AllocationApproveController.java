@@ -14,16 +14,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.AllocationDetail;
 import model.AllocationRequest;
-
-/**
- * UC14 – Approve / Reject asset allocation requests.
- * <p>
- * When approving, this controller will:
- *  - Re-check stock (UC13)
- *  - If stock is insufficient, auto-create a procurement request (UC16)
- *
- * @author GPT
- */
 @WebServlet(name = "AllocationApproveController", urlPatterns = {"/request/approve"})
 public class AllocationApproveController extends HttpServlet {
 

@@ -13,7 +13,6 @@ import model.ProcurementRequest;
 
 @WebServlet(name = "ProcurementCancelController", urlPatterns = {"/request/procurement-cancel"})
 public class ProcurementCancelController extends HttpServlet {
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
