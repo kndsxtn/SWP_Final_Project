@@ -184,10 +184,10 @@ INSERT INTO asset_details (instance_id, asset_id, instance_code, room_id, status
 (1,  1, 'LAP-2024-001-001', 1,  N'In_Use'),        -- Lab CNTT 1
 (2,  1, 'LAP-2024-001-002', 2,  N'In_Use'),        -- Lab CNTT 2
 (3,  1, 'LAP-2024-001-003', 5,  N'Broken'),        -- Kho - hỏng bàn phím
--- LAP-2025-001 (asset 2, qty 3) - mới nhập kho
-(4,  2, 'LAP-2025-001-001', 5,  N'New'),
-(5,  2, 'LAP-2025-001-002', 5,  N'New'),
-(6,  2, 'LAP-2025-001-003', 5,  N'New'),
+-- LAP-2025-001 (asset 2, qty 3) - đang ở kho (room_id NULL)
+(4,  2, 'LAP-2025-001-001', NULL,  N'In_Stock'),
+(5,  2, 'LAP-2025-001-002', NULL,  N'In_Stock'),
+(6,  2, 'LAP-2025-001-003', NULL,  N'In_Stock'),
 -- PC-2023-001 (asset 3, qty 5)
 (7,  3, 'PC-2023-001-001',  1,  N'In_Use'),        -- Lab CNTT 1
 (8,  3, 'PC-2023-001-002',  1,  N'In_Use'),
@@ -200,12 +200,12 @@ INSERT INTO asset_details (instance_id, asset_id, instance_code, room_id, status
 (14, 4, 'PC-2024-001-003',  11, N'In_Use'),        -- Lab Điện tử
 (15, 4, 'PC-2024-001-004',  11, N'In_Use'),
 (16, 4, 'PC-2024-001-005',  11, N'Maintenance'),   -- Đang bảo trì
--- PC-2025-001 (asset 5, qty 5) - mới nhập kho
-(17, 5, 'PC-2025-001-001',  5,  N'New'),
-(18, 5, 'PC-2025-001-002',  5,  N'New'),
-(19, 5, 'PC-2025-001-003',  5,  N'New'),
-(20, 5, 'PC-2025-001-004',  5,  N'New'),
-(21, 5, 'PC-2025-001-005',  5,  N'New'),
+-- PC-2025-001 (asset 5, qty 5) - đang ở kho (room_id NULL)
+(17, 5, 'PC-2025-001-001',  NULL,  N'In_Stock'),
+(18, 5, 'PC-2025-001-002',  NULL,  N'In_Stock'),
+(19, 5, 'PC-2025-001-003',  NULL,  N'In_Stock'),
+(20, 5, 'PC-2025-001-004',  NULL,  N'In_Stock'),
+(21, 5, 'PC-2025-001-005',  NULL,  N'In_Stock'),
 -- MON-2023-001 (asset 6, qty 5)
 (22, 6, 'MON-2023-001-001', 1,  N'In_Use'),        -- Lab CNTT 1
 (23, 6, 'MON-2023-001-002', 1,  N'In_Use'),
@@ -224,9 +224,9 @@ INSERT INTO asset_details (instance_id, asset_id, instance_code, room_id, status
 -- PRJ-2023-001 (asset 10, qty 2)
 (33, 10, 'PRJ-2023-001-001', 6,  N'In_Use'),       -- Phòng học 201
 (34, 10, 'PRJ-2023-001-002', 24, N'In_Use'),       -- Phòng Họp A
--- PRJ-2025-001 (asset 11, qty 2) - mới nhập kho
-(35, 11, 'PRJ-2025-001-001', 25, N'New'),           -- Kho tổng
-(36, 11, 'PRJ-2025-001-002', 25, N'New'),
+-- PRJ-2025-001 (asset 11, qty 2) - đang ở kho (room_id NULL)
+(35, 11, 'PRJ-2025-001-001', NULL, N'In_Stock'),
+(36, 11, 'PRJ-2025-001-002', NULL, N'In_Stock'),
 -- FUR-2022-001 (asset 12, qty 5)
 (37, 12, 'FUR-2022-001-001', 6,  N'In_Use'),       -- Phòng học 201
 (38, 12, 'FUR-2022-001-002', 6,  N'In_Use'),
@@ -258,18 +258,18 @@ GO
 
 -- 10. Allocation Requests (6 yêu cầu cấp phát - đủ trạng thái)
 SET IDENTITY_INSERT allocation_requests ON;
-INSERT INTO allocation_requests (request_id, created_by, created_date, approved_by, approved_date, completed_date, status, reason, reason_reject) VALUES
-(1, 7,  '2025-02-10', NULL, NULL,         NULL,         N'Pending',
+INSERT INTO allocation_requests (request_id, created_by, target_room_id, created_date, approved_by, approved_date, completed_date, status, reason, reason_reject) VALUES
+(1, 7,  2, '2025-02-10', NULL, NULL,         NULL,         N'Pending',
    N'Xin cấp phát 2 laptop cho giảng dạy môn Lập trình Web', NULL),
-(2, 9,  '2025-02-05', 5,   '2025-02-06', NULL,         N'Approved_By_Staff',
+(2, 9,  3, '2025-02-05', 5,   '2025-02-06', NULL,         N'Approved_By_Staff',
    N'Xin cấp phát máy chiếu cho phòng học 201', NULL),
-(3, 11, '2025-01-20', 3,   '2025-01-22', NULL,         N'Approved_By_VP',
+(3, 11, 5, '2025-01-20', 3,   '2025-01-22', NULL,         N'Approved_By_VP',
    N'Xin cấp phát 3 PC cho lab Điện tử', NULL),
-(4, 7,  '2025-01-05', 3,   '2025-01-06', '2025-01-10', N'Completed',
+(4, 7,  2, '2025-01-05', 3,   '2025-01-06', '2025-01-10', N'Completed',
    N'Cấp phát màn hình cho lab CNTT 2', NULL),
-(5, 12, '2025-02-01', NULL, NULL,         NULL,         N'Rejected',
+(5, 12, 7, '2025-02-01', NULL, NULL,         NULL,         N'Rejected',
    N'Xin cấp phát 10 laptop cho xưởng Cơ khí', N'Số lượng yêu cầu vượt quá ngân sách quý'),
-(6, 9,  '2025-02-20', NULL, NULL,         NULL,         N'Pending',
+(6, 9,  3, '2025-02-20', NULL, NULL,         NULL,         N'Pending',
    N'Xin cấp phát 2 máy in cho phòng 202', NULL);
 SET IDENTITY_INSERT allocation_requests OFF;
 GO
