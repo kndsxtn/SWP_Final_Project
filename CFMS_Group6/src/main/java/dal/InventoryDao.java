@@ -20,15 +20,14 @@ public class InventoryDao {
 
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT a.*, ")
-                .append("c.category_id, c.category_name, c.prefix_code, c.description AS cat_desc, ")
-                .append("r.room_id, r.room_name, r.dept_id, r.capacity ")
+                .append("c.category_id, c.category_name, c.prefix_code, c.description AS cat_desc ")
                 .append("FROM assets a ")
-                .append("JOIN categories c ON a.category_id = c.category_id ")
-                .append("LEFT JOIN rooms r ON a.room_id = r.room_id ");
+                .append("JOIN categories c ON a.category_id = c.category_id ");
 
         boolean hasWhere = false;
         if (statusFilter != null && !statusFilter.isEmpty()) {
-            sb.append("WHERE a.status = ? ");
+            sb.append("WHERE EXISTS (SELECT 1 FROM asset_details ad ")
+                    .append("WHERE ad.asset_id = a.asset_id AND ad.status = ?) ");
             hasWhere = true;
         }
         if (keyword != null && !keyword.isEmpty()) {
@@ -39,9 +38,7 @@ public class InventoryDao {
                     .append("a.asset_name LIKE ? OR ")
                     .append("a.description LIKE ? OR ")
                     .append("c.category_name LIKE ? OR ")
-                    .append("c.prefix_code LIKE ? OR ")
-                    .append("r.room_name LIKE ? OR ")
-                    .append("a.status LIKE ?")
+                    .append("c.prefix_code LIKE ?")
                     .append(") ");
         }
 
@@ -57,9 +54,6 @@ public class InventoryDao {
             }
             if (keyword != null && !keyword.isEmpty()) {
                 String kw = "%" + keyword + "%";
-                // asset_code, asset_name, description, category_name, prefix_code, room_name, status
-                ps.setString(idx++, kw);
-                ps.setString(idx++, kw);
                 ps.setString(idx++, kw);
                 ps.setString(idx++, kw);
                 ps.setString(idx++, kw);
@@ -77,7 +71,6 @@ public class InventoryDao {
                     asset.setAssetName(rs.getString("asset_name"));
                     asset.setCategoryId(rs.getInt("category_id"));
                     asset.setSupplierId(rs.getInt("supplier_id"));
-                    asset.setRoomId(rs.getInt("room_id"));
                     asset.setPrice(rs.getBigDecimal("price"));
                     asset.setPurchaseDate(rs.getDate("purchase_date"));
                     asset.setWarrantyExpiryDate(rs.getDate("warranty_expiry_date"));
@@ -94,17 +87,6 @@ public class InventoryDao {
                     cat.setDescription(rs.getString("cat_desc"));
                     asset.setCategory(cat);
 
-                    // Gắn room (nếu có)
-                    int roomId = rs.getInt("room_id");
-                    if (!rs.wasNull()) {
-                        Room room = new Room();
-                        room.setRoomId(roomId);
-                        room.setRoomName(rs.getString("room_name"));
-                        room.setDeptId(rs.getInt("dept_id"));
-                        room.setCapacity(rs.getInt("capacity"));
-                        asset.setRoom(room);
-                    }
-
                     // Gắn danh sách ảnh
                     asset.setImages(getImagesByAssetId(con, asset.getAssetId()));
 
@@ -120,7 +102,7 @@ public class InventoryDao {
 
     public Map<String, Integer> getInventoryCountByStatus() {
         Map<String, Integer> counts = new HashMap<>();
-        String sql = "SELECT status, COUNT(*) AS cnt FROM assets GROUP BY status";
+        String sql = "SELECT status, COUNT(*) AS cnt FROM asset_details GROUP BY status";
 
         try (Connection con = new DBContext().getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -141,12 +123,12 @@ public class InventoryDao {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT COUNT(*) ")
                 .append("FROM assets a ")
-                .append("JOIN categories c ON a.category_id = c.category_id ")
-                .append("LEFT JOIN rooms r ON a.room_id = r.room_id ");
+                .append("JOIN categories c ON a.category_id = c.category_id ");
 
         boolean hasWhere = false;
         if (statusFilter != null && !statusFilter.isEmpty()) {
-            sb.append("WHERE a.status = ? ");
+            sb.append("WHERE EXISTS (SELECT 1 FROM asset_details ad ")
+                    .append("WHERE ad.asset_id = a.asset_id AND ad.status = ?) ");
             hasWhere = true;
         }
         if (keyword != null && !keyword.isEmpty()) {
@@ -157,9 +139,7 @@ public class InventoryDao {
                     .append("a.asset_name LIKE ? OR ")
                     .append("a.description LIKE ? OR ")
                     .append("c.category_name LIKE ? OR ")
-                    .append("c.prefix_code LIKE ? OR ")
-                    .append("r.room_name LIKE ? OR ")
-                    .append("a.status LIKE ?")
+                    .append("c.prefix_code LIKE ?")
                     .append(") ");
         }
 
@@ -172,8 +152,6 @@ public class InventoryDao {
             }
             if (keyword != null && !keyword.isEmpty()) {
                 String kw = "%" + keyword + "%";
-                ps.setString(idx++, kw);
-                ps.setString(idx++, kw);
                 ps.setString(idx++, kw);
                 ps.setString(idx++, kw);
                 ps.setString(idx++, kw);

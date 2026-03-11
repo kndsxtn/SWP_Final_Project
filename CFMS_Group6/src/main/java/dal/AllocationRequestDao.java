@@ -324,14 +324,12 @@ public class AllocationRequestDao {
                 + "WHERE ad.request_id = ? "
                 + "ORDER BY ad.detail_id";
 
-        // Khả dụng = số lượng trong kho (assets.quantity đã được trừ khi hoàn thành cấp phát).
-        String sqlAvailable = "SELECT COALESCE(a.quantity, 0) AS ok "
-                + "FROM assets a "
-                + "WHERE a.asset_id = ? AND a.status = N'New' "
-                + "AND (a.room_id IS NULL OR EXISTS ("
-                + "  SELECT 1 FROM rooms r WHERE r.room_id = a.room_id "
-                + "  AND (r.room_name LIKE N'%Kho%' OR r.room_name LIKE N'%lưu trữ%')"
-                + "))";
+        String sqlAvailable = "SELECT COUNT(*) AS ok "
+                + "FROM asset_details ad "
+                + "LEFT JOIN rooms r ON ad.room_id = r.room_id "
+                + "WHERE ad.asset_id = ? "
+                + "AND ad.status = N'New' "
+                + "AND (ad.room_id IS NULL OR (r.room_name LIKE N'%Kho%' OR r.room_name LIKE N'%lưu trữ%'))";
 
         int totalRequested = 0;
         int totalAvailable = 0;
@@ -405,14 +403,13 @@ public class AllocationRequestDao {
             if (i > 0) placeholders.append(",");
             placeholders.append("?");
         }
-        // Khả dụng = số lượng trong kho (assets.quantity đã được trừ khi hoàn thành cấp phát).
-        String sql = "SELECT a.asset_id, COALESCE(a.quantity, 0) AS qty "
-                + "FROM assets a "
-                + "WHERE a.asset_id IN (" + placeholders + ") AND a.status = N'New' "
-                + "AND (a.room_id IS NULL OR EXISTS ("
-                + "  SELECT 1 FROM rooms r WHERE r.room_id = a.room_id "
-                + "  AND (r.room_name LIKE N'%Kho%' OR r.room_name LIKE N'%lưu trữ%')"
-                + "))";
+        String sql = "SELECT ad.asset_id, COUNT(*) AS qty "
+                + "FROM asset_details ad "
+                + "LEFT JOIN rooms r ON ad.room_id = r.room_id "
+                + "WHERE ad.asset_id IN (" + placeholders + ") "
+                + "AND ad.status = N'New' "
+                + "AND (ad.room_id IS NULL OR (r.room_name LIKE N'%Kho%' OR r.room_name LIKE N'%lưu trữ%')) "
+                + "GROUP BY ad.asset_id";
 
         try (Connection con = new DBContext().getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -444,14 +441,12 @@ public class AllocationRequestDao {
                 + "WHERE ad.request_id = ? "
                 + "GROUP BY ad.asset_id";
 
-        // Khả dụng = số lượng trong kho (assets.quantity đã được trừ khi hoàn thành cấp phát).
-        String sqlIsAvailable = "SELECT COALESCE(a.quantity, 0) AS ok "
-                + "FROM assets a "
-                + "WHERE a.asset_id = ? AND a.status = N'New' "
-                + "AND (a.room_id IS NULL OR EXISTS ("
-                + "  SELECT 1 FROM rooms r WHERE r.room_id = a.room_id "
-                + "  AND (r.room_name LIKE N'%Kho%' OR r.room_name LIKE N'%lưu trữ%')"
-                + "))";
+        String sqlIsAvailable = "SELECT COUNT(*) AS ok "
+                + "FROM asset_details ad "
+                + "LEFT JOIN rooms r ON ad.room_id = r.room_id "
+                + "WHERE ad.asset_id = ? "
+                + "AND ad.status = N'New' "
+                + "AND (ad.room_id IS NULL OR (r.room_name LIKE N'%Kho%' OR r.room_name LIKE N'%lưu trữ%'))";
 
         try (Connection con = new DBContext().getConnection();
              PreparedStatement psReq = con.prepareStatement(sqlRequestedAssets);
@@ -605,7 +600,7 @@ public class AllocationRequestDao {
     public List<AllocationDetail> getDetailsFullByRequestId(int requestId) {
         List<AllocationDetail> list = new ArrayList<>();
         String sql = "SELECT ad.*, a.asset_id AS a_id, a.asset_code, a.asset_name, "
-                + "a.status AS asset_status, a.price, a.description AS asset_desc, "
+                + "a.price, a.description AS asset_desc, "
                 + "a.category_id, c.category_name, c.prefix_code "
                 + "FROM allocation_details ad "
                 + "JOIN assets a ON ad.asset_id = a.asset_id "
@@ -621,9 +616,7 @@ public class AllocationRequestDao {
                 while (rs.next()) {
                     AllocationDetail d = mapDetail(rs);
 
-                    // Enrich asset with extra fields
                     Asset asset = d.getAsset();
-                    asset.setStatus(rs.getString("asset_status"));
                     asset.setPrice(rs.getBigDecimal("price"));
                     asset.setDescription(rs.getString("asset_desc"));
 
