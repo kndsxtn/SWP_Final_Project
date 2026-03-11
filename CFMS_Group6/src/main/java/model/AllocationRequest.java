@@ -17,6 +17,7 @@ public class AllocationRequest {
     private Integer approvedBy;
     private Date approvedDate;
     private Date completedDate;
+    private int targetRoomId;
 
     private int totalRequestedAssets; // how many assets are requested in this allocation
     private int totalAvailableInStock; // how many assets can be served from current stock
@@ -115,6 +116,14 @@ public class AllocationRequest {
 
     public void setCompletedDate(Date completedDate) {
         this.completedDate = completedDate;
+    }
+
+    public int getTargetRoomId() {
+        return targetRoomId;
+    }
+
+    public void setTargetRoomId(int targetRoomId) {
+        this.targetRoomId = targetRoomId;
     }
 
     public User getApprover() {

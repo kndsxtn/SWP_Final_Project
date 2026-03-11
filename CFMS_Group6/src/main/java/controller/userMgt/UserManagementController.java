@@ -5,7 +5,7 @@
 
 package controller.userMgt;
 
-import dal.UserDao;
+import dal.UserDAO;
 import dto.UserDto;
 import model.Role;
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class UserManagementController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        UserDao dao = new UserDao();
+        UserDAO dao = new UserDAO();
 
         // lay so trang tu parameter, mac dinh la 1
         int page = 1;

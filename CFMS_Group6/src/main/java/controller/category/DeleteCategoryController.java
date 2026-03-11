@@ -1,6 +1,6 @@
 package controller.category;
 
-import dal.CategoryDao;
+import dal.CategoryDAO;
 import dto.UserDto;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -31,7 +31,7 @@ public class DeleteCategoryController extends HttpServlet {
         }
 
         int id = Integer.parseInt(request.getParameter("id"));
-        CategoryDao cDao = new CategoryDao();
+        CategoryDAO cDao = new CategoryDAO();
         try {
             if (cDao.isAssetInCategoryEmpty(id)) {
                 cDao.deleteCategory(id);

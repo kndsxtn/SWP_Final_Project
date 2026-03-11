@@ -17,7 +17,7 @@ import model.TransferOrder;
  *
  * @author Admin
  */
-public class TransferDao {
+public class TransferDAO {
 
     public int createTransfer(TransferOrder t, List<CreateTransferDto> assetList) throws Exception {
 

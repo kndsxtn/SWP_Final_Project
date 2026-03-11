@@ -5,8 +5,8 @@
 package controller.tranfer;
 
 import dal.AssetDAO;
-import dal.AssetHistoryDao;
-import dal.TransferDetailDao;
+import dal.AssetHistoryDAO;
+import dal.TransferDetailDAO;
 import dal.TransferOrderDAO;
 import dto.UserDto;
 import java.io.IOException;
@@ -78,13 +78,13 @@ public class TransferStatusUpdate extends HttpServlet {
         System.out.println(status);
         System.out.println(room);
         TransferOrderDAO tDao = new TransferOrderDAO();
-        AssetHistoryDao assetHistoryDao = new AssetHistoryDao();
+        AssetHistoryDAO assetHistoryDao = new AssetHistoryDAO();
         AssetDAO assetDao = new AssetDAO();
         tDao.updateStatus(id, status);
         UserDto u = (UserDto) session.getAttribute("user");
 
         if (status.equals("Ongoing")) {
-            TransferDetailDao tdDao = new TransferDetailDao();
+            TransferDetailDAO tdDao = new TransferDetailDAO();
             List<TransferDetail> transferDetails = tdDao.getByTransferId(id);
             for (TransferDetail t : transferDetails) {
                 assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(), room+" bàn giao tài sản",
@@ -104,7 +104,7 @@ public class TransferStatusUpdate extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/transfer/list");
         }
         if (status.equals("Completed")) {
-            TransferDetailDao tdDao = new TransferDetailDao();
+            TransferDetailDAO tdDao = new TransferDetailDAO();
             System.out.println("==== ENTER COMPLETED ====");
 
             TransferOrder transferOrder = tDao.getById(id);
@@ -125,7 +125,7 @@ public class TransferStatusUpdate extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/transfer/receive");
         }
         if (status.equals("Returned")) {
-            TransferDetailDao tdDao = new TransferDetailDao();
+            TransferDetailDAO tdDao = new TransferDetailDAO();
             List<TransferDetail> transferDetails = tdDao.getByTransferId(id);
             for (TransferDetail t : transferDetails) {
                 assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(),
@@ -135,7 +135,7 @@ public class TransferStatusUpdate extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/transfer/receive?msg=return_success");
         }
         if (status.equals("Return_Confirmed")) {
-            TransferDetailDao tdDao = new TransferDetailDao();
+            TransferDetailDAO tdDao = new TransferDetailDAO();
             List<TransferDetail> transferDetails = tdDao.getByTransferId(id);
             for (TransferDetail t : transferDetails) {
                 assetHistoryDao.create(t.getAsset().getAssetId(), u.getUserId(),

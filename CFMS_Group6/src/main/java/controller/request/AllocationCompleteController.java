@@ -1,6 +1,6 @@
 package controller.request;
 
-import dal.AllocationRequestDao;
+import dal.AllocationRequestDAO;
 import dto.UserDto;
 import java.io.IOException;
 import java.util.Map;
@@ -41,7 +41,7 @@ public class AllocationCompleteController extends HttpServlet {
             return;
         }
 
-        AllocationRequestDao dao = new AllocationRequestDao();
+        AllocationRequestDAO dao = new AllocationRequestDAO();
         AllocationRequest req = dao.getRequestById(requestId);
 
         if (req == null) {

@@ -1,6 +1,6 @@
 package controller.userMgt;
 
-import dal.UserDao;
+import dal.UserDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -22,7 +22,7 @@ public class UserCreateController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        UserDao dao = new UserDao();
+        UserDAO dao = new UserDAO();
         List<Role> roles = dao.getAllRoles();
         request.setAttribute("roles", roles);
         request.getRequestDispatcher("/views/user-mgt/user-form.jsp").forward(request, response);
@@ -42,7 +42,7 @@ public class UserCreateController extends HttpServlet {
         String phone = request.getParameter("phone").trim();
         int roleId = Integer.parseInt(request.getParameter("roleId"));
 
-        UserDao dao = new UserDao();
+        UserDAO dao = new UserDAO();
         boolean success = dao.createUser(username, password, fullName, email, phone, roleId);
 
         if (success) {

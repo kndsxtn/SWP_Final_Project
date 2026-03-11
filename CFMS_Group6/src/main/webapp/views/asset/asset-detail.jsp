@@ -215,9 +215,9 @@
 
                                             <div class="text-center mb-3">
                                                 <c:choose>
-                                                    <c:when test="${asset.status == 'New'}">
+                                                    <c:when test="${asset.status == 'In_Stock'}">
                                                         <span
-                                                            class="cfms-badge cfms-badge-pending fs-6 px-4 py-2">Mới</span>
+                                                            class="cfms-badge cfms-badge-pending fs-6 px-4 py-2">Trong kho</span>
                                                     </c:when>
                                                     <c:when test="${asset.status == 'In_Use'}">
                                                         <span class="cfms-badge cfms-badge-approved fs-6 px-4 py-2">Đang
@@ -248,7 +248,7 @@
                                             <c:if
                                                 test="${sessionScope.user.roleName == 'Asset Staff' && asset.status != 'Liquidated'}">
                                                 <div class="status-actions justify-content-center">
-                                                    <c:if test="${asset.status == 'New'}">
+                                                    <c:if test="${asset.status == 'In_Stock'}">
                                                         <form method="post"
                                                             action="${pageContext.request.contextPath}/asset/status"
                                                             class="d-inline">

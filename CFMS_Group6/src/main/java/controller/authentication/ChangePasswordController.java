@@ -1,6 +1,6 @@
 package controller.authentication;
 
-import dal.UserDao;
+import dal.UserDAO;
 import dto.UserDto;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -35,7 +35,7 @@ public class ChangePasswordController extends HttpServlet {
         String newPass = request.getParameter("newPass");
         String confirmPass = request.getParameter("confirmPass");
 
-        UserDao dao = new UserDao();
+        UserDAO dao = new UserDAO();
 
         // Kiểm tra mật khẩu cũ có đúng không
         String currentPass = dao.getPasswordByUserName(currentUser.getUsername());

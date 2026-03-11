@@ -4,7 +4,7 @@
  */
 package controller.category;
 
-import dal.CategoryDao;
+import dal.CategoryDAO;
 import dto.UserDto;
 import java.io.IOException;
 
@@ -51,7 +51,7 @@ public class UpdateCategoryController extends HttpServlet {
             return;
         }
 
-        CategoryDao cDao = new CategoryDao();
+        CategoryDAO cDao = new CategoryDAO();
         Category category = cDao.findCategoryById(id);
         if (category == null) {
             status = "Lỗi: Không tìm thấy danh mục";
@@ -73,7 +73,7 @@ public class UpdateCategoryController extends HttpServlet {
         String category_name = request.getParameter("category_name");
         String description = request.getParameter("description");
 
-        CategoryDao cDao = new CategoryDao();
+        CategoryDAO cDao = new CategoryDAO();
         try {
             boolean checkUpdate = cDao.updateCategory(category_id, category_name, description);
             if (!checkUpdate) {

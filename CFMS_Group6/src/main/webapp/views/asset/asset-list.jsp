@@ -95,7 +95,7 @@
                                     <div class="filter-select">
                                         <select name="status" class="form-select">
                                             <option value="">-- Tất cả trạng thái --</option>
-                                            <option value="New" ${statusFilter=='New' ? 'selected' : '' }>Mới</option>
+                                            <option value="In_Stock" ${statusFilter=='In_Stock' ? 'selected' : '' }>Trong kho</option>
                                             <option value="In_Use" ${statusFilter=='In_Use' ? 'selected' : '' }>Đang sử
                                                 dụng</option>
                                             <option value="Maintenance" ${statusFilter=='Maintenance' ? 'selected' : ''
@@ -197,9 +197,9 @@
                                                             </td>
                                                             <td>
                                                                 <c:choose>
-                                                                    <c:when test="${a.status == 'New'}">
+                                                                    <c:when test="${a.status == 'In_Stock'}">
                                                                         <span
-                                                                            class="cfms-badge cfms-badge-pending">Mới</span>
+                                                                            class="cfms-badge cfms-badge-pending">Trong kho</span>
                                                                     </c:when>
                                                                     <c:when test="${a.status == 'In_Use'}">
                                                                         <span

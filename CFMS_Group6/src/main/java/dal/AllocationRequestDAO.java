@@ -20,7 +20,7 @@ import model.User;
  *
  * @author Nguyen Dang Khang
  */
-public class AllocationRequestDao {
+public class AllocationRequestDAO {
 
     // ─── List requests with optional status filter, search keyword + paging ───
     public List<AllocationRequest> getRequests(String statusFilter, String keyword, int page, int pageSize) {
@@ -326,10 +326,9 @@ public class AllocationRequestDao {
 
         String sqlAvailable = "SELECT COUNT(*) AS ok "
                 + "FROM asset_details ad "
-                + "LEFT JOIN rooms r ON ad.room_id = r.room_id "
                 + "WHERE ad.asset_id = ? "
-                + "AND ad.status = N'New' "
-                + "AND (ad.room_id IS NULL OR (r.room_name LIKE N'%Kho%' OR r.room_name LIKE N'%lưu trữ%'))";
+                + "AND ad.status = N'In_Stock' "
+                + "AND ad.room_id IS NULL";
 
         int totalRequested = 0;
         int totalAvailable = 0;
@@ -405,10 +404,9 @@ public class AllocationRequestDao {
         }
         String sql = "SELECT ad.asset_id, COUNT(*) AS qty "
                 + "FROM asset_details ad "
-                + "LEFT JOIN rooms r ON ad.room_id = r.room_id "
                 + "WHERE ad.asset_id IN (" + placeholders + ") "
-                + "AND ad.status = N'New' "
-                + "AND (ad.room_id IS NULL OR (r.room_name LIKE N'%Kho%' OR r.room_name LIKE N'%lưu trữ%')) "
+                + "AND ad.status = N'In_Stock' "
+                + "AND ad.room_id IS NULL "
                 + "GROUP BY ad.asset_id";
 
         try (Connection con = new DBContext().getConnection();
@@ -443,10 +441,9 @@ public class AllocationRequestDao {
 
         String sqlIsAvailable = "SELECT COUNT(*) AS ok "
                 + "FROM asset_details ad "
-                + "LEFT JOIN rooms r ON ad.room_id = r.room_id "
                 + "WHERE ad.asset_id = ? "
-                + "AND ad.status = N'New' "
-                + "AND (ad.room_id IS NULL OR (r.room_name LIKE N'%Kho%' OR r.room_name LIKE N'%lưu trữ%'))";
+                + "AND ad.status = N'In_Stock' "
+                + "AND ad.room_id IS NULL";
 
         try (Connection con = new DBContext().getConnection();
              PreparedStatement psReq = con.prepareStatement(sqlRequestedAssets);
@@ -480,7 +477,7 @@ public class AllocationRequestDao {
         return missing;
     }
 
-    public int createRequest(int createdByUserId, String reason, int[] assetIds, int[] quantities, String[] notes) {
+    public int createRequest(int createdByUserId, int targetRoomId, String reason, int[] assetIds, int[] quantities, String[] notes) {
         if (assetIds == null || quantities == null || assetIds.length == 0 || assetIds.length != quantities.length) {
             return -1;
         }
@@ -492,16 +489,17 @@ public class AllocationRequestDao {
 
             // 1) Insert master row into allocation_requests
             String insertReqSql = "INSERT INTO allocation_requests "
-                    + "(created_by, created_date, status, reason, reason_reject) "
-                    + "VALUES (?, GETDATE(), N'Pending', ?, NULL)";
+                    + "(created_by, target_room_id, created_date, status, reason, reason_reject) "
+                    + "VALUES (?, ?, GETDATE(), N'Pending', ?, NULL)";
 
             int requestId = -1;
             try (PreparedStatement psReq = con.prepareStatement(insertReqSql, Statement.RETURN_GENERATED_KEYS)) {
                 psReq.setInt(1, createdByUserId);
+                psReq.setInt(2, targetRoomId);
                 if (reason != null && !reason.trim().isEmpty()) {
-                    psReq.setString(2, reason.trim());
+                    psReq.setString(3, reason.trim());
                 } else {
-                    psReq.setNull(2, java.sql.Types.NVARCHAR);
+                    psReq.setNull(3, java.sql.Types.NVARCHAR);
                 }
                 psReq.executeUpdate();
 
@@ -632,6 +630,44 @@ public class AllocationRequestDao {
         return list;
     }
 
+    /**
+     * Lấy danh sách cá thể (instance) đã được cấp phát cho một yêu cầu REQ-x.
+     * Dựa trên asset_history được ghi khi cấp phát (action = 'Allocated').
+     */
+    public java.util.Map<Integer, java.util.List<model.AssetDetail>> getAllocatedInstancesByRequestId(int requestId) {
+        java.util.Map<Integer, java.util.List<model.AssetDetail>> map = new java.util.HashMap<>();
+
+        String sql = "SELECT ad.instance_id, ad.asset_id, ad.instance_code, ad.room_id, ad.status "
+                + "FROM asset_history ah "
+                + "JOIN asset_details ad ON ah.instance_id = ad.instance_id "
+                + "WHERE ah.action = N'Allocated' AND ah.description LIKE ? "
+                + "ORDER BY ad.asset_id, ad.instance_code";
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, "%REQ-" + requestId + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    model.AssetDetail d = new model.AssetDetail();
+                    d.setInstanceId(rs.getInt("instance_id"));
+                    d.setAssetId(rs.getInt("asset_id"));
+                    d.setInstanceCode(rs.getString("instance_code"));
+                    int roomId = rs.getInt("room_id");
+                    d.setRoomId(rs.wasNull() ? null : roomId);
+                    d.setStatus(rs.getString("status"));
+
+                    map.computeIfAbsent(d.getAssetId(), k -> new java.util.ArrayList<>()).add(d);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return map;
+    }
+
     public boolean updateStatus(int requestId, String newStatus, String reasonReject) {
         String sql = "UPDATE allocation_requests "
                 + "SET status = ?, reason_reject = ? "
@@ -659,9 +695,10 @@ public class AllocationRequestDao {
     }
 
     /**
-     * Đánh dấu yêu cầu cấp phát là đã hoàn thành (Completed) và trừ số lượng tài sản trong kho.
+     * Đánh dấu yêu cầu cấp phát là đã hoàn thành (Completed).
      * Chỉ áp dụng cho các yêu cầu đã được duyệt (Approved_By_Staff / Approved_By_VP / Approved_By_Principal).
-     * Trong cùng transaction: cập nhật status + completed_date, rồi giảm assets.quantity theo từng dòng allocation_details.
+     *
+     * Schema mới quản lý tồn kho theo bảng asset_details (cá thể). Vì vậy KHÔNG trừ assets.quantity ở đây.
      */
     public boolean markCompleted(int requestId) {
         Connection con = null;
@@ -669,19 +706,7 @@ public class AllocationRequestDao {
             con = new DBContext().getConnection();
             con.setAutoCommit(false);
 
-            // 1) Lấy danh sách (asset_id, quantity) của yêu cầu
-            String sqlDetails = "SELECT asset_id, quantity FROM allocation_details WHERE request_id = ?";
-            List<int[]> details = new ArrayList<>();
-            try (PreparedStatement psDet = con.prepareStatement(sqlDetails)) {
-                psDet.setInt(1, requestId);
-                try (ResultSet rs = psDet.executeQuery()) {
-                    while (rs.next()) {
-                        details.add(new int[]{rs.getInt("asset_id"), rs.getInt("quantity")});
-                    }
-                }
-            }
-
-            // 2) Cập nhật trạng thái yêu cầu
+            // 1) Cập nhật trạng thái yêu cầu
             String sqlStatus = "UPDATE allocation_requests "
                     + "SET status = N'Completed', completed_date = GETDATE() "
                     + "WHERE request_id = ? "
@@ -691,19 +716,6 @@ public class AllocationRequestDao {
                 if (psReq.executeUpdate() <= 0) {
                     con.rollback();
                     return false;
-                }
-            }
-
-            // 3) Trừ số lượng trong bảng assets cho từng tài sản
-            String sqlUpdateQty = "UPDATE assets SET quantity = quantity - ? WHERE asset_id = ?";
-            try (PreparedStatement psAsset = con.prepareStatement(sqlUpdateQty)) {
-                for (int[] row : details) {
-                    int assetId = row[0];
-                    int qty = row[1];
-                    if (qty <= 0) continue;
-                    psAsset.setInt(1, qty);
-                    psAsset.setInt(2, assetId);
-                    psAsset.executeUpdate();
                 }
             }
 
@@ -733,7 +745,7 @@ public class AllocationRequestDao {
     }
 
     // ─── Update request (only allowed when status is Pending) ───
-    public boolean updateRequest(int requestId, int createdByUserId, String reason,
+    public boolean updateRequest(int requestId, int createdByUserId, int targetRoomId, String reason,
                                  int[] assetIds, int[] quantities, String[] notes) {
         if (assetIds == null || quantities == null || assetIds.length == 0 || assetIds.length != quantities.length) {
             return false;
@@ -767,15 +779,16 @@ public class AllocationRequestDao {
                 }
             }
 
-            // 2) Update reason
-            String updateReasonSql = "UPDATE allocation_requests SET reason = ? WHERE request_id = ?";
+            // 2) Update target room + reason
+            String updateReasonSql = "UPDATE allocation_requests SET target_room_id = ?, reason = ? WHERE request_id = ?";
             try (PreparedStatement psReason = con.prepareStatement(updateReasonSql)) {
+                psReason.setInt(1, targetRoomId);
                 if (reason != null && !reason.trim().isEmpty()) {
-                    psReason.setString(1, reason.trim());
+                    psReason.setString(2, reason.trim());
                 } else {
-                    psReason.setNull(1, java.sql.Types.NVARCHAR);
+                    psReason.setNull(2, java.sql.Types.NVARCHAR);
                 }
-                psReason.setInt(2, requestId);
+                psReason.setInt(3, requestId);
                 psReason.executeUpdate();
             }
 
@@ -870,6 +883,7 @@ public class AllocationRequestDao {
         AllocationRequest req = new AllocationRequest();
         req.setRequestId(rs.getInt("request_id"));
         req.setCreatedBy(rs.getInt("created_by"));
+        req.setTargetRoomId(rs.getInt("target_room_id"));
         req.setCreatedDate(rs.getTimestamp("created_date"));
         req.setStatus(rs.getString("status"));
         req.setReason(rs.getString("reason"));
