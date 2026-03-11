@@ -332,7 +332,7 @@ public class AssetDAO {
 
     // UC09: Cập nhật trạng thái tài sản
     /**
-     * Cập nhật trạng thái tài sản: New, In_Use, Maintenance, Broken,
+     * Cập nhật trạng thái cá thể tài sản: In_Stock, In_Use, Maintenance, Broken,
      * Liquidated, Lost.
      */
     public boolean updateStatus(int assetId, String newStatus) {

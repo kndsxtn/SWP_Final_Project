@@ -1,7 +1,8 @@
 package controller.request;
 
-import dal.AllocationRequestDao;
+import dal.AllocationRequestDAO;
 import dal.AssetDAO;
+import dal.RoomDAO;
 import dto.UserDto;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import model.AllocationDetail;
 import model.AllocationRequest;
 import model.Asset;
 import model.Category;
+import model.Room;
 
 /**
  * Controller for updating allocation requests (only when status is Pending)
@@ -29,7 +31,8 @@ import model.Category;
 public class AllocationUpdateController extends HttpServlet {
 
     private final AssetDAO assetDao = new AssetDAO();
-    private final AllocationRequestDao allocationDao = new AllocationRequestDao();
+    private final AllocationRequestDAO allocationDao = new AllocationRequestDAO();
+    private final RoomDAO roomDao = new RoomDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -81,10 +84,11 @@ public class AllocationUpdateController extends HttpServlet {
         req.setDetails(details);
 
         // Load form data (assets and categories)
-        loadFormData(request);
+        loadFormData(request, user.getDeptId());
 
         // Set request for form
         request.setAttribute("req", req);
+        request.setAttribute("roomId", req.getTargetRoomId());
         request.setAttribute("isEdit", true);
 
         request.getRequestDispatcher("/views/request/allocation-form.jsp")
@@ -127,6 +131,31 @@ public class AllocationUpdateController extends HttpServlet {
                               HttpSession session, UserDto user, int requestId)
             throws IOException, ServletException {
 
+        String roomIdParam = request.getParameter("roomId");
+        Integer roomId = null;
+        if (roomIdParam != null && !roomIdParam.trim().isEmpty()) {
+            try {
+                roomId = Integer.parseInt(roomIdParam.trim());
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        if (roomId == null || roomId <= 0 || roomDao.getById(roomId) == null) {
+            request.setAttribute("errorMsg", "Vui lòng chọn phòng cấp phát.");
+            request.setAttribute("roomId", roomId);
+            AllocationRequest req = allocationDao.getRequestById(requestId);
+            if (req != null) {
+                req.setReason(request.getParameter("reason"));
+                List<AllocationDetail> details = allocationDao.getDetailsByRequestId(requestId);
+                req.setDetails(details);
+                request.setAttribute("req", req);
+            }
+            request.setAttribute("isEdit", true);
+            loadFormData(request, user.getDeptId());
+            request.getRequestDispatcher("/views/request/allocation-form.jsp")
+                    .forward(request, response);
+            return;
+        }
+
         String reason = request.getParameter("reason");
         String[] assetIdsStr = request.getParameterValues("assetId");
         String[] qtyStrs = request.getParameterValues("quantity");
@@ -142,7 +171,7 @@ public class AllocationUpdateController extends HttpServlet {
                 request.setAttribute("req", req);
             }
             request.setAttribute("isEdit", true);
-            loadFormData(request);
+            loadFormData(request, user.getDeptId());
             request.getRequestDispatcher("/views/request/allocation-form.jsp")
                     .forward(request, response);
             return;
@@ -174,6 +203,10 @@ public class AllocationUpdateController extends HttpServlet {
                 continue;
             }
 
+            if (roomId != null && (note == null || note.trim().isEmpty())) {
+                note = "Phòng " + roomId;
+            }
+
             assetIdList.add(assetId);
             qtyList.add(qty);
             noteList.add(note);
@@ -188,8 +221,9 @@ public class AllocationUpdateController extends HttpServlet {
                 req.setDetails(details);
                 request.setAttribute("req", req);
             }
+            request.setAttribute("roomId", roomId);
             request.setAttribute("isEdit", true);
-            loadFormData(request);
+            loadFormData(request, user.getDeptId());
             request.getRequestDispatcher("/views/request/allocation-form.jsp")
                     .forward(request, response);
             return;
@@ -199,7 +233,7 @@ public class AllocationUpdateController extends HttpServlet {
         int[] quantities = qtyList.stream().mapToInt(Integer::intValue).toArray();
         String[] noteArr = noteList.toArray(new String[0]);
 
-        boolean success = allocationDao.updateRequest(requestId, user.getUserId(), reason, assetIds, quantities, noteArr);
+        boolean success = allocationDao.updateRequest(requestId, user.getUserId(), roomId, reason, assetIds, quantities, noteArr);
         if (success) {
             session.setAttribute("successMsg", "Đã cập nhật yêu cầu cấp phát REQ-" + requestId + " thành công.");
             response.sendRedirect(request.getContextPath() + "/request/allocation-detail?id=" + requestId);
@@ -212,17 +246,20 @@ public class AllocationUpdateController extends HttpServlet {
                 req.setDetails(details);
                 request.setAttribute("req", req);
             }
+            request.setAttribute("roomId", roomId);
             request.setAttribute("isEdit", true);
-            loadFormData(request);
+            loadFormData(request, user.getDeptId());
             request.getRequestDispatcher("/views/request/allocation-form.jsp")
                     .forward(request, response);
         }
     }
 
-    private void loadFormData(HttpServletRequest request) {
+    private void loadFormData(HttpServletRequest request, int deptId) {
         List<Asset> assets = assetDao.getAll();
         List<Category> categories = assetDao.getAllCategories();
+        List<Room> rooms = roomDao.getByDeptId(deptId);
         request.setAttribute("assets", assets);
         request.setAttribute("categories", categories);
+        request.setAttribute("rooms", rooms);
     }
 }

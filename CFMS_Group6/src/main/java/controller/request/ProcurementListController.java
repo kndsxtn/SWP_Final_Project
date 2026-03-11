@@ -1,6 +1,6 @@
 package controller.request;
 
-import dal.ProcurementRequestDao;
+import dal.ProcurementRequestDAO;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -50,7 +50,7 @@ public class ProcurementListController extends HttpServlet {
         } catch (NumberFormatException ignored) {
         }
 
-        ProcurementRequestDao dao = new ProcurementRequestDao();
+        ProcurementRequestDAO dao = new ProcurementRequestDAO();
         List<ProcurementRequest> list = dao.getRequests(statusFilter, keyword, page, PAGE_SIZE);
         int totalRecords = dao.countRequests(statusFilter, keyword);
 

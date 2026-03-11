@@ -17,7 +17,7 @@ import model.Category;
  *
  * @author quang
  */
-public class CategoryDao {
+public class CategoryDAO {
 
     public List<Category> loadCategory() {
         String sql = "select * from categories";

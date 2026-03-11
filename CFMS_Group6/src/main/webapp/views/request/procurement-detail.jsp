@@ -75,6 +75,16 @@
                                 </button>
                             </form>
                         </c:if>
+                        <%-- Asset Staff: Stock-in khi Approved và có liên kết allocation --%>
+                        <c:if test="${sessionScope.user.roleName == 'Asset Staff' && proc.status == 'Approved' && proc.allocationRequestId != null}">
+                            <form method="post" action="${pageContext.request.contextPath}/request/procurement-stockin" class="d-inline me-2">
+                                <input type="hidden" name="id" value="${proc.procurementId}">
+                                <button type="button" class="btn btn-primary"
+                                        onclick="(function(f){ CFMS_CONFIRM({ title: 'Nhập kho & cấp phát', message: 'Nhập kho từ PROC-${proc.procurementId} và chuyển sang cấp phát cho REQ-${proc.allocationRequestId}?', danger: false, onConfirm: function() { f.submit(); } }); })(this.closest('form'));">
+                                    <i class="bi bi-box-arrow-in-down me-1"></i>Nhập kho & cấp phát
+                                </button>
+                            </form>
+                        </c:if>
                         <a href="${pageContext.request.contextPath}/request/procurement-list"
                            class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách

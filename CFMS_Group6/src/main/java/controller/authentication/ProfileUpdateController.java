@@ -1,6 +1,6 @@
 package controller.authentication;
 
-import dal.UserDao;
+import dal.UserDAO;
 import dto.UserDto;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -43,7 +43,7 @@ public class ProfileUpdateController extends HttpServlet {
         currentUser.setPhone(phone);
 
         // Lưu xuống database
-        UserDao dao = new UserDao();
+        UserDAO dao = new UserDAO();
         boolean ok = dao.updateProfile(currentUser);
 
         if (ok) {

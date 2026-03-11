@@ -1,7 +1,7 @@
 package controller.request;
 
-import dal.AllocationRequestDao;
-import dal.ProcurementRequestDao;
+import dal.AllocationRequestDAO;
+import dal.ProcurementRequestDAO;
 import dto.UserDto;
 import java.io.IOException;
 import java.util.List;
@@ -52,7 +52,7 @@ public class AllocationApproveController extends HttpServlet {
             return;
         }
 
-        AllocationRequestDao allocDao = new AllocationRequestDao();
+        AllocationRequestDAO allocDao = new AllocationRequestDAO();
         AllocationRequest alloc = allocDao.getRequestById(requestId);
         if (alloc == null) {
             session.setAttribute("errorMsg", "Không tìm thấy yêu cầu cấp phát REQ-" + requestId);
@@ -95,7 +95,7 @@ public class AllocationApproveController extends HttpServlet {
         if (stockInsufficient) {
             Map<Integer, Integer> missingByAsset = allocDao.getMissingQuantitiesByAsset(requestId);
             if (!missingByAsset.isEmpty()) {
-                ProcurementRequestDao procDao = new ProcurementRequestDao();
+                ProcurementRequestDAO procDao = new ProcurementRequestDAO();
                 String reason = "Tự động tạo do kho không đủ tài sản cho yêu cầu REQ-" + requestId;
                 int pid = procDao.createProcurementForShortage(
                         requestId,

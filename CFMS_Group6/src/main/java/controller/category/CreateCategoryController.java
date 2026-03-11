@@ -1,6 +1,6 @@
 package controller.category;
 
-import dal.CategoryDao;
+import dal.CategoryDAO;
 import dto.UserDto;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -35,7 +35,7 @@ public class CreateCategoryController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String status;
-        CategoryDao cDao = new CategoryDao();
+        CategoryDAO cDao = new CategoryDAO();
         try {
             String category_name = request.getParameter("category_name");
             if (category_name.isBlank()) {

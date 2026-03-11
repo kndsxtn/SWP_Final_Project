@@ -41,9 +41,9 @@ public class DashboardDAO {
         return countSingle("SELECT COUNT(*) FROM asset_details WHERE status = N'In_Use'");
     }
 
-    // ─── Đếm cá thể tài sản mới (trong kho) ───
+    // ─── Đếm cá thể tài sản đang ở kho ───
     public int countAssetsNew() {
-        return countSingle("SELECT COUNT(*) FROM asset_details WHERE status = N'New'");
+        return countSingle("SELECT COUNT(*) FROM asset_details WHERE status = N'In_Stock' AND room_id IS NULL");
     }
 
     // ─── Đếm cá thể tài sản đang bảo trì ───

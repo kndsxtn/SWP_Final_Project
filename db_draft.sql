@@ -128,13 +128,13 @@ CREATE TABLE asset_details (
     asset_id INT NOT NULL,
     instance_code VARCHAR(50) NOT NULL UNIQUE,  -- Mã định danh cá thể, VD: LAP-2026-001-001
     room_id INT,
-    status NVARCHAR(50) DEFAULT N'New',
+    status NVARCHAR(50) DEFAULT N'In_Stock',
 
     FOREIGN KEY (asset_id) REFERENCES assets(asset_id) ON DELETE CASCADE,
     FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE SET NULL,
 
     -- Trạng thái từng cá thể
-    CONSTRAINT CHK_InstanceStatus CHECK (status IN (N'New', N'In_Use', N'Maintenance', N'Broken', N'Liquidated', N'Lost'))
+    CONSTRAINT CHK_InstanceStatus CHECK (status IN (N'In_Stock', N'In_Use', N'Maintenance', N'Broken', N'Liquidated', N'Lost'))
 );
 GO
 
@@ -160,6 +160,7 @@ GO
 CREATE TABLE allocation_requests (
     request_id INT IDENTITY(1,1) PRIMARY KEY,
     created_by INT NOT NULL, 
+    target_room_id INT NOT NULL,
     created_date DATETIME DEFAULT GETDATE(),
     approved_by INT NULL, 
     approved_date DATETIME NULL, 
@@ -169,6 +170,7 @@ CREATE TABLE allocation_requests (
     reason_reject NVARCHAR(MAX),
     
     FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (target_room_id) REFERENCES rooms(room_id),
     FOREIGN KEY (approved_by) REFERENCES users(user_id), 
     CONSTRAINT CHK_AllocStatus CHECK (status IN (N'Pending', N'Approved_By_Staff', N'Approved_By_VP', N'Approved_By_Principal', N'Rejected', N'Completed'))
 );

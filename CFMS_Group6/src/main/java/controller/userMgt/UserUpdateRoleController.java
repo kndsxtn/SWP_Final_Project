@@ -1,6 +1,6 @@
 package controller.userMgt;
 
-import dal.UserDao;
+import dal.UserDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -33,7 +33,7 @@ public class UserUpdateRoleController extends HttpServlet {
         try {
             int userId = Integer.parseInt(userIdStr);
             int roleId = Integer.parseInt(roleIdStr);
-            UserDao dao = new UserDao();
+            UserDAO dao = new UserDAO();
 
             boolean roleUpdated = dao.updateUserRole(userId, roleId);
             boolean statusUpdated = true;
