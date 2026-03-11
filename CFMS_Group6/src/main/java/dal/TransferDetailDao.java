@@ -33,14 +33,12 @@ public class TransferDetailDao {
                 TransferDetail td = new TransferDetail();
                 Asset a = new Asset();
                 td.setTransferId(id);
-                // AssetID inside TransferDetail maps to instance_id in DB, but since the model `TransferDetail.java` 
-                // hasn't been modified to instanceId, we use setAssetId and store instance_id temporarily or use the Asset sub-object
                 td.setAssetId(rs.getInt("instance_id"));
                 td.setTransferDate(rs.getDate("transfer_date"));
                 td.setStatusAtTransfer(rs.getString("status_at_transfer"));
 
                 a.setAssetName(rs.getString("asset_name"));
-                a.setAssetCode(rs.getString("instance_code")); // Mapping instance_code to assetCode for JSP display
+                a.setAssetCode(rs.getString("instance_code")); // Set specifically to show correct value on jsp page
 
                 td.setAsset(a);
                 transferDetails.add(td);
