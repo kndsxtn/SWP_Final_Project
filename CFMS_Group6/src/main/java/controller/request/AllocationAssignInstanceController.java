@@ -21,19 +21,8 @@ import java.util.Map;
 import model.AllocationDetail;
 import model.AllocationRequest;
 import model.AssetDetail;
-
-/**
- * Cho phép nhân viên thiết bị chọn cụ thể từng cá thể (instance)
- * để cấp phát cho một yêu cầu đã được duyệt.
- *
- * Flow:
- * - GET: hiển thị danh sách các dòng yêu cầu + các instance khả dụng để chọn.
- * - POST: nhận danh sách instance_id được chọn, gán phòng cho chúng (nếu có),
- *   đổi trạng thái instance sang In_Use và đánh dấu yêu cầu Completed.
- */
 @WebServlet(name = "AllocationAssignInstanceController", urlPatterns = {"/request/allocation-assign"})
 public class AllocationAssignInstanceController extends HttpServlet {
-
     private final AllocationRequestDAO allocationDao = new AllocationRequestDAO();
     private final AssetDetailDAO assetDetailDao = new AssetDetailDAO();
 

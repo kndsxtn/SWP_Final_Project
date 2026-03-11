@@ -16,11 +16,6 @@ import jakarta.servlet.http.HttpSession;
 import model.Asset;
 import model.Category;
 import model.Room;
-
-/**
- *
- * @author Nguyen Dang Khang
- */
 @WebServlet(name = "AllocationCreateController", urlPatterns = {
     "/request/allocation-add",
     "/request/create"
