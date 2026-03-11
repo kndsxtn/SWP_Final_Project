@@ -528,6 +528,8 @@ public class AssetDAO {
     }
 
     /*Phần của pvtung*/
+    
+    // không dùng nữa
     public List<Asset> getByRoomId(int id) {
         String sql = "SELECT * FROM assets WHERE room_id = ?";
         try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
