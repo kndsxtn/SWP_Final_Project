@@ -15,13 +15,13 @@ public class AssetDetail {
     private int instanceId;
     private int assetId;
     private String instanceCode;
-    private int roomId;
+    private Integer roomId;
     private String status;
 
     public AssetDetail() {
     }
 
-    public AssetDetail(int instanceId, int assetId, String instanceCode, int roomId, String status) {
+    public AssetDetail(int instanceId, int assetId, String instanceCode, Integer roomId, String status) {
         this.instanceId = instanceId;
         this.assetId = assetId;
         this.instanceCode = instanceCode;
@@ -53,11 +53,11 @@ public class AssetDetail {
         this.instanceCode = instanceCode;
     }
 
-    public int getRoomId() {
+    public Integer getRoomId() {
         return roomId;
     }
 
-    public void setRoomId(int roomId) {
+    public void setRoomId(Integer roomId) {
         this.roomId = roomId;
     }
 

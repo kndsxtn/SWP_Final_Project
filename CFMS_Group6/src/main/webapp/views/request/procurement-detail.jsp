@@ -80,10 +80,18 @@
                             <form method="post" action="${pageContext.request.contextPath}/request/procurement-stockin" class="d-inline me-2">
                                 <input type="hidden" name="id" value="${proc.procurementId}">
                                 <button type="button" class="btn btn-primary"
-                                        onclick="(function(f){ CFMS_CONFIRM({ title: 'Nhập kho & cấp phát', message: 'Nhập kho từ PROC-${proc.procurementId} và chuyển sang cấp phát cho REQ-${proc.allocationRequestId}?', danger: false, onConfirm: function() { f.submit(); } }); })(this.closest('form'));">
-                                    <i class="bi bi-box-arrow-in-down me-1"></i>Nhập kho & cấp phát
+                                        onclick="(function(f){ CFMS_CONFIRM({ title: 'Nhập kho', message: 'Nhập kho từ PROC-${proc.procurementId}? Sau khi nhập kho bạn sẽ chọn cá thể cấp phát ở bước tiếp theo.', danger: false, onConfirm: function() { f.submit(); } }); })(this.closest('form'));">
+                                    <i class="bi bi-box-arrow-in-down me-1"></i>Nhập kho
                                 </button>
                             </form>
+                        </c:if>
+
+                        <%-- Asset Staff: After stock-in, allow jumping to assign instances (proc is still Approved) --%>
+                        <c:if test="${sessionScope.user.roleName == 'Asset Staff' && proc.status == 'Approved' && proc.allocationRequestId != null}">
+                            <a class="btn btn-success me-2"
+                               href="${pageContext.request.contextPath}/request/allocation-assign?id=${proc.allocationRequestId}">
+                                <i class="bi bi-list-check me-1"></i>Chọn cá thể cấp phát
+                            </a>
                         </c:if>
                         <a href="${pageContext.request.contextPath}/request/procurement-list"
                            class="btn btn-outline-secondary">

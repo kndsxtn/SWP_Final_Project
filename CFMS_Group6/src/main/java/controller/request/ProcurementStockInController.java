@@ -20,8 +20,8 @@ import model.ProcurementRequest;
 
 /**
  * UC: Nhập kho từ yêu cầu mua sắm đã được duyệt.
- * Nếu procurement có liên kết allocation_request_id, sau khi nhập kho sẽ điều hướng
- * sang màn chọn cá thể cấp phát cho allocation đó.
+ * Nếu procurement có liên kết allocation_request_id, sau khi nhập kho sẽ hiển thị nút
+ * để chuyển sang màn chọn cá thể cấp phát.
  */
 @WebServlet(name = "ProcurementStockInController", urlPatterns = {"/request/procurement-stockin"})
 public class ProcurementStockInController extends HttpServlet {
@@ -84,6 +84,20 @@ public class ProcurementStockInController extends HttpServlet {
         try (Connection con = new DBContext().getConnection()) {
             con.setAutoCommit(false);
 
+            // Prevent double stock-in: if any Stock_In history already exists for this PROC, stop.
+            try (PreparedStatement psCheck = con.prepareStatement(
+                    "SELECT TOP 1 1 FROM asset_history WHERE action = N'Stock_In' AND description LIKE ?")) {
+                psCheck.setString(1, "%PROC-" + procurementId + "%");
+                try (ResultSet rs = psCheck.executeQuery()) {
+                    if (rs.next()) {
+                        con.rollback();
+                        session.setAttribute("errorMsg", "PROC-" + procurementId + " đã được nhập kho trước đó.");
+                        response.sendRedirect(request.getContextPath() + "/request/procurement-detail?id=" + procurementId);
+                        return;
+                    }
+                }
+            }
+
             String desc = "Nhập kho từ yêu cầu mua sắm PROC-" + procurementId;
             for (ProcurementDetail d : details) {
                 assetDetailDAO.stockInInstances(
@@ -96,19 +110,14 @@ public class ProcurementStockInController extends HttpServlet {
                 );
             }
 
-            // Mark procurement as Completed to prevent double stock-in
-            try (PreparedStatement ps = con.prepareStatement(
-                    "UPDATE procurement_requests SET status = N'Completed' WHERE procurement_id = ? AND status = N'Approved'")) {
-                ps.setInt(1, procurementId);
-                ps.executeUpdate();
-            }
+            // Do NOT mark procurement Completed here.
+            // Procurement will be marked Completed only after allocation (instance selection) is done.
 
             con.commit();
 
-            int allocId = proc.getAllocationRequestId();
             session.setAttribute("successMsg",
-                    "Đã nhập kho từ PROC-" + procurementId + ". Vui lòng chọn cá thể để cấp phát cho REQ-" + allocId + ".");
-            response.sendRedirect(request.getContextPath() + "/request/allocation-assign?id=" + allocId);
+                    "Đã nhập kho từ PROC-" + procurementId + ". Bạn có thể chuyển sang màn chọn cá thể để cấp phát.");
+            response.sendRedirect(request.getContextPath() + "/request/procurement-detail?id=" + procurementId);
 
         } catch (Exception e) {
             e.printStackTrace();
