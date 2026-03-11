@@ -370,6 +370,14 @@ INSERT INTO asset_history (instance_id, action, performed_by, description, actio
 (50, N'Status_Change', 5, N'Sửa xong quạt trần, chuyển về Maintenance', '2025-02-12');
 GO
 
+-- 15. Cập nhật is_locked cho các tài sản đang vướng nghiệp vụ chưa xong
+-- Đang trong đơn điều chuyển chưa hoàn tất (Transfer id 3) -> instance 30
+-- Đang trong đơn bảo trì chưa xong (Reported, Verified, In_Progress) -> instance 3, 16, 29
+UPDATE asset_details 
+SET is_locked = 1 
+WHERE instance_id IN (30, 3, 16, 29);
+GO
+
 PRINT N'✅ Đã tạo xong dữ liệu mẫu cho hệ thống CFMS!';
 PRINT N'   - 5 roles, 5 departments, 10 categories, 5 suppliers';
 PRINT N'   - 25 rooms (5 rooms/dept), 15 users (≥2/role, password: 123456)';
