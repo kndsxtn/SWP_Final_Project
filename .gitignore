@@ -21,4 +21,4 @@ target/
 *.svg
 *.webp
 # *.md
-# *.sql
+# *.sqldb_changelog.md
