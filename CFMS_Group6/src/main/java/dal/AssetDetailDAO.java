@@ -8,9 +8,11 @@ import dto.CreateTransferDto;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
+
+import model.Asset;
+import model.Room;
 import model.AssetDetail;
 
 /**
@@ -40,7 +42,7 @@ public class AssetDetailDAO {
         }
         return null;
     }
-    
+
     public CreateTransferDto getById(int id) {
         String sql = "SELECT ad.instance_id, ad.instance_code, ad.status, a.asset_name, ad.room_id FROM asset_details ad JOIN assets a ON ad.asset_id = a.asset_id WHERE ad.instance_id = ?";
         try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -60,11 +62,10 @@ public class AssetDetailDAO {
         }
         return null;
     }
-    
-    
+
     /**
      * Get all available instances for a given asset that are considered "in stock":
-     * - status = 'New'
+     * - status = 'In_Stock'
      * - room is NULL or mapped to a room whose name looks like a storage/warehouse.
      */
     public List<AssetDetail> getAvailableInstancesByAsset(int assetId) {
@@ -78,7 +79,7 @@ public class AssetDetailDAO {
                 + "ORDER BY ad.instance_code";
 
         try (Connection con = new DBContext().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+                PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, assetId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -110,11 +111,11 @@ public class AssetDetailDAO {
      * Assumes caller manages the transaction (uses provided Connection).
      */
     public void stockInInstances(Connection con,
-                                 int assetId,
-                                 String assetCode,
-                                 int quantity,
-                                 int performedByUserId,
-                                 String description) throws Exception {
+            int assetId,
+            String assetCode,
+            int quantity,
+            int performedByUserId,
+            String description) throws Exception {
         if (con == null) {
             throw new IllegalArgumentException("Connection is required");
         }
@@ -139,7 +140,7 @@ public class AssetDetailDAO {
                 + "VALUES (?, N'Stock_In', ?, ?, GETDATE())";
 
         try (PreparedStatement psIns = con.prepareStatement(sqlInsert);
-             PreparedStatement psHis = con.prepareStatement(sqlHistory)) {
+                PreparedStatement psHis = con.prepareStatement(sqlHistory)) {
 
             for (int i = 0; i < quantity; i++) {
                 int attempt = 0;
@@ -160,7 +161,8 @@ public class AssetDetailDAO {
 
                         psHis.setInt(1, instanceId);
                         psHis.setInt(2, performedByUserId);
-                        psHis.setString(3, description != null ? description : ("Nhập kho từ mua sắm: " + instanceCode));
+                        psHis.setString(3,
+                                description != null ? description : ("Nhập kho từ mua sắm: " + instanceCode));
                         psHis.addBatch();
 
                         nextSeq++;
@@ -177,6 +179,7 @@ public class AssetDetailDAO {
 
             psHis.executeBatch();
         }
+
     }
 
     private int getNextInstanceSequence(Connection con, int assetId) throws Exception {
@@ -205,4 +208,74 @@ public class AssetDetailDAO {
         }
         return null;
     }
+
+    //
+    public List<AssetDetail> getAssetDetailByAssetId(int assetId) {
+        List<AssetDetail> assetDetails = new ArrayList<>();
+        String sql = "SELECT ad.*, a.asset_name, r.room_name FROM asset_details ad LEFT JOIN assets a ON ad.asset_id = a.asset_id LEFT JOIN rooms r ON ad.room_id = r.room_id WHERE ad.asset_id = ?";
+        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, assetId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                AssetDetail ad = mapAssetDetail(rs);
+                assetDetails.add(ad);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return assetDetails;
+    }
+
+    /**
+     * Map 1 dòng ResultSet thành Asset object (kèm Category, Supplier, Room).
+     */
+    private AssetDetail mapAssetDetail(ResultSet rs) throws Exception {
+        AssetDetail ad = new AssetDetail();
+        ad.setInstanceId(rs.getInt("instance_id"));
+        ad.setAssetId(rs.getInt("asset_id"));
+        ad.setInstanceCode(rs.getString("instance_code"));
+        ad.setRoomId(rs.getInt("room_id"));
+        ad.setStatus(rs.getString("status"));
+        // Set related objects
+        try {
+            Room r = new Room();
+            r.setRoomId(ad.getRoomId());
+            r.setRoomName(rs.getString("room_name"));
+            ad.setRoom(r);
+        } catch (Exception ignored) {
+        }
+
+        try {
+            Asset a = new Asset();
+            a.setAssetName(rs.getString("asset_name"));
+            ad.setAsset(a);
+        } catch (Exception ignored) {
+        }
+
+        return ad;
+    }
+
+    // test các hàm
+    public static void main(String[] args) {
+        AssetDetailDAO dao = new AssetDetailDAO();
+        // Thay số 1 bằng một assetId thực tế đang có trong DB của bạn (ví dụ lấy từ
+        // sample-data.sql)
+        int testAssetId = 1;
+
+        List<AssetDetail> list = dao.getAssetDetailByAssetId(testAssetId);
+
+        if (list != null && !list.isEmpty()) {
+            System.out.println("✅ Test thành công! Tìm thấy " + list.size() + " cá thể cho Asset ID: " + testAssetId);
+            for (AssetDetail ad : list) {
+                System.out.println("--------------------------------------------------");
+                System.out.println("Mã cá thể: " + ad.getInstanceCode());
+                System.out.println("Tên tài sản: " + (ad.getAsset() != null ? ad.getAsset().getAssetName() : "N/A"));
+                System.out.println("Vị trí: " + (ad.getRoom() != null ? ad.getRoom().getRoomName() : "Trong kho"));
+                System.out.println("Trạng thái: " + ad.getStatus());
+            }
+        } else {
+            System.out.println("❌ Test thất bại hoặc không tìm thấy cá thể nào cho Asset ID: " + testAssetId);
+        }
+    }
+
 }

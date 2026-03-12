@@ -44,7 +44,8 @@ public class RoleFilter implements Filter {
         routeRoles.put("/asset/delete", Arrays.asList(Message.NV_QUAN_LY, Message.TP_TAI_CHINH)); // UC10: NV QLTS hoặc
                                                                                                   // TP Tài chính
         routeRoles.put("/asset/deleteImage", Arrays.asList(Message.NV_QUAN_LY)); // Xóa ảnh tài sản
-
+        routeRoles.put("/asset/list",Arrays.asList(Message.NV_QUAN_LY)); 
+        
         // --- NHÓM 3: YÊU CẦU CẤP PHÁT (UC11-UC15) ---
         routeRoles.put("/request/create", Arrays.asList(Message.TRUONG_BAN)); // UC11
         routeRoles.put("/request/cancel", Arrays.asList(Message.TRUONG_BAN)); // UC15

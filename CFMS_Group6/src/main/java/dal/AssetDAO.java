@@ -23,10 +23,28 @@ public class AssetDAO {
 
     private static final String SELECT_WITH_JOIN = "SELECT a.*, "
             + "c.category_name, c.prefix_code, "
-            + "s.supplier_name "
+            + "s.supplier_name, "
+            + "ISNULL(ad_agg.instance_total, 0) AS instance_total, "
+            + "ISNULL(ad_agg.count_in_stock, 0) AS count_in_stock, "
+            + "ISNULL(ad_agg.count_in_use, 0) AS count_in_use, "
+            + "ISNULL(ad_agg.count_maintenance, 0) AS count_maintenance, "
+            + "ISNULL(ad_agg.count_broken, 0) AS count_broken, "
+            + "ISNULL(ad_agg.count_liquidated, 0) AS count_liquidated, "
+            + "ISNULL(ad_agg.count_lost, 0) AS count_lost "
             + "FROM assets a "
             + "LEFT JOIN categories c ON a.category_id = c.category_id "
-            + "LEFT JOIN suppliers s ON a.supplier_id = s.supplier_id ";
+            + "LEFT JOIN suppliers s ON a.supplier_id = s.supplier_id "
+            + "LEFT JOIN ("
+            + "  SELECT asset_id, "
+            + "    COUNT(*) AS instance_total, "
+            + "    SUM(CASE WHEN status = N'In_Stock' THEN 1 ELSE 0 END) AS count_in_stock, "
+            + "    SUM(CASE WHEN status = N'In_Use' THEN 1 ELSE 0 END) AS count_in_use, "
+            + "    SUM(CASE WHEN status = N'Maintenance' THEN 1 ELSE 0 END) AS count_maintenance, "
+            + "    SUM(CASE WHEN status = N'Broken' THEN 1 ELSE 0 END) AS count_broken, "
+            + "    SUM(CASE WHEN status = N'Liquidated' THEN 1 ELSE 0 END) AS count_liquidated, "
+            + "    SUM(CASE WHEN status = N'Lost' THEN 1 ELSE 0 END) AS count_lost "
+            + "  FROM asset_details GROUP BY asset_id"
+            + ") ad_agg ON a.asset_id = ad_agg.asset_id ";
 
     /**
      * UC06: Xem danh sách (có search, filter, paging)
@@ -336,10 +354,32 @@ public class AssetDAO {
     }
 
     /**
-     * Cập nhật trạng thái cá thể tài sản: In_Stock, In_Use, Maintenance, Broken,
-     * Liquidated, Lost.
-     * >>>>>>> main
+     * UC09: Cập nhật trạng thái 1 CÁ THỂ tài sản theo instance_id.
+     * Trạng thái hợp lệ: In_Stock, In_Use, Maintenance, Broken, Liquidated, Lost.
+     *
+     * @param instanceId ID cá thể (asset_details.instance_id)
+     * @param newStatus  Trạng thái mới
+     * @return true nếu cập nhật thành công
      */
+    public boolean updateInstanceStatus(int instanceId, String newStatus) {
+        String sql = "UPDATE asset_details SET status = ? WHERE instance_id = ?";
+
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, newStatus);
+            ps.setInt(2, instanceId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * @deprecated Dùng {@link #updateInstanceStatus(int, String)} thay thế.
+     * Method này update TẤT CẢ cá thể của 1 asset – chỉ giữ lại cho backward compatibility.
+     */
+    @Deprecated
     public boolean updateStatus(int assetId, String newStatus) {
         String sql = "UPDATE asset_details SET status = ? WHERE asset_id = ?";
 
@@ -442,6 +482,15 @@ public class AssetDAO {
         a.setQuantity(rs.getInt("quantity"));
         a.setDescription(rs.getString("description"));
         a.setCreatedAt(rs.getTimestamp("created_at"));
+
+        // Aggregate counts từ asset_details (số cá thể theo trạng thái)
+        a.setInstanceTotal(rs.getInt("instance_total"));
+        a.setCountAvailableInStock(rs.getInt("count_in_stock"));
+        a.setCountInUse(rs.getInt("count_in_use"));
+        a.setCountMaintenance(rs.getInt("count_maintenance"));
+        a.setCountBroken(rs.getInt("count_broken"));
+        a.setCountLiquidated(rs.getInt("count_liquidated"));
+        a.setCountLost(rs.getInt("count_lost"));
 
         // Set related objects
         try {

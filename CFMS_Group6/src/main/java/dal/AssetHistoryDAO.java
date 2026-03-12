@@ -11,13 +11,27 @@ import java.sql.PreparedStatement;
  *
  * @author admin
  */
+/**
+ * DAO xử lý bảng asset_history – ghi lịch sử thao tác trên CÁ THỂ tài sản.
+ *
+ * @author admin
+ */
 public class AssetHistoryDAO {
-    public void create(int assetId, int userId,String action,String description) {
-        String sql = "INSERT INTO asset_history (asset_id, action, performed_by, description) VALUES (?, ?, ?, ?)";
 
-        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql) ) {
+    /**
+     * Ghi 1 bản ghi lịch sử cho cá thể tài sản.
+     *
+     * @param instanceId  ID cá thể (asset_details.instance_id)
+     * @param userId      Người thực hiện
+     * @param action      Hành động (VD: Status_Change, Stock_In, Transfer...)
+     * @param description Mô tả chi tiết
+     */
+    public void create(int instanceId, int userId, String action, String description) {
+        String sql = "INSERT INTO asset_history (instance_id, action, performed_by, description) VALUES (?, ?, ?, ?)";
 
-            ps.setInt(1, assetId);
+        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, instanceId);
             ps.setString(2, action);
             ps.setInt(3, userId);
             ps.setString(4, description);
