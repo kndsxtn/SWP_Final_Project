@@ -1,13 +1,18 @@
 package controller.asset;
 
 import dal.AssetDAO;
+import dal.AssetDetailDAO;
+import dal.AssetHistoryDAO;
+import dal.DBContext;
 import model.Asset;
+import model.AssetDetail;
 import model.AssetImage;
 import model.Category;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Paths;
+import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +24,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
+// import model.User;
+import dto.UserDto;
 
 /**
  * Controller xử lý các nghiệp vụ liên quan đến Tài sản (Asset).
@@ -51,6 +58,8 @@ public class AssetController extends HttpServlet {
     /** Thư mục lưu ảnh tài sản (tương đối so với webapp) */
     private static final String UPLOAD_DIR = "images" + File.separator + "assets";
     private final AssetDAO assetDao = new AssetDAO();
+    private final AssetDetailDAO assetDetailDao = new AssetDetailDAO();
+    private final AssetHistoryDAO historyDao = new AssetHistoryDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -104,7 +113,7 @@ public class AssetController extends HttpServlet {
         }
     }
 
-    // UC06: Xem & tìm kiếm danh sách tài sản
+    // UC06: Xem và tìm kiếm danh sách tài sản
     private void doList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -168,8 +177,12 @@ public class AssetController extends HttpServlet {
         // Lấy danh sách ảnh của tài sản
         List<AssetImage> images = assetDao.getImagesByAssetId(id);
 
+        // Lấy danh sách tài sản trong nhóm tài sản
+        List<AssetDetail> assetDetails = assetDetailDao.getAssetDetailByAssetId(id);
+
         request.setAttribute("asset", asset);
         request.setAttribute("assetImages", images);
+        request.setAttribute("assetDetails", assetDetails);
         request.getRequestDispatcher("/views/asset/asset-detail.jsp").forward(request, response);
     }
 
@@ -187,9 +200,25 @@ public class AssetController extends HttpServlet {
             throws ServletException, IOException {
 
         Asset asset = parseAssetFromRequest(request);
+        UserDto user = (UserDto) request.getSession().getAttribute("user");
+        if (user == null) {
+            response.sendRedirect(request.getContextPath() + "/login"); // Hoặc xử lý lỗi
+            return;
+        }
 
         int newId = assetDao.insertAsset(asset);
         if (newId > 0) {
+            // Stock-in instances
+            try (Connection con = new DBContext().getConnection()) {
+                assetDetailDao.stockInInstances(con,
+                        newId,
+                        asset.getAssetCode(),
+                        asset.getQuantity(),
+                        user.getUserId(),
+                        "Nhập kho thủ công từ nhân viên tài sản: " + user.getUsername());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             // Upload ảnh (nếu có)
             saveUploadedImages(request, newId);
             request.getSession().setAttribute("successMsg",
@@ -248,24 +277,32 @@ public class AssetController extends HttpServlet {
         }
     }
 
-    // UC09: Cập nhật trạng thái tài sản
+    // UC09: Cập nhật trạng thái CÁ THỂ tài sản (per-instance)
     private void doUpdateStatus(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        int id = parseIntParam(request.getParameter("assetId"), 0);
+        int instanceId = parseIntParam(request.getParameter("instanceId"), 0);
+        int assetId = parseIntParam(request.getParameter("assetId"), 0);
         String newStatus = request.getParameter("status");
 
-        if (id <= 0 || newStatus == null || newStatus.isEmpty()) {
+        if (instanceId <= 0 || newStatus == null || newStatus.isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/asset/list");
             return;
         }
 
-        if (assetDao.updateStatus(id, newStatus)) {
+        if (assetDao.updateInstanceStatus(instanceId, newStatus)) {
+            // Ghi lịch sử đổi trạng thái
+            UserDto user = (UserDto) request.getSession().getAttribute("user");
+            if (user != null) {
+                historyDao.create(instanceId, user.getUserId(),
+                        "Status_Change",
+                        "Đổi trạng thái sang: " + newStatus);
+            }
             request.getSession().setAttribute("successMsg", "Cập nhật trạng thái thành công!");
         } else {
             request.getSession().setAttribute("errorMsg", "Cập nhật trạng thái thất bại!");
         }
-        response.sendRedirect(request.getContextPath() + "/asset/detail?id=" + id);
+        response.sendRedirect(request.getContextPath() + "/asset/detail?id=" + assetId);
     }
 
     // UC10: Thanh lý tài sản
@@ -390,7 +427,6 @@ public class AssetController extends HttpServlet {
         asset.setAssetName(request.getParameter("assetName"));
         asset.setCategoryId(parseIntParam(request.getParameter("categoryId"), 0));
         asset.setSupplierId(parseIntParam(request.getParameter("supplierId"), 0));
-        asset.setRoomId(parseIntParam(request.getParameter("roomId"), 0));
 
         String priceStr = request.getParameter("price");
         if (priceStr != null && !priceStr.isEmpty()) {
