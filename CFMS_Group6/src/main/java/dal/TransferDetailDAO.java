@@ -9,8 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
-import model.Asset;
-import model.Room;
+import model.AssetDetail;
 import model.TransferDetail;
 
 /**
@@ -31,16 +30,16 @@ public class TransferDetailDAO {
             List<TransferDetail> transferDetails = new ArrayList<>();
             while (rs.next()) {
                 TransferDetail td = new TransferDetail();
-                Asset a = new Asset();
+                AssetDetail a = new AssetDetail();
                 td.setTransferId(id);
-                td.setAssetId(rs.getInt("instance_id"));
+                td.setInstanceId(rs.getInt("instance_id"));
                 td.setTransferDate(rs.getDate("transfer_date"));
                 td.setStatusAtTransfer(rs.getString("status_at_transfer"));
+                td.setAssetName(rs.getString("asset_name"));
+                
+                a.setInstanceCode(rs.getString("instance_code")); // Set specifically to show correct value on jsp page
 
-                a.setAssetName(rs.getString("asset_name"));
-                a.setAssetCode(rs.getString("instance_code")); // Set specifically to show correct value on jsp page
-
-                td.setAsset(a);
+                td.setAssetDetail(a);
                 transferDetails.add(td);
             }
             return transferDetails;

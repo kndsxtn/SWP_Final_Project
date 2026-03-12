@@ -61,6 +61,17 @@ public class AssetDetailDAO {
         return null;
     }
     
+    public void setRoomId(int roomId, int instanceId) {
+        String sql = "UPDATE asset_details SET room_id = ? WHERE instance_id = ?";
+
+        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, roomId);
+            ps.setInt(2, instanceId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     
     /**
      * Get all available instances for a given asset that are considered "in stock":
