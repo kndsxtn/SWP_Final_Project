@@ -60,7 +60,7 @@ public class AuthFilter implements Filter {
         }
 
         // Đã đăng nhập -> Cho phép đi tiếp (thường là sẽ gặp RoleFilter tiếp theo)
-        chain.doFilter(request, response);
+         chain.doFilter(request, response);
     }
 
     @Override

@@ -23,20 +23,40 @@ public class AssetDAO {
 
     private static final String SELECT_WITH_JOIN = "SELECT a.*, "
             + "c.category_name, c.prefix_code, "
-            + "s.supplier_name "
+            + "s.supplier_name, "
+            + "ISNULL(ad_agg.instance_total, 0) AS instance_total, "
+            + "ISNULL(ad_agg.count_in_stock, 0) AS count_in_stock, "
+            + "ISNULL(ad_agg.count_in_use, 0) AS count_in_use, "
+            + "ISNULL(ad_agg.count_maintenance, 0) AS count_maintenance, "
+            + "ISNULL(ad_agg.count_broken, 0) AS count_broken, "
+            + "ISNULL(ad_agg.count_liquidated, 0) AS count_liquidated, "
+            + "ISNULL(ad_agg.count_lost, 0) AS count_lost "
             + "FROM assets a "
             + "LEFT JOIN categories c ON a.category_id = c.category_id "
-            + "LEFT JOIN suppliers s ON a.supplier_id = s.supplier_id ";
+            + "LEFT JOIN suppliers s ON a.supplier_id = s.supplier_id "
+            + "LEFT JOIN ("
+            + "  SELECT asset_id, "
+            + "    COUNT(*) AS instance_total, "
+            + "    SUM(CASE WHEN status = N'In_Stock' THEN 1 ELSE 0 END) AS count_in_stock, "
+            + "    SUM(CASE WHEN status = N'In_Use' THEN 1 ELSE 0 END) AS count_in_use, "
+            + "    SUM(CASE WHEN status = N'Maintenance' THEN 1 ELSE 0 END) AS count_maintenance, "
+            + "    SUM(CASE WHEN status = N'Broken' THEN 1 ELSE 0 END) AS count_broken, "
+            + "    SUM(CASE WHEN status = N'Liquidated' THEN 1 ELSE 0 END) AS count_liquidated, "
+            + "    SUM(CASE WHEN status = N'Lost' THEN 1 ELSE 0 END) AS count_lost "
+            + "  FROM asset_details GROUP BY asset_id"
+            + ") ad_agg ON a.asset_id = ad_agg.asset_id ";
 
-    // UC06: Xem danh sách (có search, filter, paging)
     /**
+     * UC06: Xem danh sách (có search, filter, paging)
      * Lấy tất cả tài sản (không paging – dùng cho export hoặc dropdown).
      */
     public List<Asset> getAll() {
         List<Asset> assets = new ArrayList<>();
         String sql = SELECT_WITH_JOIN + "ORDER BY a.asset_id DESC";
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 assets.add(mapAsset(rs));
@@ -50,11 +70,11 @@ public class AssetDAO {
     /**
      * Tìm kiếm và lọc danh sách tài sản với phân trang.
      *
-     * @param keyword Tìm theo mã, tên, mô tả (null = bỏ qua)
+     * @param keyword    Tìm theo mã, tên, mô tả (null = bỏ qua)
      * @param categoryId Lọc theo danh mục (0 = tất cả)
-     * @param status Lọc theo trạng thái (null = tất cả)
-     * @param page Trang hiện tại (bắt đầu từ 1)
-     * @param pageSize Số bản ghi mỗi trang
+     * @param status     Lọc theo trạng thái (null = tất cả)
+     * @param page       Trang hiện tại (bắt đầu từ 1)
+     * @param pageSize   Số bản ghi mỗi trang
      */
     public List<Asset> search(String keyword, int categoryId, String status, int page, int pageSize) {
         List<Asset> assets = new ArrayList<>();
@@ -69,7 +89,8 @@ public class AssetDAO {
         params.add((page - 1) * pageSize);
         params.add(pageSize);
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
             setParams(ps, params);
             ResultSet rs = ps.executeQuery();
@@ -90,7 +111,8 @@ public class AssetDAO {
         List<Object> params = new ArrayList<>();
         appendFilters(sql, params, keyword, categoryId, status);
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
             setParams(ps, params);
             ResultSet rs = ps.executeQuery();
@@ -103,10 +125,8 @@ public class AssetDAO {
         return 0;
     }
 
-    // ═══════════════════════════════════════════
-    // UC07: Xem chi tiết tài sản
-    // ═══════════════════════════════════════════
     /**
+     * UC07: Xem chi tiết tài sản
      * Lấy 1 tài sản theo ID, kèm thông tin category/supplier/room.
      */
     public Asset getById(int assetId) {
@@ -125,15 +145,16 @@ public class AssetDAO {
         return null;
     }
 
-    // UC05: Thêm mới tài sản
     /**
+     * UC05: Thêm mới tài sản
      * Sinh mã tài sản tự động theo format: PREFIX-YYYY-NNN (VD: LAP-2026-001).
      */
     public String generateAssetCode(int categoryId) {
         String prefix = "";
         String sqlGetPrefix = "SELECT prefix_code FROM categories WHERE category_id = ?";
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sqlGetPrefix)) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sqlGetPrefix)) {
             ps.setInt(1, categoryId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -152,7 +173,8 @@ public class AssetDAO {
         String sqlGetMaxCode = "SELECT TOP 1 asset_code FROM assets WHERE asset_code LIKE ? ORDER BY asset_code DESC";
         String nextCode = prefix + "-" + currentYear + "-001";
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sqlGetMaxCode)) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sqlGetMaxCode)) {
             ps.setString(1, codePattern);
             ResultSet rs = ps.executeQuery();
 
@@ -188,7 +210,8 @@ public class AssetDAO {
                 + "price, purchase_date, warranty_expiry_date, quantity, description, created_at) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, asset.getAssetCode());
             ps.setString(2, asset.getAssetName());
@@ -216,8 +239,8 @@ public class AssetDAO {
         return -1;
     }
 
-    // Quản lý ảnh tài sản (asset_images)
     /**
+     * Quản lý ảnh tài sản (asset_images)
      * Thêm 1 bản ghi ảnh cho tài sản.
      */
     public boolean insertImage(int assetId, String imageUrl, String description) {
@@ -302,8 +325,8 @@ public class AssetDAO {
         return null;
     }
 
-    // UC08: Cập nhật thông tin tài sản
     /**
+     * UC08: Cập nhật thông tin tài sản
      * Cập nhật thông tin chi tiết tài sản (không đổi mã, trạng thái, ngày tạo).
      */
     public boolean updateAsset(Asset asset) {
@@ -330,11 +353,33 @@ public class AssetDAO {
         }
     }
 
-    // UC09: Cập nhật trạng thái tài sản
     /**
-     * Cập nhật trạng thái cá thể tài sản: In_Stock, In_Use, Maintenance, Broken,
-     * Liquidated, Lost.
+     * UC09: Cập nhật trạng thái 1 CÁ THỂ tài sản theo instance_id.
+     * Trạng thái hợp lệ: In_Stock, In_Use, Maintenance, Broken, Liquidated, Lost.
+     *
+     * @param instanceId ID cá thể (asset_details.instance_id)
+     * @param newStatus  Trạng thái mới
+     * @return true nếu cập nhật thành công
      */
+    public boolean updateInstanceStatus(int instanceId, String newStatus) {
+        String sql = "UPDATE asset_details SET status = ? WHERE instance_id = ?";
+
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, newStatus);
+            ps.setInt(2, instanceId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * @deprecated Dùng {@link #updateInstanceStatus(int, String)} thay thế.
+     * Method này update TẤT CẢ cá thể của 1 asset – chỉ giữ lại cho backward compatibility.
+     */
+    @Deprecated
     public boolean updateStatus(int assetId, String newStatus) {
         String sql = "UPDATE asset_details SET status = ? WHERE asset_id = ?";
 
@@ -349,8 +394,8 @@ public class AssetDAO {
         }
     }
 
-    // UC10: Thanh lý tài sản (đánh dấu Liquidated)
     /**
+     * UC10: Thanh lý tài sản (đánh dấu Liquidated)
      * Đánh dấu tài sản là đã thanh lý.
      */
     public boolean liquidateAsset(int assetId) {
@@ -362,7 +407,9 @@ public class AssetDAO {
         List<Category> list = new ArrayList<>();
         String sql = "SELECT * FROM categories ORDER BY category_name";
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Category c = new Category();
@@ -382,7 +429,9 @@ public class AssetDAO {
         List<Supplier> list = new ArrayList<>();
         String sql = "SELECT * FROM suppliers ORDER BY supplier_name";
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Supplier s = new Supplier();
@@ -400,7 +449,9 @@ public class AssetDAO {
         List<Room> list = new ArrayList<>();
         String sql = "SELECT * FROM rooms ORDER BY room_name";
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Room r = new Room();
@@ -431,6 +482,15 @@ public class AssetDAO {
         a.setQuantity(rs.getInt("quantity"));
         a.setDescription(rs.getString("description"));
         a.setCreatedAt(rs.getTimestamp("created_at"));
+
+        // Aggregate counts từ asset_details (số cá thể theo trạng thái)
+        a.setInstanceTotal(rs.getInt("instance_total"));
+        a.setCountAvailableInStock(rs.getInt("count_in_stock"));
+        a.setCountInUse(rs.getInt("count_in_use"));
+        a.setCountMaintenance(rs.getInt("count_maintenance"));
+        a.setCountBroken(rs.getInt("count_broken"));
+        a.setCountLiquidated(rs.getInt("count_liquidated"));
+        a.setCountLost(rs.getInt("count_lost"));
 
         // Set related objects
         try {
@@ -511,8 +571,7 @@ public class AssetDAO {
         }
     }
 
-
-    /*Phần của pvtung*/
+    /* Phần của pvtung */
     // không dùng nữa
     public List<Asset> getByRoomId(int id) {
         String sql = "SELECT DISTINCT a.asset_id, a.asset_code, a.asset_name FROM assets a "

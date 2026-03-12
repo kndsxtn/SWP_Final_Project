@@ -4,9 +4,6 @@
  */
 package model;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 /**
  *
  * @author Admin
@@ -18,15 +15,22 @@ public class AssetDetail {
     private Integer roomId;
     private String status;
 
+    // Relationship
+    private Room room;
+    private Asset asset;
+
     public AssetDetail() {
     }
 
-    public AssetDetail(int instanceId, int assetId, String instanceCode, Integer roomId, String status) {
+    public AssetDetail(int instanceId, int assetId, String instanceCode, Integer roomId, String status, Room room,
+            Asset asset) {
         this.instanceId = instanceId;
         this.assetId = assetId;
         this.instanceCode = instanceCode;
         this.roomId = roomId;
         this.status = status;
+        this.room = room;
+        this.asset = asset;
     }
 
     public int getInstanceId() {
@@ -68,5 +72,21 @@ public class AssetDetail {
     public void setStatus(String status) {
         this.status = status;
     }
-    
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+
+    public Asset getAsset() {
+        return asset;
+    }
+
+    public void setAsset(Asset asset) {
+        this.asset = asset;
+    }
+
 }

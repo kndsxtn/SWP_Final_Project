@@ -99,19 +99,7 @@
                                                     ${asset.supplier != null ? asset.supplier.supplierName : '–'}
                                                 </div>
                                             </div>
-                                            <div class="detail-row">
-                                                <div class="detail-label">Vị trí hiện tại</div>
-                                                <div class="detail-value">
-                                                    <c:choose>
-                                                        <c:when test="${asset.room != null}">
-                                                            <i
-                                                                class="bi bi-geo-alt me-1 text-primary"></i>${asset.room.roomName}
-                                                        </c:when>
-                                                        <c:otherwise><span class="text-muted">Trong kho</span>
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </div>
-                                            </div>
+
                                             <div class="detail-row">
                                                 <div class="detail-label">Mô tả</div>
                                                 <div class="detail-value">
@@ -151,6 +139,119 @@
                                                                 <i class="bi bi-upload me-1"></i>Thêm ảnh
                                                             </a>
                                                         </c:if>
+                                                    </div>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+
+                                        <!-- ===== Danh sách cá thể (Instances) ===== -->
+                                        <div class="detail-card">
+                                            <h5>
+                                                <i class="bi bi-collection me-2"></i>Danh sách cá thể
+                                                <c:if test="${not empty assetDetails}">
+                                                    <span class="badge bg-primary ms-2">${assetDetails.size()}</span>
+                                                </c:if>
+                                            </h5>
+
+                                            <c:choose>
+                                                <c:when test="${not empty assetDetails}">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-hover mb-0">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>#</th>
+                                                                    <th>Mã cá thể</th>
+                                                                    <th>Vị trí</th>
+                                                                    <th>Trạng thái</th>
+                                                                    <c:if test="${sessionScope.user.roleName == 'Asset Staff'}">
+                                                                        <th>Thao tác</th>
+                                                                    </c:if>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <c:forEach items="${assetDetails}" var="detail" varStatus="loop">
+                                                                    <tr>
+                                                                        <td>${loop.count}</td>
+                                                                        <td><code>${detail.instanceCode}</code></td>
+                                                                        <td>
+                                                                            <c:choose>
+                                                                                <c:when test="${not empty detail.room.roomName}">
+                                                                                    <i class="bi bi-geo-alt me-1 text-primary"></i>${detail.room.roomName}
+                                                                                </c:when>
+                                                                                <c:otherwise>
+                                                                                    <span class="text-muted">Trong kho</span>
+                                                                                </c:otherwise>
+                                                                            </c:choose>
+                                                                        </td>
+                                                                        <td>
+                                                                            <c:choose>
+                                                                                <c:when test="${detail.status == 'In_Stock'}">
+                                                                                    <span class="cfms-badge cfms-badge-pending">Trong kho</span>
+                                                                                </c:when>
+                                                                                <c:when test="${detail.status == 'In_Use'}">
+                                                                                    <span class="cfms-badge cfms-badge-approved">Đang sử dụng</span>
+                                                                                </c:when>
+                                                                                <c:when test="${detail.status == 'Maintenance'}">
+                                                                                    <span class="cfms-badge cfms-badge-in-progress">Bảo trì</span>
+                                                                                </c:when>
+                                                                                <c:when test="${detail.status == 'Broken'}">
+                                                                                    <span class="cfms-badge cfms-badge-rejected">Hỏng</span>
+                                                                                </c:when>
+                                                                                <c:when test="${detail.status == 'Liquidated'}">
+                                                                                    <span class="cfms-badge cfms-badge-completed">Thanh lý</span>
+                                                                                </c:when>
+                                                                                <c:when test="${detail.status == 'Lost'}">
+                                                                                    <span class="cfms-badge cfms-badge-rejected">Thất lạc</span>
+                                                                                </c:when>
+                                                                                <c:otherwise>
+                                                                                    <span class="cfms-badge">${detail.status}</span>
+                                                                                </c:otherwise>
+                                                                            </c:choose>
+                                                                        </td>
+                                                                        <!-- UC09: Nút đổi trạng thái (chỉ Asset Staff) -->
+                                                                        <c:if test="${sessionScope.user.roleName == 'Asset Staff'}">
+                                                                            <td>
+                                                                                <c:if test="${detail.status != 'Liquidated' && detail.status != 'Lost'}">
+                                                                                    <form method="post" action="${pageContext.request.contextPath}/asset/status" class="d-flex gap-1 align-items-center">
+                                                                                        <input type="hidden" name="instanceId" value="${detail.instanceId}">
+                                                                                        <input type="hidden" name="assetId" value="${asset.assetId}">
+                                                                                        <select name="status" class="form-select form-select-sm" style="width: auto; min-width: 140px;">
+                                                                                            <c:if test="${detail.status == 'In_Stock'}">
+                                                                                                <option value="In_Use">Đưa vào sử dụng</option>
+                                                                                            </c:if>
+                                                                                            <c:if test="${detail.status == 'In_Use'}">
+                                                                                                <option value="Maintenance">Bảo trì</option>
+                                                                                                <option value="Broken">Hỏng</option>
+                                                                                            </c:if>
+                                                                                            <c:if test="${detail.status == 'Maintenance'}">
+                                                                                                <option value="In_Use">Hoàn thành sửa</option>
+                                                                                                <option value="Broken">Không sửa được</option>
+                                                                                            </c:if>
+                                                                                            <c:if test="${detail.status == 'Broken'}">
+                                                                                                <option value="Maintenance">Thử sửa lại</option>
+                                                                                                <option value="Liquidated">Thanh lý</option>
+                                                                                            </c:if>
+                                                                                        </select>
+                                                                                        <button type="submit" class="btn btn-sm btn-outline-primary" title="Cập nhật">
+                                                                                            <i class="bi bi-check-lg"></i>
+                                                                                        </button>
+                                                                                    </form>
+                                                                                </c:if>
+                                                                                <c:if test="${detail.status == 'Liquidated' || detail.status == 'Lost'}">
+                                                                                    <span class="text-muted">–</span>
+                                                                                </c:if>
+                                                                            </td>
+                                                                        </c:if>
+                                                                    </tr>
+                                                                </c:forEach>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <div class="text-center text-muted py-3">
+                                                        <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                                                        <p class="mt-2 mb-0">Chưa có cá thể nào.</p>
                                                     </div>
                                                 </c:otherwise>
                                             </c:choose>
@@ -209,103 +310,60 @@
                                             </div>
                                         </div>
 
-                                        <!-- Trạng thái -->
+                                        <!-- Phân bổ trạng thái -->
                                         <div class="detail-card">
-                                            <h5><i class="bi bi-flag me-2"></i>Trạng thái</h5>
+                                            <h5><i class="bi bi-pie-chart me-2"></i>Phân bổ trạng thái</h5>
 
-                                            <div class="text-center mb-3">
-                                                <c:choose>
-                                                    <c:when test="${asset.status == 'In_Stock'}">
-                                                        <span
-                                                            class="cfms-badge cfms-badge-pending fs-6 px-4 py-2">Trong kho</span>
-                                                    </c:when>
-                                                    <c:when test="${asset.status == 'In_Use'}">
-                                                        <span class="cfms-badge cfms-badge-approved fs-6 px-4 py-2">Đang
-                                                            sử dụng</span>
-                                                    </c:when>
-                                                    <c:when test="${asset.status == 'Maintenance'}">
-                                                        <span
-                                                            class="cfms-badge cfms-badge-in-progress fs-6 px-4 py-2">Bảo
-                                                            trì</span>
-                                                    </c:when>
-                                                    <c:when test="${asset.status == 'Broken'}">
-                                                        <span
-                                                            class="cfms-badge cfms-badge-rejected fs-6 px-4 py-2">Hỏng</span>
-                                                    </c:when>
-                                                    <c:when test="${asset.status == 'Liquidated'}">
-                                                        <span
-                                                            class="cfms-badge cfms-badge-completed fs-6 px-4 py-2">Thanh
-                                                            lý</span>
-                                                    </c:when>
-                                                    <c:when test="${asset.status == 'Lost'}">
-                                                        <span class="cfms-badge cfms-badge-rejected fs-6 px-4 py-2">Thất
-                                                            lạc</span>
-                                                    </c:when>
-                                                </c:choose>
+                                            <div class="detail-row">
+                                                <div class="detail-label">Tổng cá thể</div>
+                                                <div class="detail-value"><strong>${asset.instanceTotal}</strong></div>
                                             </div>
-
-                                            <!-- Nút đổi trạng thái (UC09 - chỉ Asset Staff) -->
-                                            <c:if
-                                                test="${sessionScope.user.roleName == 'Asset Staff' && asset.status != 'Liquidated'}">
-                                                <div class="status-actions justify-content-center">
-                                                    <c:if test="${asset.status == 'In_Stock'}">
-                                                        <form method="post"
-                                                            action="${pageContext.request.contextPath}/asset/status"
-                                                            class="d-inline">
-                                                            <input type="hidden" name="assetId"
-                                                                value="${asset.assetId}">
-                                                            <input type="hidden" name="status" value="In_Use">
-                                                            <button class="btn btn-sm btn-outline-success">
-                                                                <i class="bi bi-play-circle me-1"></i>Đưa vào sử dụng
-                                                            </button>
-                                                        </form>
-                                                    </c:if>
-                                                    <c:if test="${asset.status == 'In_Use'}">
-                                                        <form method="post"
-                                                            action="${pageContext.request.contextPath}/asset/status"
-                                                            class="d-inline">
-                                                            <input type="hidden" name="assetId"
-                                                                value="${asset.assetId}">
-                                                            <input type="hidden" name="status" value="Maintenance">
-                                                            <button class="btn btn-sm btn-outline-warning">
-                                                                <i class="bi bi-tools me-1"></i>Bảo trì
-                                                            </button>
-                                                        </form>
-                                                        <form method="post"
-                                                            action="${pageContext.request.contextPath}/asset/status"
-                                                            class="d-inline">
-                                                            <input type="hidden" name="assetId"
-                                                                value="${asset.assetId}">
-                                                            <input type="hidden" name="status" value="Broken">
-                                                            <button class="btn btn-sm btn-outline-danger">
-                                                                <i class="bi bi-x-circle me-1"></i>Hỏng
-                                                            </button>
-                                                        </form>
-                                                    </c:if>
-                                                    <c:if test="${asset.status == 'Maintenance'}">
-                                                        <form method="post"
-                                                            action="${pageContext.request.contextPath}/asset/status"
-                                                            class="d-inline">
-                                                            <input type="hidden" name="assetId"
-                                                                value="${asset.assetId}">
-                                                            <input type="hidden" name="status" value="In_Use">
-                                                            <button class="btn btn-sm btn-outline-success">
-                                                                <i class="bi bi-check-lg me-1"></i>Hoàn thành sửa
-                                                            </button>
-                                                        </form>
-                                                    </c:if>
-                                                    <c:if test="${asset.status == 'Broken'}">
-                                                        <form method="post"
-                                                            action="${pageContext.request.contextPath}/asset/delete"
-                                                            class="d-inline"
-                                                            onsubmit="return confirm('Bạn chắc chắn muốn thanh lý tài sản này?');">
-                                                            <input type="hidden" name="assetId"
-                                                                value="${asset.assetId}">
-                                                            <button class="btn btn-sm btn-outline-dark">
-                                                                <i class="bi bi-trash me-1"></i>Thanh lý
-                                                            </button>
-                                                        </form>
-                                                    </c:if>
+                                            <c:if test="${asset.countAvailableInStock > 0}">
+                                                <div class="detail-row">
+                                                    <div class="detail-label">
+                                                        <span class="cfms-badge cfms-badge-pending">Trong kho</span>
+                                                    </div>
+                                                    <div class="detail-value"><strong>${asset.countAvailableInStock}</strong></div>
+                                                </div>
+                                            </c:if>
+                                            <c:if test="${asset.countInUse > 0}">
+                                                <div class="detail-row">
+                                                    <div class="detail-label">
+                                                        <span class="cfms-badge cfms-badge-approved">Đang sử dụng</span>
+                                                    </div>
+                                                    <div class="detail-value"><strong>${asset.countInUse}</strong></div>
+                                                </div>
+                                            </c:if>
+                                            <c:if test="${asset.countMaintenance > 0}">
+                                                <div class="detail-row">
+                                                    <div class="detail-label">
+                                                        <span class="cfms-badge cfms-badge-in-progress">Bảo trì</span>
+                                                    </div>
+                                                    <div class="detail-value"><strong>${asset.countMaintenance}</strong></div>
+                                                </div>
+                                            </c:if>
+                                            <c:if test="${asset.countBroken > 0}">
+                                                <div class="detail-row">
+                                                    <div class="detail-label">
+                                                        <span class="cfms-badge cfms-badge-rejected">Hỏng</span>
+                                                    </div>
+                                                    <div class="detail-value"><strong>${asset.countBroken}</strong></div>
+                                                </div>
+                                            </c:if>
+                                            <c:if test="${asset.countLiquidated > 0}">
+                                                <div class="detail-row">
+                                                    <div class="detail-label">
+                                                        <span class="cfms-badge cfms-badge-completed">Thanh lý</span>
+                                                    </div>
+                                                    <div class="detail-value"><strong>${asset.countLiquidated}</strong></div>
+                                                </div>
+                                            </c:if>
+                                            <c:if test="${asset.countLost > 0}">
+                                                <div class="detail-row">
+                                                    <div class="detail-label">
+                                                        <span class="cfms-badge cfms-badge-rejected">Thất lạc</span>
+                                                    </div>
+                                                    <div class="detail-value"><strong>${asset.countLost}</strong></div>
                                                 </div>
                                             </c:if>
                                         </div>
