@@ -169,12 +169,19 @@ INSERT INTO asset_images (asset_id, image_url, description) VALUES
 (2,  'images/assets/LAP-2025-001_front.jpg',  N'Dell Inspiron 15 3520'),
 (3,  'images/assets/PC-2023-001.jpg',         N'Dell OptiPlex 7010'),
 (4,  'images/assets/PC-2024-001.jpg',         N'HP ProDesk 400 G9'),
+(5,  'images/assets/PC-2025-001.jpg',         N'Dell Vostro 3020'),
 (6,  'images/assets/MON-2023-001.jpg',        N'Dell P2422H'),
 (7,  'images/assets/MON-2024-001.jpg',        N'LG 27UL500 4K'),
 (8,  'images/assets/PRT-2023-001.jpg',        N'HP LaserJet Pro'),
+(9,  'images/assets/PRT-2024-001.jpg',        N'Canon LBP6030'),
 (10, 'images/assets/PRJ-2023-001.jpg',        N'Epson EB-X51'),
+(11, 'images/assets/PRJ-2025-001.jpg',        N'BenQ MH560'),
+(12, 'images/assets/FUR-2022-001.jpg',        N'Bàn học sinh đơn'),
+(13, 'images/assets/AC-2023-001.jpg',         N'Daikin Inverter 18000BTU'),
 (14, 'images/assets/NET-2024-001.jpg',        N'TP-Link Archer AX73'),
-(16, 'images/assets/OTH-2024-001.jpg',        N'Bảng tương tác thông minh');
+(15, 'images/assets/FAN-2023-001.jpg',        N'Quạt trần Panasonic F-56MZG'),
+(16, 'images/assets/OTH-2024-001.jpg',        N'Bảng tương tác thông minh'),
+(17, 'images/assets/OTH-2023-001.jpg',        N'Tủ rack 42U');
 GO
 
 -- 9. Asset Details (52 cá thể = tổng quantity của 17 lô)
