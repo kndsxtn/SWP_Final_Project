@@ -129,7 +129,6 @@ CREATE TABLE asset_details (
     instance_code VARCHAR(50) NOT NULL UNIQUE,  -- Mã định danh cá thể, VD: LAP-2026-001-001
     room_id INT,
     status NVARCHAR(50) DEFAULT N'In_Stock',
-    is_locked BIT DEFAULT 0,                    -- 0: Rảnh, 1: Đang khoá (chờ duyệt điều chuyển, bảo trì...)
 
     FOREIGN KEY (asset_id) REFERENCES assets(asset_id) ON DELETE CASCADE,
     FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE SET NULL,

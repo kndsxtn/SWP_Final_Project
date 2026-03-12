@@ -142,7 +142,7 @@
                                                 <th>Mã tài sản</th>
                                                 <th>Tên tài sản</th>
                                                 <th>Danh mục</th>
-                                                <th>Vị trí</th>
+                                                <th>Cá thể</th>
                                                 <th>Giá trị</th>
                                                 <th>Trạng thái</th>
                                                 <th class="col-action">Thao tác</th>
@@ -183,52 +183,35 @@
                                                                     <c:otherwise>–</c:otherwise>
                                                                 </c:choose>
                                                             </td>
-                                                            <td>
-                                                                <c:choose>
-                                                                    <c:when test="${a.room != null}">${a.room.roomName}
-                                                                    </c:when>
-                                                                    <c:otherwise><span class="text-muted">Kho</span>
-                                                                    </c:otherwise>
-                                                                </c:choose>
+                                                            <td class="text-center">
+                                                                <strong>${a.instanceTotal}</strong>
                                                             </td>
                                                             <td>
                                                                 <fmt:formatNumber value="${a.price}" type="number"
                                                                     groupingUsed="true" />₫
                                                             </td>
                                                             <td>
-                                                                <c:choose>
-                                                                    <c:when test="${a.status == 'In_Stock'}">
-                                                                        <span
-                                                                            class="cfms-badge cfms-badge-pending">Trong kho</span>
-                                                                    </c:when>
-                                                                    <c:when test="${a.status == 'In_Use'}">
-                                                                        <span
-                                                                            class="cfms-badge cfms-badge-approved">Đang
-                                                                            sử dụng</span>
-                                                                    </c:when>
-                                                                    <c:when test="${a.status == 'Maintenance'}">
-                                                                        <span
-                                                                            class="cfms-badge cfms-badge-in-progress">Bảo
-                                                                            trì</span>
-                                                                    </c:when>
-                                                                    <c:when test="${a.status == 'Broken'}">
-                                                                        <span
-                                                                            class="cfms-badge cfms-badge-rejected">Hỏng</span>
-                                                                    </c:when>
-                                                                    <c:when test="${a.status == 'Liquidated'}">
-                                                                        <span
-                                                                            class="cfms-badge cfms-badge-completed">Thanh
-                                                                            lý</span>
-                                                                    </c:when>
-                                                                    <c:when test="${a.status == 'Lost'}">
-                                                                        <span
-                                                                            class="cfms-badge cfms-badge-rejected">Thất
-                                                                            lạc</span>
-                                                                    </c:when>
-                                                                    <c:otherwise>
-                                                                        <span class="cfms-badge">${a.status}</span>
-                                                                    </c:otherwise>
-                                                                </c:choose>
+                                                                <c:if test="${a.countAvailableInStock > 0}">
+                                                                    <span class="cfms-badge cfms-badge-pending">${a.countAvailableInStock} Kho</span>
+                                                                </c:if>
+                                                                <c:if test="${a.countInUse > 0}">
+                                                                    <span class="cfms-badge cfms-badge-approved">${a.countInUse} Dùng</span>
+                                                                </c:if>
+                                                                <c:if test="${a.countMaintenance > 0}">
+                                                                    <span class="cfms-badge cfms-badge-in-progress">${a.countMaintenance} Bảo trì</span>
+                                                                </c:if>
+                                                                <c:if test="${a.countBroken > 0}">
+                                                                    <span class="cfms-badge cfms-badge-rejected">${a.countBroken} Hỏng</span>
+                                                                </c:if>
+                                                                <c:if test="${a.countLiquidated > 0}">
+                                                                    <span class="cfms-badge cfms-badge-completed">${a.countLiquidated} T.lý</span>
+                                                                </c:if>
+                                                                <c:if test="${a.countLost > 0}">
+                                                                    <span class="cfms-badge cfms-badge-rejected">${a.countLost} T.lạc</span>
+                                                                </c:if>
+                                                                <c:if test="${a.instanceTotal == 0}">
+                                                                    <span class="text-muted">–</span>
+                                                                </c:if>
                                                             </td>
                                                             <td class="col-action">
                                                                 <a href="${pageContext.request.contextPath}/asset/detail?id=${a.assetId}"

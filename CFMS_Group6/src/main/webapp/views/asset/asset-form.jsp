@@ -131,19 +131,6 @@
                                                 </div>
 
                                                 <div class="mb-3">
-                                                    <label for="roomId" class="form-label">Vị trí (Phòng)</label>
-                                                    <select id="roomId" name="roomId" class="form-select">
-                                                        <option value="0">-- Trong kho (chưa cấp phát) --</option>
-                                                        <c:forEach items="${rooms}" var="room">
-                                                            <option value="${room.roomId}" ${asset !=null &&
-                                                                asset.roomId==room.roomId ? 'selected' : '' }>
-                                                                ${room.roomName}
-                                                            </option>
-                                                        </c:forEach>
-                                                    </select>
-                                                </div>
-
-                                                <div class="mb-3">
                                                     <label for="description" class="form-label">Mô tả</label>
                                                     <textarea id="description" name="description" class="form-control"
                                                         rows="3"

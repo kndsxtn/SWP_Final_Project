@@ -14,11 +14,9 @@ public class Asset {
     private String assetName;
     private int categoryId;
     private int supplierId;
-    private int roomId;
     private BigDecimal price; // Use BigDecimal for currency
     private Date purchaseDate;
     private Date warrantyExpiryDate;
-    private String status;
     private int quantity = 1;
     private String description;
     private Date createdAt;
@@ -26,7 +24,7 @@ public class Asset {
     // Relationships
     private Category category;
     private Supplier supplier;
-    private Room room;
+    private List<AssetDetail> assetDetails;
     private List<AssetImage> images;
 
     // Inventory / instance aggregates (derived from asset_details)
@@ -42,22 +40,24 @@ public class Asset {
     public Asset() {
     }
 
-    // Full Constructor
-    public Asset(int assetId, String assetCode, String assetName, int categoryId, int supplierId, int roomId,
-            BigDecimal price, Date purchaseDate, Date warrantyExpiryDate, String status, String description,
-            Date createdAt) {
+    public Asset(int assetId, String assetCode, String assetName, int categoryId, int supplierId, BigDecimal price,
+            Date purchaseDate, Date warrantyExpiryDate, int quantity, String description, Date createdAt,
+            Category category, Supplier supplier, List<AssetDetail> assetDetails, List<AssetImage> images) {
         this.assetId = assetId;
         this.assetCode = assetCode;
         this.assetName = assetName;
         this.categoryId = categoryId;
         this.supplierId = supplierId;
-        this.roomId = roomId;
         this.price = price;
         this.purchaseDate = purchaseDate;
         this.warrantyExpiryDate = warrantyExpiryDate;
-        this.status = status;
+        this.quantity = quantity;
         this.description = description;
         this.createdAt = createdAt;
+        this.category = category;
+        this.supplier = supplier;
+        this.assetDetails = assetDetails;
+        this.images = images;
     }
 
     public int getAssetId() {
@@ -100,14 +100,6 @@ public class Asset {
         this.supplierId = supplierId;
     }
 
-    public int getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(int roomId) {
-        this.roomId = roomId;
-    }
-
     public BigDecimal getPrice() {
         return price;
     }
@@ -130,14 +122,6 @@ public class Asset {
 
     public void setWarrantyExpiryDate(Date warrantyExpiryDate) {
         this.warrantyExpiryDate = warrantyExpiryDate;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public int getQuantity() {
@@ -180,12 +164,12 @@ public class Asset {
         this.supplier = supplier;
     }
 
-    public Room getRoom() {
-        return room;
+    public List<AssetDetail> getAssetDetails() {
+        return assetDetails;
     }
 
-    public void setRoom(Room room) {
-        this.room = room;
+    public void setAssetDetails(List<AssetDetail> assetDetails) {
+        this.assetDetails = assetDetails;
     }
 
     public List<AssetImage> getImages() {
