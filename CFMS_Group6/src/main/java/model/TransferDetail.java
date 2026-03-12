@@ -9,22 +9,32 @@ import java.util.Date;
 public class TransferDetail {
     private int detailId;
     private int transferId;
-    private int assetId;
+    private int instanceId;
     private String statusAtTransfer;
     private Date transferDate;
-
+    private String assetName;
+    
     // Relationships
-    private Asset asset;
+    private AssetDetail assetDetail;
 
     public TransferDetail() {
     }
 
-    public TransferDetail(int detailId, int transferId, int assetId, String statusAtTransfer, Date transferDate) {
+    public TransferDetail(int detailId, int transferId, int instanceId, String statusAtTransfer, Date transferDate, String assetName) {
         this.detailId = detailId;
         this.transferId = transferId;
-        this.assetId = assetId;
+        this.instanceId = instanceId;
         this.statusAtTransfer = statusAtTransfer;
         this.transferDate = transferDate;
+        this.assetName = assetName;
+    }
+
+    public String getAssetName() {
+        return assetName;
+    }
+
+    public void setAssetName(String assetName) {
+        this.assetName = assetName;
     }
 
     public int getDetailId() {
@@ -43,12 +53,12 @@ public class TransferDetail {
         this.transferId = transferId;
     }
 
-    public int getAssetId() {
-        return assetId;
+    public int getInstanceId() {
+        return instanceId;
     }
 
-    public void setAssetId(int assetId) {
-        this.assetId = assetId;
+    public void setInstanceId(int instanceId) {
+        this.instanceId = instanceId;
     }
 
     public String getStatusAtTransfer() {
@@ -67,11 +77,11 @@ public class TransferDetail {
         this.transferDate = transferDate;
     }
 
-    public Asset getAsset() {
-        return asset;
+    public AssetDetail getAssetDetail() {
+        return assetDetail;
     }
 
-    public void setAsset(Asset asset) {
-        this.asset = asset;
+    public void setAssetDetail(AssetDetail assetDetail) {
+        this.assetDetail = assetDetail;
     }
 }

@@ -17,7 +17,6 @@ import java.sql.PreparedStatement;
  * @author admin
  */
 public class AssetHistoryDAO {
-
     /**
      * Ghi 1 bản ghi lịch sử cho cá thể tài sản.
      *

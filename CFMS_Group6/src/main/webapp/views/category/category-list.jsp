@@ -145,15 +145,15 @@
 
                             <ul class="pagination">
                                 <c:if test='${tool.index!=0}'>
-                                    <a class="page-link" href='ViewCategoryController?index=0'>Home</a>
-                                    <a class="page-link" href='ViewCategoryController?index=${tool.index-1}'>Previous</a>
+                                    <a class="page-link" href='ViewCategoryController?index=0'>&laquo;</a>
+                                    <a class="page-link" href='ViewCategoryController?index=${tool.index-1}'>&lsaquo;</a>
                                 </c:if>
                                 <c:forEach var = 'index' begin ='${tool.pageStart}' end ='${tool.pageEnd}'>
                                     <a class="page-link" href='ViewCategoryController?index=${index}'>${index+1}</a>
                                 </c:forEach>
                                 <c:if test='${tool.index!=tool.totalPage-1}'>
-                                    <a class="page-link" href='ViewCategoryController?index=${tool.index+1}'>Next</a>
-                                    <a class="page-link" href='ViewCategoryController?index=${tool.totalPage-1}'>End</a>
+                                    <a class="page-link" href='ViewCategoryController?index=${tool.index+1}'>&rsaquo;</a>
+                                    <a class="page-link" href='ViewCategoryController?index=${tool.totalPage-1}'>&raquo;</a>
                                 </c:if>
                             </ul>
                         </div>
