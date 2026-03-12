@@ -48,8 +48,8 @@
                                         <c:forEach items="${transferDetails}" var="t" varStatus="st">
                                             <tr>
                                                 <td class="text-muted">${st.index + 1}</td>
-                                                <td class="fw-medium">${t.asset.assetName}</td>
-                                                <td class="text-secondary">${t.asset.assetCode}</td>
+                                                <td class="fw-medium">${t.assetName}</td>
+                                                <td class="text-secondary">${t.assetDetail.instanceCode}</td>
                                                 <td>
                                                     <span
                                                         class="badge bg-light text-dark border border-secondary-subtle px-2 py-1 fw-normal">${t.statusAtTransfer}</span>
