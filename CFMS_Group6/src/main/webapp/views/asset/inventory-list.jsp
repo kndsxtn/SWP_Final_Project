@@ -174,7 +174,7 @@
                                                         <c:when test="${not empty inv.images}">
                                                             <c:set var="firstImg" value="${inv.images[0]}"/>
                                                             <img src="${pageContext.request.contextPath}/${firstImg.imageUrl}"
-                                                                 alt="${firstImg.description}"
+                                                                 alt="${firstImg.description}"  
                                                                  class="img-thumbnail"
                                                                  style="width: 60px; height: 60px; object-fit: cover;">
                                                         </c:when>
