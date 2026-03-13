@@ -376,6 +376,28 @@ public class AssetDAO {
     }
 
     /**
+     * Cập nhật trạng thái cá thể + xóa room_id (đặt NULL).
+     * Dùng khi tìm thấy tài sản thất lạc và nhập lại kho.
+     *
+     * @param instanceId ID cá thể
+     * @param newStatus  Trạng thái mới (thường là In_Stock)
+     * @return true nếu cập nhật thành công
+     */
+    public boolean updateInstanceStatusAndClearRoom(int instanceId, String newStatus) {
+        String sql = "UPDATE asset_details SET status = ?, room_id = NULL WHERE instance_id = ?";
+
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, newStatus);
+            ps.setInt(2, instanceId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
      * @deprecated Dùng {@link #updateInstanceStatus(int, String)} thay thế.
      * Method này update TẤT CẢ cá thể của 1 asset – chỉ giữ lại cho backward compatibility.
      */

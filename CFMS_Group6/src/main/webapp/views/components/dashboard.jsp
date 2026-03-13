@@ -242,32 +242,46 @@
                                 <!-- Thống kê tài sản -->
                                 <h6 class="section-heading">Tổng quan tài sản</h6>
                                 <div class="row g-3 mb-3">
-                                    <div class="col-6 col-lg-3">
+                                    <div class="col-6 col-lg-4">
                                         <div class="stat-card">
                                             <div class="stat-icon icon-primary"><i class="bi bi-box-seam"></i></div>
                                             <div class="stat-value">${totalAssets}</div>
                                             <div class="stat-label">Tổng tài sản</div>
                                         </div>
                                     </div>
-                                    <div class="col-6 col-lg-3">
+                                    <div class="col-6 col-lg-4">
                                         <div class="stat-card">
                                             <div class="stat-icon icon-success"><i class="bi bi-check-circle"></i></div>
                                             <div class="stat-value">${assetsInUse}</div>
                                             <div class="stat-label">Đang sử dụng</div>
                                         </div>
                                     </div>
-                                    <div class="col-6 col-lg-3">
+                                    <div class="col-6 col-lg-4">
                                         <div class="stat-card">
                                             <div class="stat-icon icon-info"><i class="bi bi-archive"></i></div>
                                             <div class="stat-value">${assetsNew}</div>
                                             <div class="stat-label">Trong kho (Mới)</div>
                                         </div>
                                     </div>
-                                    <div class="col-6 col-lg-3">
+                                    <div class="col-6 col-lg-4">
                                         <div class="stat-card">
                                             <div class="stat-icon icon-warning"><i class="bi bi-tools"></i></div>
                                             <div class="stat-value">${assetsMaintenance}</div>
                                             <div class="stat-label">Đang bảo trì</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-lg-4">
+                                        <div class="stat-card">
+                                            <div class="stat-icon icon-danger"><i class="bi bi-exclamation-octagon"></i></div>
+                                            <div class="stat-value">${assetsBroken}</div>
+                                            <div class="stat-label">Đang bị hỏng</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-lg-4">
+                                        <div class="stat-card">
+                                            <div class="stat-icon icon-secondary"><i class="bi bi-question-circle"></i></div>
+                                            <div class="stat-value">${assetsLost}</div>
+                                            <div class="stat-label">Thất lạc / Mất</div>
                                         </div>
                                     </div>
                                 </div>

@@ -239,6 +239,114 @@ public class AssetDetailDAO {
     }
 
     /**
+     * Tìm kiếm và phân trang danh sách cá thể theo asset_id.
+     *
+     * @param assetId   ID tài sản cha
+     * @param keyword   Tìm theo mã cá thể hoặc tên phòng (null = bỏ qua)
+     * @param status    Lọc theo trạng thái cá thể (null = tất cả)
+     * @param page      Trang hiện tại (bắt đầu từ 1)
+     * @param pageSize  Số bản ghi mỗi trang
+     * @return Danh sách cá thể khớp điều kiện
+     */
+    public List<AssetDetail> searchByAssetId(int assetId, String keyword, String status,
+                                             int page, int pageSize) {
+        List<AssetDetail> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+                "SELECT ad.*, a.asset_name, r.room_name "
+                + "FROM asset_details ad "
+                + "LEFT JOIN assets a ON ad.asset_id = a.asset_id "
+                + "LEFT JOIN rooms r ON ad.room_id = r.room_id "
+                + "WHERE ad.asset_id = ? ");
+
+        List<Object> params = new ArrayList<>();
+        params.add(assetId);
+
+        // Filter theo keyword (mã cá thể hoặc tên phòng)
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND (ad.instance_code LIKE ? OR r.room_name LIKE ?) ");
+            String like = "%" + keyword.trim() + "%";
+            params.add(like);
+            params.add(like);
+        }
+
+        // Filter theo trạng thái
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append("AND ad.status = ? ");
+            params.add(status.trim());
+        }
+
+        sql.append("ORDER BY ad.instance_code ");
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add((page - 1) * pageSize);
+        params.add(pageSize);
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+
+            setParams(ps, params);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapAssetDetail(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * Đếm tổng số cá thể khớp filter (dùng cho phân trang).
+     */
+    public int countByAssetId(int assetId, String keyword, String status) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(*) FROM asset_details ad "
+                + "LEFT JOIN rooms r ON ad.room_id = r.room_id "
+                + "WHERE ad.asset_id = ? ");
+
+        List<Object> params = new ArrayList<>();
+        params.add(assetId);
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND (ad.instance_code LIKE ? OR r.room_name LIKE ?) ");
+            String like = "%" + keyword.trim() + "%";
+            params.add(like);
+            params.add(like);
+        }
+
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append("AND ad.status = ? ");
+            params.add(status.trim());
+        }
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+
+            setParams(ps, params);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    /**
+     * Set params cho PreparedStatement từ danh sách Object.
+     */
+    private void setParams(PreparedStatement ps, List<Object> params) throws Exception {
+        for (int i = 0; i < params.size(); i++) {
+            Object p = params.get(i);
+            if (p instanceof String) {
+                ps.setString(i + 1, (String) p);
+            } else if (p instanceof Integer) {
+                ps.setInt(i + 1, (Integer) p);
+            }
+        }
+    }
+
+    /**
      * Map 1 dòng ResultSet thành Asset object (kèm Category, Supplier, Room).
      */
     private AssetDetail mapAssetDetail(ResultSet rs) throws Exception {
