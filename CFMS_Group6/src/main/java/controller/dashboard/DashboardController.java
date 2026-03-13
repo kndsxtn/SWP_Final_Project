@@ -54,6 +54,8 @@ public class DashboardController extends HttpServlet {
         request.setAttribute("assetsInUse", dao.countAssetsInUse());
         request.setAttribute("assetsMaintenance", dao.countAssetsMaintenance());
         request.setAttribute("assetsBroken", dao.countAssetsBroken());
+        request.setAttribute("assetsLost", dao.countAssetsLost());
+        request.setAttribute("assetsLiquidated", dao.countAssetsLiquidated());
 
         // ─── Thống kê theo role ───
         request.setAttribute("pendingAllocations", dao.countPendingAllocations());

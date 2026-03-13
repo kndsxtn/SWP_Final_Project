@@ -56,6 +56,16 @@ public class DashboardDAO {
         return countSingle("SELECT COUNT(*) FROM asset_details WHERE status = N'Broken'");
     }
 
+    // ─── Đếm cá thể tài sản thất lạc ───
+    public int countAssetsLost() {
+        return countSingle("SELECT COUNT(*) FROM asset_details WHERE status = N'Lost'");
+    }
+
+    // ─── Đếm cá thể tài sản đã thanh lý ───
+    public int countAssetsLiquidated() {
+        return countSingle("SELECT COUNT(*) FROM asset_details WHERE status = N'Liquidated'");
+    }
+
     // ─── Đếm tổng danh mục tài sản ───
     public int countCategories() {
         return countSingle("SELECT COUNT(*) FROM categories");

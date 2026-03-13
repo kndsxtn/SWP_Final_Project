@@ -55,6 +55,8 @@ import dto.UserDto;
 public class AssetController extends HttpServlet {
 
     private static final int PAGE_SIZE = 10;
+    /** Số cá thể hiển thị mỗi trang trong trang chi tiết */
+    private static final int INSTANCE_PAGE_SIZE = 10;
     /** Thư mục lưu ảnh tài sản (tương đối so với webapp) */
     private static final String UPLOAD_DIR = "images" + File.separator + "assets";
     private final AssetDAO assetDao = new AssetDAO();
@@ -177,12 +179,33 @@ public class AssetController extends HttpServlet {
         // Lấy danh sách ảnh của tài sản
         List<AssetImage> images = assetDao.getImagesByAssetId(id);
 
-        // Lấy danh sách tài sản trong nhóm tài sản
-        List<AssetDetail> assetDetails = assetDetailDao.getAssetDetailByAssetId(id);
+        // --- Phân trang + search/filter cá thể ---
+        String instanceKeyword = request.getParameter("instanceKeyword");
+        if (instanceKeyword != null && instanceKeyword.trim().isEmpty()) instanceKeyword = null;
+
+        String instanceStatus = request.getParameter("instanceStatus");
+        if (instanceStatus != null && instanceStatus.isEmpty()) instanceStatus = null;
+
+        int instancePage = parseIntParam(request.getParameter("instancePage"), 1);
+        if (instancePage < 1) instancePage = 1;
+
+        List<AssetDetail> assetDetails = assetDetailDao.searchByAssetId(
+                id, instanceKeyword, instanceStatus, instancePage, INSTANCE_PAGE_SIZE);
+        int instanceTotal = assetDetailDao.countByAssetId(id, instanceKeyword, instanceStatus);
+        int instanceTotalPages = (int) Math.ceil((double) instanceTotal / INSTANCE_PAGE_SIZE);
+        if (instancePage > instanceTotalPages && instanceTotalPages > 0) instancePage = instanceTotalPages;
 
         request.setAttribute("asset", asset);
         request.setAttribute("assetImages", images);
         request.setAttribute("assetDetails", assetDetails);
+
+        // Phân trang cá thể
+        request.setAttribute("instancePage", instancePage);
+        request.setAttribute("instanceTotalPages", instanceTotalPages);
+        request.setAttribute("instanceTotal", instanceTotal);
+        request.setAttribute("instanceKeyword", instanceKeyword);
+        request.setAttribute("instanceStatus", instanceStatus);
+
         request.getRequestDispatcher("/views/asset/asset-detail.jsp").forward(request, response);
     }
 
@@ -290,7 +313,15 @@ public class AssetController extends HttpServlet {
             return;
         }
 
-        if (assetDao.updateInstanceStatus(instanceId, newStatus)) {
+        // Nếu chuyển sang In_Stock (nhập lại kho) → xóa room_id
+        boolean success;
+        if ("In_Stock".equals(newStatus)) {
+            success = assetDao.updateInstanceStatusAndClearRoom(instanceId, newStatus);
+        } else {
+            success = assetDao.updateInstanceStatus(instanceId, newStatus);
+        }
+
+        if (success) {
             // Ghi lịch sử đổi trạng thái
             UserDto user = (UserDto) request.getSession().getAttribute("user");
             if (user != null) {
