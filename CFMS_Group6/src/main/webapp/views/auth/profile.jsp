@@ -9,15 +9,14 @@
         <title>Ho so &amp; Bao mat - CFMS</title>
 
         <%-- Bootstrap, FontAwesome, Bootstrap Icons, CSS rieng --%>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-              rel="stylesheet">
-        <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet"
-              href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-        <link href="${pageContext.request.contextPath}/css/user-list.css" rel="stylesheet">
-        <link href="${pageContext.request.contextPath}/css/profile.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+        
+        <link href="${pageContext.request.contextPath}/css/page-header.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/css/message.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/css/profile.css" rel="stylesheet">
     </head>
 
     <body class="d-flex flex-column">
@@ -33,36 +32,23 @@
                     <jsp:param name="page" value="profile" />
                 </jsp:include>
 
-                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pb-4">
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
                     <%-- Tieu de trang --%>
-                    <div
-                        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h4 class="fw-bold text-dark m-0">
-                            <i class="bi bi-person-circle me-2 text-primary"></i>Ho so ca nhan
-                        </h4>
+                    <div class="cfms-page-header">
+                        <h2><i class="bi bi-person-circle"></i> Hồ sơ cá nhân</h2>
                     </div>
 
-                    <%-- Thong bao thanh cong --%>
+                    <%-- Thong bao --%>
                     <c:if test="${not empty sessionScope.successMsg}">
-                        <div class="alert alert-success alert-dismissible fade show"
-                             role="alert">
-                            <i class="fas fa-check-circle me-2"></i>${sessionScope.successMsg}
-                            <button type="button" class="btn-close"
-                                    data-bs-dismiss="alert"></button>
+                        <div class="col-md-8 ms-auto mb-3 cfms-msg text-end">
+                            <i class="bi bi-check-circle me-1"></i>${sessionScope.successMsg}
                         </div>
-                        <%-- Xoa sau khi hien thi de tranh lap lai khi F5 --%>
                         <% session.removeAttribute("successMsg"); %>
                     </c:if>
-
-                    <%-- Thong bao loi --%>
                     <c:if test="${not empty sessionScope.errorMsg}">
-                        <div class="alert alert-danger alert-dismissible fade show"
-                             role="alert">
-                            <i
-                                class="fas fa-exclamation-circle me-2"></i>${sessionScope.errorMsg}
-                            <button type="button" class="btn-close"
-                                    data-bs-dismiss="alert"></button>
+                        <div class="col-md-8 ms-auto mb-3 cfms-msg text-end" style="color:#dc3545;">
+                            <i class="bi bi-exclamation-circle me-1"></i>${sessionScope.errorMsg}
                         </div>
                         <% session.removeAttribute("errorMsg"); %>
                     </c:if>
@@ -78,8 +64,8 @@
                                     id="pills-info-tab" data-bs-toggle="pill"
                                     data-bs-target="#pills-info" type="button"
                                     role="tab">
-                                    <i class="fas fa-user-edit me-2"></i> Thong tin ca
-                                    nhan
+                                    <i class="fas fa-user-edit me-2"></i> Thông Tin Cá
+                                    Nhân
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
@@ -87,7 +73,7 @@
                                         id="pills-pass-tab" data-bs-toggle="pill"
                                         data-bs-target="#pills-pass" type="button"
                                         role="tab">
-                                    <i class="fas fa-key me-2"></i> Doi mat khau
+                                    <i class="fas fa-key me-2"></i> Đổi Mật Khẩu
                                 </button>
                             </li>
                         </ul>
@@ -123,8 +109,8 @@
                                             method="POST">
                                             <div class="mb-3">
                                                 <label
-                                                    class="small fw-bold text-muted mb-1">Ho
-                                                    va Ten</label>
+                                                    class="small fw-bold text-muted mb-1">Họ
+                                                    và Tên</label>
                                                 <input type="text"
                                                        name="fullName"
                                                        class="form-control border-2 border-secondary-subtle py-2"
@@ -142,8 +128,8 @@
                                             </div>
                                             <div class="mb-4">
                                                 <label
-                                                    class="small fw-bold text-muted mb-1">So
-                                                    dien thoai</label>
+                                                    class="small fw-bold text-muted mb-1">Số
+                                                    Điện Thoại</label>
                                                 <input type="text"
                                                        name="phone"
                                                        class="form-control border-2 border-secondary-subtle py-2"
@@ -152,7 +138,7 @@
                                             </div>
                                             <button type="submit"
                                                     class="btn btn-primary w-100 rounded-pill fw-bold py-2">
-                                                Cap nhat thong tin
+                                                Cập Nhật Thông Tin
                                             </button>
                                         </form>
                                     </div>
@@ -170,8 +156,8 @@
                                     <div class="text-center mb-4">
                                         <i
                                             class="fas fa-lock text-warning fa-3x"></i>
-                                        <h4 class="fw-bold mt-2">Thiet lap
-                                            mat khau moi</h4>
+                                        <h4 class="fw-bold mt-2">Thiết Lập
+                                            Mật Khẩu Mới</h4>
                                     </div>
 
                                     <form
@@ -181,8 +167,8 @@
                                             khi doi --%>
                                         <div class="mb-3">
                                             <label
-                                                class="small fw-bold text-muted mb-1">Mat
-                                                khau hien tai</label>
+                                                class="small fw-bold text-muted mb-1">Mật
+                                                Khẩu Hiện Tại</label>
                                             <input type="password"
                                                    name="oldPass"
                                                    class="form-control border-2 border-secondary-subtle py-2"
@@ -191,8 +177,8 @@
                                         <%-- Mat khau moi --%>
                                         <div class="mb-3">
                                             <label
-                                                class="small fw-bold text-muted mb-1">Mat
-                                                khau moi</label>
+                                                class="small fw-bold text-muted mb-1">Mật
+                                                Khẩu Mới</label>
                                             <input type="password"
                                                    name="newPass"
                                                    class="form-control border-2 border-secondary-subtle py-2"
@@ -203,9 +189,8 @@
                                             newPass --%>
                                         <div class="mb-4">
                                             <label
-                                                class="small fw-bold text-muted mb-1">Xac
-                                                nhan mat khau
-                                                moi</label>
+                                                class="small fw-bold text-muted mb-1">Xác
+                                                Nhận Mật Khẩu</label>
                                             <input
                                                 type="password"
                                                 name="confirmPass"
@@ -214,8 +199,7 @@
                                         </div>
                                         <button type="submit"
                                                 class="btn btn-dark w-100 rounded-pill fw-bold py-2">
-                                            Xac nhan doi mat
-                                            khau
+                                            Xác Nhận Đổi Mật Khẩu
                                         </button>
                                     </form>
 
