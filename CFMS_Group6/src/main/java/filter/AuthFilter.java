@@ -36,9 +36,6 @@ import java.io.IOException;
 
         // --- 5. BÁO CÁO & ADMIN ---
         "/report/*",
-        "/admin/*",
-
-        // --- 6. QUAN LY NGUOI DUNG & VAI TRO ---
         "/user-mgt/*"
 })
 public class AuthFilter implements Filter {

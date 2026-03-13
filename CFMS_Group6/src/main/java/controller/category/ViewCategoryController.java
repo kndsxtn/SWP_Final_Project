@@ -1,6 +1,6 @@
 package controller.category;
 
-import Tool.PagingTool;
+import tool.PagingTool;
 import dal.CategoryDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
