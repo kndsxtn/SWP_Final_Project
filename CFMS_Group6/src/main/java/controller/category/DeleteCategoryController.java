@@ -35,7 +35,7 @@ public class DeleteCategoryController extends HttpServlet {
         try {
             if (cDao.isAssetInCategoryEmpty(id)) {
                 cDao.deleteCategory(id);
-                status = "Xóa thành công danh mục "+ cDao.findCategoryById(id).getCategoryName();
+                status = "Xóa thành công danh mục ";
                 request.getSession().setAttribute("FLASH_MSG", status);
             } else {
                 status = "Lỗi: Danh mục đang chứa các tài sản khác.";
