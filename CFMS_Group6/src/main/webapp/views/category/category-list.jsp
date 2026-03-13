@@ -43,7 +43,7 @@
                     <!-- ===== Status ===== -->
                     <c:if test ="${not empty status}">
                         <div class="col-md-8 ms-auto mb-3 cfms-msg text-end">
-                           <i class="bi bi-info-circle me-1"></i> ${status}
+                            <i class="bi bi-info-circle me-1"></i> ${status}
                         </div>
                     </c:if>
                     <c:if test="${not empty sessionScope.FLASH_MSG}">
@@ -142,7 +142,11 @@
                         <hr/>
                         <!-- Paging -->
                         <div class ="cfms-paging" ${tool.totalPage <=1 ? 'hidden':''}>
-
+                            <div>
+                                <span class="paging-info">
+                                    Hiển thị trang <strong>${tool.index+1}</strong>/${tool.totalPage} (${tool.size} danh mục)
+                                </span>
+                            </div>
                             <ul class="pagination">
                                 <c:if test='${tool.index!=0}'>
                                     <a class="page-link" href='ViewCategoryController?index=0'>&laquo;</a>
