@@ -305,18 +305,26 @@ public class AssetController extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/asset/detail?id=" + assetId);
     }
 
-    // UC10: Thanh lý tài sản
+    // UC10: Thanh lý CÁ THỂ tài sản (per-instance)
     private void doLiquidate(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        int id = parseIntParam(request.getParameter("assetId"), 0);
+        int instanceId = parseIntParam(request.getParameter("instanceId"), 0);
+        int assetId = parseIntParam(request.getParameter("assetId"), 0);
 
-        if (id > 0 && assetDao.liquidateAsset(id)) {
-            request.getSession().setAttribute("successMsg", "Tài sản đã được đánh dấu thanh lý!");
+        if (instanceId > 0 && assetDao.liquidateInstance(instanceId)) {
+            // Ghi lịch sử thanh lý
+            UserDto user = (UserDto) request.getSession().getAttribute("user");
+            if (user != null) {
+                historyDao.create(instanceId, user.getUserId(),
+                        "Liquidate",
+                        "Thanh lý cá thể tài sản");
+            }
+            request.getSession().setAttribute("successMsg", "Cá thể đã được đánh dấu thanh lý!");
         } else {
             request.getSession().setAttribute("errorMsg", "Thanh lý thất bại!");
         }
-        response.sendRedirect(request.getContextPath() + "/asset/list");
+        response.sendRedirect(request.getContextPath() + "/asset/detail?id=" + assetId);
     }
 
     // Xóa ảnh tài sản
