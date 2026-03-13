@@ -180,6 +180,25 @@ public class UserDAO {
         return null;
     }
 
+    public UserDto getUserByEmail(String email) {
+        String sql = "SELECT u.*, r.role_name "
+                + "FROM Users u "
+                + "JOIN Roles r ON u.role_id = r.role_id "
+                + "WHERE u.email = ?";
+        try (java.sql.Connection con = new DBContext().getConnection();
+                java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapUserDto(rs);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     // them nguoi dung moi vao DB, mat khau luu dang plain (co the hash sau)
     public boolean createUser(String username, String password, String fullName,
             String email, String phone, int roleId) {
@@ -249,6 +268,24 @@ public class UserDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public String getRoleNameByUserId(int userId) {
+        String sql = "SELECT r.role_name FROM Users u "
+                   + "JOIN Roles r ON u.role_id = r.role_id "
+                   + "WHERE u.user_id = ?";
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("role_name");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     // mapping

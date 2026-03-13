@@ -24,7 +24,9 @@ import java.util.*;
         "/procurement/create", "/procurement/cancel", "/procurement/approve",
         "/transfer/create", "/transfer/cancel", "/transfer/approve",
         "/transfer/confirm-handover", "/transfer/confirm-receive",
-        "/report/export"
+        "/report/export",
+        // --- QUẢN LÝ NGƯỜI DÙNG (chỉ Admin) ---
+        "/user-mgt/*",
 })
 public class RoleFilter implements Filter {
 
@@ -57,8 +59,15 @@ public class RoleFilter implements Filter {
         routeRoles.put("/request/procurement-create", Arrays.asList(Message.NV_QUAN_LY)); // UC16: Tạo yêu cầu mua sắm
         routeRoles.put("/request/procurement-update", Arrays.asList(Message.NV_QUAN_LY)); // Chỉnh sửa khi Pending
         routeRoles.put("/request/procurement-cancel", Arrays.asList(Message.NV_QUAN_LY)); // UC19: Hủy khi Pending
-        routeRoles.put("/request/procurement-approve", Arrays.asList(Message.HIEU_TRUONG, Message.TP_TAI_CHINH)); // UC18: Phê duyệt
-        routeRoles.put("/request/procurement-reject", Arrays.asList(Message.HIEU_TRUONG, Message.TP_TAI_CHINH)); // UC18: Từ chối (kèm lý do)
+        routeRoles.put("/request/procurement-approve", Arrays.asList(Message.HIEU_TRUONG, Message.TP_TAI_CHINH)); // UC18:
+                                                                                                                  // Phê
+                                                                                                                  // duyệt
+        routeRoles.put("/request/procurement-reject", Arrays.asList(Message.HIEU_TRUONG, Message.TP_TAI_CHINH)); // UC18:
+                                                                                                                 // Từ
+                                                                                                                 // chối
+                                                                                                                 // (kèm
+                                                                                                                 // lý
+                                                                                                                 // do)
         routeRoles.put("/procurement/create", Arrays.asList(Message.NV_QUAN_LY)); // UC16 (legacy)
         routeRoles.put("/procurement/cancel", Arrays.asList(Message.NV_QUAN_LY)); // UC19 (legacy)
         routeRoles.put("/procurement/approve", Arrays.asList(Message.HIEU_TRUONG)); // UC18 (legacy)
@@ -73,6 +82,12 @@ public class RoleFilter implements Filter {
         // --- NHÓM 5: BÁO CÁO (UC27) ---
         // Cho phép các cấp quản lý xuất báo cáo
         routeRoles.put("/report/export", Arrays.asList(Message.HIEU_TRUONG, Message.TP_TAI_CHINH, Message.NV_QUAN_LY));
+
+        // --- NHÓM 6: QUẢN LÝ NGƯỜI DÙNG (chỉ Admin) ---
+        routeRoles.put("/user-mgt/user-list", Arrays.asList(Message.ADMIN));
+        routeRoles.put("/user-mgt/user-create", Arrays.asList(Message.ADMIN));
+        routeRoles.put("/user-mgt/update-role", Arrays.asList(Message.ADMIN));
+        routeRoles.put("/user-mgt/toggle-status", Arrays.asList(Message.ADMIN));
     }
 
     @Override
