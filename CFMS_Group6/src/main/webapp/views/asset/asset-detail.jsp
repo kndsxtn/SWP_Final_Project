@@ -229,13 +229,24 @@
                                                                                             </c:if>
                                                                                             <c:if test="${detail.status == 'Broken'}">
                                                                                                 <option value="Maintenance">Thử sửa lại</option>
-                                                                                                <option value="Liquidated">Thanh lý</option>
                                                                                             </c:if>
                                                                                         </select>
                                                                                         <button type="submit" class="btn btn-sm btn-outline-primary" title="Cập nhật">
                                                                                             <i class="bi bi-check-lg"></i>
                                                                                         </button>
                                                                                     </form>
+                                                                                    <%-- UC10: Nút Thanh lý riêng (có confirm) cho trạng thái Broken --%>
+                                                                                    <c:if test="${detail.status == 'Broken'}">
+                                                                                        <form method="post" action="${pageContext.request.contextPath}/asset/delete"
+                                                                                              class="d-inline ms-1"
+                                                                                              onsubmit="return confirm('Bạn chắc chắn muốn THANH LÝ cá thể ${detail.instanceCode}? Hành động này không thể hoàn tác!');">
+                                                                                            <input type="hidden" name="instanceId" value="${detail.instanceId}">
+                                                                                            <input type="hidden" name="assetId" value="${asset.assetId}">
+                                                                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Thanh lý">
+                                                                                                <i class="bi bi-trash me-1"></i>Thanh lý
+                                                                                            </button>
+                                                                                        </form>
+                                                                                    </c:if>
                                                                                 </c:if>
                                                                                 <c:if test="${detail.status == 'Liquidated' || detail.status == 'Lost'}">
                                                                                     <span class="text-muted">–</span>
