@@ -11,10 +11,10 @@ import java.util.List;
 import model.Role;
 
 /**
- * Xu ly them nguoi dung moi
- * GET /user-mgt/user-create -> hien thi form
- * POST /user-mgt/user-create -> luu vao DB
+ *
+ * @author Nguyen Dinh Giap
  */
+
 @WebServlet(name = "UserCreateController", urlPatterns = { "/user-mgt/user-create" })
 public class UserCreateController extends HttpServlet {
 

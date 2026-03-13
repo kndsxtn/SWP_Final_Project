@@ -10,14 +10,13 @@
                 <%-- Bootstrap, FontAwesome, Bootstrap Icons, CSS rieng --%>
                     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
                         rel="stylesheet">
-                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-                        rel="stylesheet">
-                    <link rel="stylesheet"
-                        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                    <link rel="stylesheet"
-                        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-                    <link href="${pageContext.request.contextPath}/css/user-list.css" rel="stylesheet">
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+                    
+                    <link href="${pageContext.request.contextPath}/css/page-header.css" rel="stylesheet">
                     <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
+                    <link href="${pageContext.request.contextPath}/css/message.css" rel="stylesheet">
             </head>
 
             <body class="d-flex flex-column">
@@ -33,29 +32,22 @@
                                     <jsp:param name="page" value="user" />
                                 </jsp:include>
 
-                                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pb-4">
+                                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
                                     <%-- Tieu de trang --%>
-                                        <div
-                                            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                                            <h4 class="fw-bold text-dark m-0">
-                                                <i class="bi bi-person-plus me-2 text-primary"></i>Thêm người dùng mới
-                                            </h4>
+                                        <div class="cfms-page-header">
+                                            <h2><i class="bi bi-person-plus"></i> Thêm người dùng mới</h2>
                                             <%-- Nut quay lai danh sach --%>
                                                 <a href="${pageContext.request.contextPath}/user-mgt/user-list"
-                                                    class="btn btn-outline-secondary rounded-pill px-4">
+                                                    class="btn btn-outline-secondary">
                                                     <i class="fas fa-arrow-left me-2"></i>Quay lại
                                                 </a>
                                         </div>
 
                                         <%-- Thong bao loi (username trung, ...) --%>
                                             <c:if test="${not empty sessionScope.errorMsg}">
-                                                <div class="alert alert-danger alert-dismissible fade show"
-                                                    role="alert">
-                                                    <i
-                                                        class="fas fa-exclamation-circle me-2"></i>${sessionScope.errorMsg}
-                                                    <button type="button" class="btn-close"
-                                                        data-bs-dismiss="alert"></button>
+                                                <div class="col-md-8 ms-auto mb-3 cfms-msg text-end" style="color:#dc3545;">
+                                                    <i class="bi bi-exclamation-circle me-1"></i>${sessionScope.errorMsg}
                                                 </div>
                                                 <% session.removeAttribute("errorMsg"); %>
                                             </c:if>
@@ -75,7 +67,7 @@
 
                                                                 <%-- Ho va ten --%>
                                                                     <div class="col-md-6">
-                                                                        <label class="form-label fw-semibold">Ho va Ten
+                                                                        <label class="form-label fw-semibold">Họ Và Tên
                                                                             <span class="text-danger">*</span></label>
                                                                         <input type="text" name="fullName"
                                                                             class="form-control py-2"
@@ -112,7 +104,7 @@
                                                                                 <div class="col-md-6">
                                                                                     <label
                                                                                         class="form-label fw-semibold">Vai
-                                                                                        tro <span
+                                                                                        Trò <span
                                                                                             class="text-danger">*</span></label>
                                                                                     <select name="roleId"
                                                                                         class="form-select py-2"
