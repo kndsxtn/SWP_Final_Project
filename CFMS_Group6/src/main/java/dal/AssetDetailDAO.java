@@ -21,7 +21,7 @@ import model.AssetDetail;
  */
 public class AssetDetailDAO {
     public List<CreateTransferDto> getByRoomId(int id) {
-        String sql = "SELECT ad.instance_id, ad.instance_code, ad.status, a.asset_name, ad.room_id FROM asset_details ad JOIN assets a ON ad.asset_id = a.asset_id WHERE ad.room_id = ?";
+        String sql = "SELECT ad.instance_id, ad.instance_code, ad.status, a.asset_name, ad.room_id FROM asset_details ad JOIN assets a ON ad.asset_id = a.asset_id WHERE ad.room_id = ? AND (ad.is_locked = 0 OR ad.is_locked IS NULL)";
         try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
