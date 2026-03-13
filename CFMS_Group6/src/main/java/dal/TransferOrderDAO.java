@@ -221,6 +221,15 @@ public class TransferOrderDAO {
             ps.setInt(2, transferId);
             ps.executeUpdate();
 
+            if ("Completed".equals(status) || "Cancelled".equals(status) 
+                    || "Failed".equals(status) || "Return_Confirmed".equals(status)) {
+                String unlockSql = "UPDATE asset_details SET is_locked = 0 WHERE instance_id IN (SELECT instance_id FROM transfer_details WHERE transfer_id = ?)";
+                try (PreparedStatement psUnlock = con.prepareStatement(unlockSql)) {
+                    psUnlock.setInt(1, transferId);
+                    psUnlock.executeUpdate();
+                }
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

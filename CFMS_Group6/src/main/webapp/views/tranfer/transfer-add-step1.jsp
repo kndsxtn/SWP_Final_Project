@@ -133,7 +133,17 @@
                                                                     <label class="form-check-label w-100"
                                                                         for="assetDetail_${a.instanceId}">
                                                                         <span
-                                                                            class="badge bg-light text-dark border border-secondary-subtle px-2 py-1 fw-normal">${a.status}</span>
+                                                                            class="badge bg-light text-dark border border-secondary-subtle px-2 py-1 fw-normal">
+                                                                            <c:choose>
+                                                                                <c:when test="${a.status == 'In_Stock'}">Trong kho</c:when>
+                                                                                <c:when test="${a.status == 'In_Use'}">Đang sử dụng</c:when>
+                                                                                <c:when test="${a.status == 'Maintenance'}">Đang bảo trì</c:when>
+                                                                                <c:when test="${a.status == 'Broken'}">Bị hỏng</c:when>
+                                                                                <c:when test="${a.status == 'Liquidated'}">Đã thanh lý</c:when>
+                                                                                <c:when test="${a.status == 'Lost'}">Bị mất</c:when>
+                                                                                <c:otherwise>${a.status}</c:otherwise>
+                                                                            </c:choose>
+                                                                        </span>
                                                                     </label>
                                                                 </td>
                                                             </tr>
