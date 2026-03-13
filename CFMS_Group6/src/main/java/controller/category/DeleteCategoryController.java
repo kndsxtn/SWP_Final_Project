@@ -34,15 +34,17 @@ public class DeleteCategoryController extends HttpServlet {
         CategoryDAO cDao = new CategoryDAO();
         try {
             if (cDao.isAssetInCategoryEmpty(id)) {
+                String oldCategory = cDao.findCategoryById(id).getCategoryName();
                 cDao.deleteCategory(id);
-                status = "Xóa thành công danh mục ";
+                status = "Xóa thành công danh mục " + oldCategory;
                 request.getSession().setAttribute("FLASH_MSG", status);
             } else {
                 status = "Lỗi: Danh mục đang chứa các tài sản khác.";
                 request.getSession().setAttribute("FLASH_MSG", status);
             }
         } catch (ClassNotFoundException | SQLException e) {
-
+               status = "Lỗi: Không xác định: "+ e.getMessage();
+               request.getSession().setAttribute("FLASH_MSG", status);
         }
         response.sendRedirect("ViewCategoryController?status");
     }
