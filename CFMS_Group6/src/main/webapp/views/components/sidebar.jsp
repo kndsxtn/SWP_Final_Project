@@ -28,14 +28,8 @@
                 <h6 class="sidebar-heading">Quản trị hệ thống</h6>
                 <li class="nav-item">
                     <a class="nav-link ${param.page == 'user' ? 'active' : ''}"
-                       href="${pageContext.request.contextPath}/admin/user-list">
+                       href="${pageContext.request.contextPath}/user-mgt/user-list">
                         <i class="bi bi-people"></i> Quản lý người dùng
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link ${param.page == 'role' ? 'active' : ''}"
-                       href="${pageContext.request.contextPath}/admin/role-list">
-                        <i class="bi bi-shield-lock"></i> Quản lý vai trò
                     </a>
                 </li>
             </c:if>
