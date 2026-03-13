@@ -395,11 +395,13 @@ public class AssetDAO {
     }
 
     /**
-     * UC10: Thanh lý tài sản (đánh dấu Liquidated)
-     * Đánh dấu tài sản là đã thanh lý.
+     * UC10: Thanh lý 1 CÁ THỂ tài sản (đánh dấu Liquidated).
+     *
+     * @param instanceId ID cá thể (asset_details.instance_id)
+     * @return true nếu thanh lý thành công
      */
-    public boolean liquidateAsset(int assetId) {
-        return updateStatus(assetId, "Liquidated");
+    public boolean liquidateInstance(int instanceId) {
+        return updateInstanceStatus(instanceId, "Liquidated");
     }
 
     // Dropdown data: Lấy danh sách Category, Supplier, Room cho form
