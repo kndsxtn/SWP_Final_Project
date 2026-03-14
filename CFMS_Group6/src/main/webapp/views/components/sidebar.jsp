@@ -162,6 +162,12 @@
                         <i class="bi bi-arrow-left-right"></i> Phiếu điều chuyển
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link ${param.page == 'report_procedure' ? 'active' : ''}"
+                       href="${pageContext.request.contextPath}/report/procedure">
+                        <i class="bi bi-file-earmark-bar-graph"></i> Báo cáo yêu cầu mua sắm
+                    </a>
+                </li>
             </c:if>
 
             <!-- ========== PRINCIPAL / VICE PRINCIPAL ========== -->
