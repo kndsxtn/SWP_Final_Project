@@ -59,10 +59,6 @@ public class RoomInventoryController extends HttpServlet {
     public void doInventory(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         UserDto user = (UserDto) request.getSession().getAttribute("user");
-        if (user == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
         List<Room> rooms;
         // Role 4: Trưởng bộ môn / Giáo viên quản lý -> Chỉ xem phòng của bộ môn mình
         if (user.getRoleName().equals(Message.TRUONG_BAN)) {
