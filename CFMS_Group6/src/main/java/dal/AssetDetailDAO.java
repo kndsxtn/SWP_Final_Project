@@ -241,22 +241,22 @@ public class AssetDetailDAO {
     /**
      * Tìm kiếm và phân trang danh sách cá thể theo asset_id.
      *
-     * @param assetId   ID tài sản cha
-     * @param keyword   Tìm theo mã cá thể hoặc tên phòng (null = bỏ qua)
-     * @param status    Lọc theo trạng thái cá thể (null = tất cả)
-     * @param page      Trang hiện tại (bắt đầu từ 1)
-     * @param pageSize  Số bản ghi mỗi trang
+     * @param assetId  ID tài sản cha
+     * @param keyword  Tìm theo mã cá thể hoặc tên phòng (null = bỏ qua)
+     * @param status   Lọc theo trạng thái cá thể (null = tất cả)
+     * @param page     Trang hiện tại (bắt đầu từ 1)
+     * @param pageSize Số bản ghi mỗi trang
      * @return Danh sách cá thể khớp điều kiện
      */
     public List<AssetDetail> searchByAssetId(int assetId, String keyword, String status,
-                                             int page, int pageSize) {
+            int page, int pageSize) {
         List<AssetDetail> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
                 "SELECT ad.*, a.asset_name, r.room_name "
-                + "FROM asset_details ad "
-                + "LEFT JOIN assets a ON ad.asset_id = a.asset_id "
-                + "LEFT JOIN rooms r ON ad.room_id = r.room_id "
-                + "WHERE ad.asset_id = ? ");
+                        + "FROM asset_details ad "
+                        + "LEFT JOIN assets a ON ad.asset_id = a.asset_id "
+                        + "LEFT JOIN rooms r ON ad.room_id = r.room_id "
+                        + "WHERE ad.asset_id = ? ");
 
         List<Object> params = new ArrayList<>();
         params.add(assetId);
@@ -281,7 +281,7 @@ public class AssetDetailDAO {
         params.add(pageSize);
 
         try (Connection con = new DBContext().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+                PreparedStatement ps = con.prepareStatement(sql.toString())) {
 
             setParams(ps, params);
             ResultSet rs = ps.executeQuery();
@@ -300,8 +300,8 @@ public class AssetDetailDAO {
     public int countByAssetId(int assetId, String keyword, String status) {
         StringBuilder sql = new StringBuilder(
                 "SELECT COUNT(*) FROM asset_details ad "
-                + "LEFT JOIN rooms r ON ad.room_id = r.room_id "
-                + "WHERE ad.asset_id = ? ");
+                        + "LEFT JOIN rooms r ON ad.room_id = r.room_id "
+                        + "WHERE ad.asset_id = ? ");
 
         List<Object> params = new ArrayList<>();
         params.add(assetId);
@@ -319,7 +319,7 @@ public class AssetDetailDAO {
         }
 
         try (Connection con = new DBContext().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+                PreparedStatement ps = con.prepareStatement(sql.toString())) {
 
             setParams(ps, params);
             ResultSet rs = ps.executeQuery();
@@ -347,7 +347,7 @@ public class AssetDetailDAO {
     }
 
     /**
-     * Map 1 dòng ResultSet thành Asset object (kèm Category, Supplier, Room).
+     * Map 1 dòng ResultSet thành AssetDetail object (kèm Category, Supplier, Room).
      */
     private AssetDetail mapAssetDetail(ResultSet rs) throws Exception {
         AssetDetail ad = new AssetDetail();
@@ -375,6 +375,29 @@ public class AssetDetailDAO {
         return ad;
     }
 
+    // UC xx: phục vụ xem tài sản của 1 phòng nhất định dựa vào id
+    public List<AssetDetail> getAssetDetailByRoomId(int roomId) {
+        List<AssetDetail> assetDetails = new ArrayList<>();
+        String sql = "SELECT ad.instance_code, a.asset_name, ad.status FROM asset_details ad LEFT JOIN assets a ON ad.asset_id = a.asset_id LEFT JOIN rooms r ON ad.room_id = r.room_id WHERE r.room_id = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql);) {
+            ps.setInt(1, roomId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                AssetDetail ad = new AssetDetail();
+                ad.setInstanceCode(rs.getString("instance_code"));
+                ad.setStatus(rs.getString("status"));
+
+                Asset a = new Asset();
+                a.setAssetName(rs.getString("asset_name"));
+                ad.setAsset(a);
+                assetDetails.add(ad);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return assetDetails;
+    }
+
     // test các hàm
     public static void main(String[] args) {
         AssetDetailDAO dao = new AssetDetailDAO();
@@ -382,7 +405,7 @@ public class AssetDetailDAO {
         // sample-data.sql)
         int testAssetId = 1;
 
-        List<AssetDetail> list = dao.getAssetDetailByAssetId(testAssetId);
+        List<AssetDetail> list = dao.getAssetDetailByRoomId(testAssetId);
 
         if (list != null && !list.isEmpty()) {
             System.out.println("✅ Test thành công! Tìm thấy " + list.size() + " cá thể cho Asset ID: " + testAssetId);
