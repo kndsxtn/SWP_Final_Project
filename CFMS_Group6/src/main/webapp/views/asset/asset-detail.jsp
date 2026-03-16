@@ -159,7 +159,7 @@
                                                     <div class="input-group input-group-sm">
                                                         <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
                                                         <input type="text" name="instanceKeyword" class="form-control"
-                                                            placeholder="Tìm mã cá thể, phòng..."
+                                                            placeholder="Tìm mã cá thể"
                                                             value="${instanceKeyword}">
                                                     </div>
                                                 </div>
