@@ -61,6 +61,20 @@ public class CreateCategoryController extends HttpServlet {
                 request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
                 return;
             }
+            if (cDao.isHasAttributeCategory("category_name", category_name)) {
+                status = "Lỗi: Có danh mục trùng tên";
+                request.setAttribute("status", status);
+                request.setAttribute("categoryForm", "create");
+                request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
+                return;
+            }
+            if (cDao.isHasAttributeCategory("prefix_code", prefix_code)) {
+                status = "Lỗi: Có danh mục trùng prefix_code";
+                request.setAttribute("status", status);
+                request.setAttribute("categoryForm", "create");
+                request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
+                return;
+            }
             cDao.createCategory(category_name, prefix_code, description);
             status = "Tạo danh mục mới thành công";
             request.setAttribute("status", status);
