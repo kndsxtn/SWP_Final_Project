@@ -40,52 +40,43 @@ public class CreateCategoryController extends HttpServlet {
             String category_name = request.getParameter("category_name");
             if (category_name.isBlank()) {
                 status = "Lỗi: Tên danh mục không được để trống";
-                request.setAttribute("status", status);
-                request.setAttribute("categoryForm", "create");
-                request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
+                forwardWithMessage(status, request, response);
                 return;
             }
             String prefix_code = request.getParameter("prefix_code");
             if (prefix_code.isBlank()) {
                 status = "Lỗi: Tiền tố danh mục không được để trống";
-                request.setAttribute("status", status);
-                request.setAttribute("categoryForm", "create");
-                request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
+                forwardWithMessage(status, request, response);
                 return;
             }
             String description = request.getParameter("description");
             if (description.isBlank()) {
                 status = "Lỗi: Mô tả danh mục không được để trống";
-                request.setAttribute("status", status);
-                request.setAttribute("categoryForm", "create");
-                request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
+                forwardWithMessage(status, request, response);
                 return;
             }
             if (cDao.isHasAttributeCategory("category_name", category_name)) {
                 status = "Lỗi: Có danh mục trùng tên";
-                request.setAttribute("status", status);
-                request.setAttribute("categoryForm", "create");
-                request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
+                forwardWithMessage(status, request, response);
                 return;
             }
             if (cDao.isHasAttributeCategory("prefix_code", prefix_code)) {
-                status = "Lỗi: Có danh mục trùng prefix_code";
-                request.setAttribute("status", status);
-                request.setAttribute("categoryForm", "create");
-                request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
+                status = "Lỗi: Trùng mã tiền tố của danh mục đã tồn tại";
+                forwardWithMessage(status, request, response);
                 return;
             }
             cDao.createCategory(category_name, prefix_code, description);
             status = "Tạo danh mục mới thành công";
-            request.setAttribute("status", status);
-            request.setAttribute("categoryForm", "create");
-            request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
+            forwardWithMessage(status, request, response);
         } catch (IOException e) {
             status = "Lỗi khi tạo danh mục: " + e.getMessage();
-            request.setAttribute("status", status);
-            request.setAttribute("categoryForm", "create");
-            request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
+            forwardWithMessage(status, request, response);
         }
     }
 
+    private void forwardWithMessage(String status, HttpServletRequest request, HttpServletResponse response) throws IOException,ServletException{
+        request.setAttribute("status", status);
+        request.setAttribute("categoryForm", "create");
+        request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
+    }
 }
