@@ -27,8 +27,7 @@ public class CreateCategoryController extends HttpServlet {
             response.sendRedirect("ViewCategoryController");
             return;
         }
-        request.setAttribute("categoryForm", "create");
-        request.getRequestDispatcher("/views/category/category-form.jsp").forward(request, response);
+        forwardWithMessage(null, request, response);
     }
 
     @Override
