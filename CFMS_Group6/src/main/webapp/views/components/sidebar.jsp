@@ -69,7 +69,7 @@
                             <li class="nav-item">
                                 <a class="nav-link ${param.page == 'inventory_check' ? 'active' : ''}"
                                     href="${pageContext.request.contextPath}/asset/inventory-check">
-                                    <i class="bi bi-box-seam"></i> Kiểm tra tồn kho
+                                    <i class="bi bi-bar-chart-line"></i> Thống kê tài sản
                                 </a>
                             </li>
                             <li class="nav-item">
