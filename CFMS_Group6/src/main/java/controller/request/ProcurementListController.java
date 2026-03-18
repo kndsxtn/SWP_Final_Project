@@ -44,10 +44,16 @@ public class ProcurementListController extends HttpServlet {
             if (page < 1) page = 1;
         } catch (NumberFormatException ignored) {
         }
+        
+        dto.UserDto userDto = (dto.UserDto) session.getAttribute("user");
+        Integer createdByFilter = null;
+        if ("Asset Staff".equals(userDto.getRoleName())) {
+            createdByFilter = userDto.getUserId();
+        }
 
         ProcurementRequestDAO dao = new ProcurementRequestDAO();
-        List<ProcurementRequest> list = dao.getRequests(statusFilter, keyword, page, PAGE_SIZE);
-        int totalRecords = dao.countRequests(statusFilter, keyword);
+        List<ProcurementRequest> list = dao.getRequests(statusFilter, keyword, page, PAGE_SIZE, createdByFilter);
+        int totalRecords = dao.countRequests(statusFilter, keyword, createdByFilter);
 
         for (ProcurementRequest req : list) {
             List<ProcurementDetail> details = dao.getDetailsByProcurementId(req.getProcurementId());

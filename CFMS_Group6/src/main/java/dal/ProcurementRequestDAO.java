@@ -18,13 +18,16 @@ public class ProcurementRequestDAO {
     private static final String PROC_BASE = "SELECT pr.*, u.full_name AS creator_name FROM procurement_requests pr "
             + "JOIN users u ON pr.created_by = u.user_id ";
 
-    public List<ProcurementRequest> getRequests(String statusFilter, String keyword, int page, int pageSize) {
+    public List<ProcurementRequest> getRequests(String statusFilter, String keyword, int page, int pageSize, Integer createdBy) {
         List<ProcurementRequest> list = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         sb.append(PROC_BASE);
         List<String> conditions = new ArrayList<>();
         if (statusFilter != null && !statusFilter.isEmpty()) {
             conditions.add("pr.status = ?");
+        }
+        if (createdBy != null) {
+            conditions.add("pr.created_by = ?");
         }
         if (keyword != null && !keyword.isEmpty()) {
             conditions.add("(u.full_name LIKE ? OR CAST(pr.procurement_id AS VARCHAR) LIKE ? "
@@ -46,6 +49,9 @@ public class ProcurementRequestDAO {
             int idx = 1;
             if (statusFilter != null && !statusFilter.isEmpty()) {
                 ps.setString(idx++, statusFilter);
+            }
+            if (createdBy != null) {
+                ps.setInt(idx++, createdBy);
             }
             if (keyword != null && !keyword.isEmpty()) {
                 String kw = "%" + keyword + "%";
@@ -71,12 +77,15 @@ public class ProcurementRequestDAO {
         return list;
     }
 
-    public int countRequests(String statusFilter, String keyword) {
+    public int countRequests(String statusFilter, String keyword, Integer createdBy) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT COUNT(*) FROM procurement_requests pr JOIN users u ON pr.created_by = u.user_id ");
         List<String> conditions = new ArrayList<>();
         if (statusFilter != null && !statusFilter.isEmpty()) {
             conditions.add("pr.status = ?");
+        }
+        if (createdBy != null) {
+            conditions.add("pr.created_by = ?");
         }
         if (keyword != null && !keyword.isEmpty()) {
             conditions.add("(u.full_name LIKE ? OR CAST(pr.procurement_id AS VARCHAR) LIKE ? "
@@ -93,6 +102,9 @@ public class ProcurementRequestDAO {
             int idx = 1;
             if (statusFilter != null && !statusFilter.isEmpty()) {
                 ps.setString(idx++, statusFilter);
+            }
+            if (createdBy != null) {
+                ps.setInt(idx++, createdBy);
             }
             if (keyword != null && !keyword.isEmpty()) {
                 String kw = "%" + keyword + "%";
@@ -178,6 +190,12 @@ public class ProcurementRequestDAO {
         d.setAssetId(rs.getInt("asset_id"));
         d.setQuantity(rs.getInt("quantity"));
         d.setNote(rs.getString("note"));
+
+        // Map 2 cột mới: số lượng thực nhận và số lượng thiếu
+        int recvQty = rs.getInt("received_quantity");
+        d.setReceivedQuantity(rs.wasNull() ? null : recvQty);
+        d.setMissingQuantity(rs.getInt("missing_quantity"));
+
         Asset asset = new Asset();
         asset.setAssetId(rs.getInt("asset_id"));
         asset.setAssetCode(rs.getString("asset_code"));
@@ -189,6 +207,35 @@ public class ProcurementRequestDAO {
         asset.setCategory(cat);
         d.setAsset(asset);
         return d;
+    }
+
+    /**
+     * Cập nhật số lượng thực nhận cho 1 dòng chi tiết PO.
+     * Gọi khi nhân viên xác nhận số lượng trên form nhập kho.
+     */
+    public boolean updateReceivedQuantity(Connection con, int detailId,
+                                          int receivedQty, int missingQty) throws SQLException {
+        String sql = "UPDATE procurement_details SET received_quantity = ?, missing_quantity = ? WHERE detail_id = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, receivedQty);
+            ps.setInt(2, missingQty);
+            ps.setInt(3, detailId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    /**
+     * Cập nhật trạng thái PO sau khi nhập kho.
+     * @param newStatus "Completed" (đủ) hoặc "Partially_Received" (thiếu)
+     */
+    public boolean updateProcurementStatus(Connection con, int procurementId,
+                                            String newStatus) throws SQLException {
+        String sql = "UPDATE procurement_requests SET status = ? WHERE procurement_id = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setNString(1, newStatus);
+            ps.setInt(2, procurementId);
+            return ps.executeUpdate() > 0;
+        }
     }
 
     public int createProcurementStandalone(int createdByUserId, String reason,
