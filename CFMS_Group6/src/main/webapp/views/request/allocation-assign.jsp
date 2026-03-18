@@ -55,9 +55,10 @@
 
                     <div class="alert alert-info mb-3">
                         <i class="bi bi-info-circle me-2"></i>
-                        Chọn đúng số lượng cá thể (instance) tương ứng với mỗi dòng tài sản bên dưới.
-                        Sau khi xác nhận, hệ thống sẽ cập nhật trạng thái cá thể thành <strong>In_Use</strong>
-                        và đánh dấu yêu cầu là <strong>Hoàn thành</strong>.
+                        Chọn cá thể (instance) cần cấp phát cho mỗi dòng tài sản bên dưới.
+                        Bạn có thể cấp phát <strong>từng phần</strong> – chỉ cấp số lượng hiện có trong kho,
+                        yêu cầu sẽ chuyển sang trạng thái <strong>Chưa hoàn thành</strong> và có thể cấp thêm sau.
+                        Khi đủ số lượng, yêu cầu sẽ tự động chuyển thành <strong>Hoàn thành</strong>.
                     </div>
 
                     <form method="post" action="${pageContext.request.contextPath}/request/allocation-assign">
@@ -88,12 +89,15 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Tài sản</th>
-                                            <th>Số lượng yêu cầu</th>
+                                            <th>Yêu cầu</th>
+                                            <th>Đã cấp</th>
+                                            <th>Còn thiếu</th>
                                             <th>Các cá thể khả dụng (instance_code)</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <c:forEach items="${details}" var="d" varStatus="loop">
+                                            <c:set var="remaining" value="${d.quantity - d.allocatedQuantity}"/>
                                             <tr>
                                                 <td>${loop.count}</td>
                                                 <td>
@@ -105,34 +109,53 @@
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <c:set var="instances" value="${instancesByAsset[d.assetId]}"/>
+                                                    <span class="badge ${d.allocatedQuantity > 0 ? 'bg-success' : 'bg-secondary'}">
+                                                        ${d.allocatedQuantity}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge ${remaining > 0 ? 'bg-warning text-dark' : 'bg-success'}">
+                                                        ${remaining}
+                                                    </span>
+                                                </td>
+                                                <td>
                                                     <c:choose>
-                                                        <c:when test="${empty instances}">
-                                                            <span class="text-danger small">
-                                                                Không còn cá thể khả dụng cho tài sản này.
+                                                        <c:when test="${remaining <= 0}">
+                                                            <span class="text-success small">
+                                                                <i class="bi bi-check-circle me-1"></i>Đã cấp đủ
                                                             </span>
                                                         </c:when>
                                                         <c:otherwise>
-                                                            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2">
-                                                                <c:forEach items="${instances}" var="inst">
-                                                                    <div class="col">
-                                                                        <div class="form-check">
-                                                                            <input class="form-check-input"
-                                                                                   type="checkbox"
-                                                                                   name="instance_${d.detailId}"
-                                                                                   value="${inst.instanceId}"
-                                                                                   id="inst_${d.detailId}_${inst.instanceId}">
-                                                                            <label class="form-check-label small"
-                                                                                   for="inst_${d.detailId}_${inst.instanceId}">
-                                                                                ${inst.instanceCode}
-                                                                            </label>
-                                                                        </div>
+                                                            <c:set var="instances" value="${instancesByAsset[d.assetId]}"/>
+                                                            <c:choose>
+                                                                <c:when test="${empty instances}">
+                                                                    <span class="text-danger small">
+                                                                        Không còn cá thể khả dụng trong kho.
+                                                                    </span>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2">
+                                                                        <c:forEach items="${instances}" var="inst">
+                                                                            <div class="col">
+                                                                                <div class="form-check">
+                                                                                    <input class="form-check-input"
+                                                                                           type="checkbox"
+                                                                                           name="instance_${d.detailId}"
+                                                                                           value="${inst.instanceId}"
+                                                                                           id="inst_${d.detailId}_${inst.instanceId}">
+                                                                                    <label class="form-check-label small"
+                                                                                           for="inst_${d.detailId}_${inst.instanceId}">
+                                                                                        ${inst.instanceCode}
+                                                                                    </label>
+                                                                                </div>
+                                                                            </div>
+                                                                        </c:forEach>
                                                                     </div>
-                                                                </c:forEach>
-                                                            </div>
-                                                            <small class="text-muted d-block mt-1">
-                                                                Hãy chọn đúng <strong>${d.quantity}</strong> cá thể.
-                                                            </small>
+                                                                    <small class="text-muted d-block mt-1">
+                                                                        Chọn tối đa <strong>${remaining}</strong> cá thể (hoặc ít hơn để cấp từng phần).
+                                                                    </small>
+                                                                </c:otherwise>
+                                                            </c:choose>
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </td>

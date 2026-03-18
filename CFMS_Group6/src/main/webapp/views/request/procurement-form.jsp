@@ -72,16 +72,36 @@
                         Nhập lý do đề xuất mua sắm và chọn mẫu tài sản cần mua cùng số lượng. Yêu cầu sẽ được gửi Hiệu trưởng duyệt.
                     </div>
 
+                    <c:if test="${not empty prefillAllocationId}">
+                        <div class="alert alert-info mb-3 small">
+                            <i class="bi bi-link-45deg me-1"></i>
+                            Đề xuất mua sắm này được liên kết với yêu cầu cấp phát
+                            <strong>REQ-${prefillAllocationId}</strong>.
+                            <c:if test="${not empty prefillTotalQty}">
+                                <hr class="my-2">
+                                <div class="d-flex flex-wrap gap-3">
+                                    <span>Yêu cầu: <strong>${prefillTotalQty}</strong></span>
+                                    <span>Đã cấp phát: <strong>${prefillAllocated}</strong></span>
+                                    <span>Đã đề xuất mua: <strong>${prefillAlreadyProcured}</strong></span>
+                                    <span class="text-warning fw-bold">Còn cần mua thêm: <strong>${prefillQuantity}</strong></span>
+                                </div>
+                            </c:if>
+                        </div>
+                    </c:if>
+
                     <!-- Form -->
                     <form method="post" action="${pageContext.request.contextPath}<c:choose><c:when test="${isEdit}">/request/procurement-update</c:when><c:otherwise>/request/procurement-create</c:otherwise></c:choose>">
                         <c:if test="${isEdit}">
                             <input type="hidden" name="procurementId" value="${proc.procurementId}">
                         </c:if>
+                        <c:if test="${not empty prefillAllocationId}">
+                            <input type="hidden" name="allocationId" value="${prefillAllocationId}">
+                        </c:if>
 
                         <!-- Lý do -->
                         <div class="form-card mb-3">
                             <h5><i class="bi bi-chat-text me-2"></i>Lý do đề xuất mua sắm</h5>
-                            <textarea name="reason" class="form-control" rows="3" placeholder="VD: Bổ sung thiết bị cho phòng lab, thiếu tồn kho so với nhu cầu..."><c:out value="${isEdit ? proc.reason : reason}" /></textarea>
+                            <textarea name="reason" class="form-control" rows="3" placeholder="VD: Bổ sung thiết bị cho phòng lab, thiếu tồn kho so với nhu cầu..."><c:out value="${isEdit ? proc.reason : (not empty prefillReason ? prefillReason : reason)}" /></textarea>
                         </div>
 
                         <div class="form-card">
@@ -144,7 +164,7 @@
                                                                 <optgroup label="${cat.categoryName} (${cat.prefixCode})">
                                                                     <c:forEach items="${assets}" var="a">
                                                                         <c:if test="${a.categoryId == cat.categoryId}">
-                                                                            <option value="${a.assetId}">
+                                                                            <option value="${a.assetId}" ${a.assetId == prefillAssetId ? 'selected' : ''}>
                                                                                 ${a.assetCode} - ${a.assetName}
                                                                             </option>
                                                                         </c:if>
@@ -155,7 +175,7 @@
                                                     </td>
                                                     <td>
                                                         <input type="number" name="quantity" class="form-control"
-                                                               min="1" value="1" required>
+                                                               min="1" value="${not empty prefillQuantity ? prefillQuantity : 1}" required>
                                                     </td>
                                                     <td>
                                                         <input type="text" name="note" class="form-control"
