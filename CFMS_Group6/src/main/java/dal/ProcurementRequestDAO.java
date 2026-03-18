@@ -300,6 +300,69 @@ public class ProcurementRequestDAO {
         return -1;
     }
 
+    public int createProcurementLinked(int allocationRequestId, int createdByUserId, String reason,
+                                        int[] assetIds, int[] quantities, String[] notes) {
+        if (assetIds == null || quantities == null || assetIds.length == 0 || assetIds.length != quantities.length) {
+            return -1;
+        }
+        String insertReqSql = "INSERT INTO procurement_requests "
+                + "(created_by, created_date, status, reason, allocation_request_id) "
+                + "VALUES (?, GETDATE(), N'Pending', ?, ?); "
+                + "SELECT SCOPE_IDENTITY() AS new_id";
+        String insertDetailSql = "INSERT INTO procurement_details (procurement_id, asset_id, quantity, note) VALUES (?, ?, ?, ?)";
+        Connection con = null;
+        try {
+            con = new DBContext().getConnection();
+            con.setAutoCommit(false);
+            int procurementId = -1;
+            try (PreparedStatement psReq = con.prepareStatement(insertReqSql)) {
+                psReq.setInt(1, createdByUserId);
+                psReq.setString(2, reason != null ? reason.trim() : null);
+                psReq.setInt(3, allocationRequestId);
+                try (ResultSet rs = psReq.executeQuery()) {
+                    if (rs.next()) {
+                        procurementId = rs.getInt("new_id");
+                    }
+                }
+            }
+            if (procurementId <= 0) {
+                con.rollback();
+                return -1;
+            }
+            try (PreparedStatement psDet = con.prepareStatement(insertDetailSql)) {
+                for (int i = 0; i < assetIds.length; i++) {
+                    int assetId = assetIds[i];
+                    int qty = quantities[i];
+                    if (assetId <= 0 || qty <= 0) continue;
+                    String note = (notes != null && i < notes.length) ? notes[i] : null;
+                    String trimmedNote = (note != null) ? note.trim() : null;
+                    psDet.setInt(1, procurementId);
+                    psDet.setInt(2, assetId);
+                    psDet.setInt(3, qty);
+                    if (trimmedNote == null || trimmedNote.isEmpty()) {
+                        psDet.setNull(4, java.sql.Types.NVARCHAR);
+                    } else {
+                        psDet.setString(4, trimmedNote);
+                    }
+                    psDet.addBatch();
+                }
+                psDet.executeBatch();
+            }
+            con.commit();
+            return procurementId;
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (con != null) {
+                try { con.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
+        } finally {
+            if (con != null) {
+                try { con.setAutoCommit(true); con.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
+        return -1;
+    }
+
     public boolean updateProcurement(int procurementId, int createdByUserId, String reason,
                                      int[] assetIds, int[] quantities, String[] notes) {
         if (assetIds == null || quantities == null || assetIds.length == 0 || assetIds.length != quantities.length) {
@@ -496,6 +559,33 @@ public class ProcurementRequestDAO {
         }
 
         return -1;
+    }
+
+    /**
+     * Trả về tổng quantity đã được đề xuất mua sắm (status != Rejected/Cancelled)
+     * cho từng asset_id thuộc một allocation request.
+     * Key = asset_id, Value = tổng quantity trong các procurement_details liên kết.
+     */
+    public Map<Integer, Integer> getProcuredQuantityByAllocation(int allocationRequestId) {
+        Map<Integer, Integer> result = new java.util.HashMap<>();
+        String sql = "SELECT pd.asset_id, SUM(pd.quantity) AS total_qty "
+                + "FROM procurement_details pd "
+                + "JOIN procurement_requests pr ON pd.procurement_id = pr.procurement_id "
+                + "WHERE pr.allocation_request_id = ? "
+                + "  AND pr.status NOT IN (N'Rejected', N'Cancelled') "
+                + "GROUP BY pd.asset_id";
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, allocationRequestId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.put(rs.getInt("asset_id"), rs.getInt("total_qty"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }
 

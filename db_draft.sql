@@ -173,7 +173,7 @@ CREATE TABLE allocation_requests (
     FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (target_room_id) REFERENCES rooms(room_id),
     FOREIGN KEY (approved_by) REFERENCES users(user_id), 
-    CONSTRAINT CHK_AllocStatus CHECK (status IN (N'Pending', N'Approved_By_Staff', N'Approved_By_VP', N'Approved_By_Principal', N'Rejected', N'Completed'))
+    CONSTRAINT CHK_AllocStatus CHECK (status IN (N'Pending', N'Approved_By_Staff', N'Approved_By_VP', N'Approved_By_Principal', N'Rejected', N'Completed', N'Partially_Completed'))
 );
 GO
 
@@ -181,12 +181,14 @@ CREATE TABLE allocation_details (
     detail_id INT IDENTITY(1,1) PRIMARY KEY,
     request_id INT NOT NULL,
     asset_id INT NOT NULL,
-    quantity INT NOT NULL DEFAULT 1, 
+    quantity INT NOT NULL DEFAULT 1,
+    allocated_quantity INT NOT NULL DEFAULT 0,
     note NVARCHAR(255),
 
     FOREIGN KEY (request_id) REFERENCES allocation_requests(request_id) ON DELETE CASCADE,
     FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
-    CONSTRAINT CHK_AllocationQuantity CHECK (quantity >= 1)
+    CONSTRAINT CHK_AllocationQuantity CHECK (quantity >= 1),
+    CONSTRAINT CHK_AllocatedQuantity CHECK (allocated_quantity >= 0 AND allocated_quantity <= quantity)
 );
 GO
 

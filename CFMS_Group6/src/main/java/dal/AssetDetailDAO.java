@@ -445,6 +445,49 @@ public class AssetDetailDAO {
         return assetDetails;
     }
 
+    /**
+     * Lấy danh sách các cá thể đang In_Use tại các phòng (không phải kho)
+     * cho một asset cụ thể. Dùng cho trang thu hồi tài sản.
+     */
+    public List<AssetDetail> getInUseInstancesByAsset(int assetId) {
+        List<AssetDetail> list = new ArrayList<>();
+        String sql = "SELECT ad.instance_id, ad.asset_id, ad.instance_code, ad.room_id, ad.status, "
+                + "r.room_name, a.asset_name, a.asset_code "
+                + "FROM asset_details ad "
+                + "JOIN assets a ON ad.asset_id = a.asset_id "
+                + "LEFT JOIN rooms r ON ad.room_id = r.room_id "
+                + "WHERE ad.asset_id = ? AND ad.status = N'In_Use' AND ad.room_id IS NOT NULL "
+                + "ORDER BY r.room_name, ad.instance_code";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, assetId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    AssetDetail ad = new AssetDetail();
+                    ad.setInstanceId(rs.getInt("instance_id"));
+                    ad.setAssetId(rs.getInt("asset_id"));
+                    ad.setInstanceCode(rs.getString("instance_code"));
+                    int roomId = rs.getInt("room_id");
+                    ad.setRoomId(rs.wasNull() ? null : roomId);
+                    ad.setStatus(rs.getString("status"));
+                    Room r = new Room();
+                    r.setRoomId(ad.getRoomId() != null ? ad.getRoomId() : 0);
+                    r.setRoomName(rs.getString("room_name"));
+                    ad.setRoom(r);
+                    Asset a = new Asset();
+                    a.setAssetId(rs.getInt("asset_id"));
+                    a.setAssetCode(rs.getString("asset_code"));
+                    a.setAssetName(rs.getString("asset_name"));
+                    ad.setAsset(a);
+                    list.add(ad);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     // test các hàm
     public static void main(String[] args) {
         AssetDetailDAO dao = new AssetDetailDAO();
