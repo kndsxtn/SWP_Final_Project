@@ -12,8 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.Asset;
-import model.Room;
 import model.AssetDetail;
+import model.Category;
+import model.Room;
 
 /**
  *
@@ -219,6 +220,52 @@ public class AssetDetailDAO {
             }
         }
         return null;
+    }
+
+    // Lấy ra danh sách các cá thể vừa được sinh thành công trong quá trình nhập kho
+    // PO
+    public List<AssetDetail> getInstancesStockedInForProcurement(int procurementId) {
+        List<AssetDetail> list = new ArrayList<>();
+        // Tìm các cá thể thông qua asset_history với mô tả 'Nhập kho từ PO: PROC-[id]'
+        String sql = "SELECT ad.*, a.asset_code, a.asset_name, c.category_name "
+                + "FROM asset_details ad "
+                + "JOIN assets a ON ad.asset_id = a.asset_id "
+                + "JOIN categories c ON a.category_id = c.category_id "
+                + "WHERE EXISTS ("
+                + "   SELECT 1 FROM asset_history ah "
+                + "   WHERE ah.instance_id = ad.instance_id "
+                + "     AND ah.action = N'Stock_In' "
+                + "     AND ah.description = ? "
+                + ") ORDER BY ad.instance_code";
+
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, "Nhập kho từ PO: PROC-" + procurementId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    AssetDetail ad = new AssetDetail();
+                    ad.setInstanceId(rs.getInt("instance_id"));
+                    ad.setAssetId(rs.getInt("asset_id"));
+                    ad.setInstanceCode(rs.getString("instance_code"));
+                    ad.setStatus(rs.getString("status"));
+
+                    Asset asset = new Asset();
+                    asset.setAssetId(rs.getInt("asset_id"));
+                    asset.setAssetCode(rs.getString("asset_code"));
+                    asset.setAssetName(rs.getString("asset_name"));
+                    Category cat = new Category();
+                    cat.setCategoryName(rs.getString("category_name"));
+                    asset.setCategory(cat);
+
+                    ad.setAsset(asset);
+                    list.add(ad);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
     //

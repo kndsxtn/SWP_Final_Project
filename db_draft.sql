@@ -266,7 +266,9 @@ CREATE TABLE procurement_requests (
     FOREIGN KEY (rejected_by) REFERENCES users(user_id), 
     FOREIGN KEY (allocation_request_id) REFERENCES allocation_requests(request_id),
     
-    CONSTRAINT CHK_ProcStatus CHECK (status IN (N'Pending', N'Approved', N'Rejected', N'Cancelled', N'Completed'))
+    CONSTRAINT CHK_ProcStatus CHECK (status IN (N'Pending', N'Approved', N'Rejected', N'Cancelled',
+        N'Partially_Received',
+        N'Completed'))
 );
 GO
 
@@ -276,7 +278,9 @@ CREATE TABLE procurement_details (
     asset_id INT NOT NULL,
     quantity INT NOT NULL,
     note NVARCHAR(255),
-    
+    received_quantity INT NULL,
+    missing_quantity  INT DEFAULT 0,
+
     FOREIGN KEY (procurement_id) REFERENCES procurement_requests(procurement_id) ON DELETE CASCADE,
     FOREIGN KEY (asset_id) REFERENCES assets(asset_id),
     CONSTRAINT CHK_ProcurementQuantity CHECK (quantity >= 1)

@@ -20,11 +20,13 @@ import java.util.*;
         "/asset/create", "/asset/update", "/asset/status", "/asset/delete", "/asset/deleteImage",
         "/request/create", "/request/cancel", "/request/approve", "/request/check-stock", "/request/complete",
         "/request/procurement-create", "/request/procurement-update", "/request/procurement-cancel",
+        "/request/procurement-stockin",
         "/request/procurement-approve", "/request/procurement-reject",
         "/procurement/create", "/procurement/cancel", "/procurement/approve",
         "/transfer/create", "/transfer/cancel", "/transfer/approve",
         "/transfer/confirm-handover", "/transfer/confirm-receive",
         "/report/export",
+
         // --- QUẢN LÝ NGƯỜI DÙNG (chỉ Admin) ---
         "/user-mgt/*",
 })
@@ -46,28 +48,26 @@ public class RoleFilter implements Filter {
         routeRoles.put("/asset/delete", Arrays.asList(Message.NV_QUAN_LY, Message.TP_TAI_CHINH)); // UC10: NV QLTS hoặc
                                                                                                   // TP Tài chính
         routeRoles.put("/asset/deleteImage", Arrays.asList(Message.NV_QUAN_LY)); // Xóa ảnh tài sản
-        routeRoles.put("/asset/list",Arrays.asList(Message.NV_QUAN_LY)); 
-        
+        routeRoles.put("/asset/list", Arrays.asList(Message.NV_QUAN_LY));
+
         // --- NHÓM 3: YÊU CẦU CẤP PHÁT (UC11-UC15) ---
         routeRoles.put("/request/create", Arrays.asList(Message.TRUONG_BAN)); // UC11
         routeRoles.put("/request/cancel", Arrays.asList(Message.TRUONG_BAN)); // UC15
         routeRoles.put("/request/check-stock", Arrays.asList(Message.NV_QUAN_LY)); // UC13
         routeRoles.put("/request/approve", Arrays.asList(Message.NV_QUAN_LY)); // UC14
         routeRoles.put("/request/complete", Arrays.asList(Message.NV_QUAN_LY)); // Hoàn thành cấp phát
-
         // --- NHÓM 3: MUA SẮM (UC16-UC19) ---
         routeRoles.put("/request/procurement-create", Arrays.asList(Message.NV_QUAN_LY)); // UC16: Tạo yêu cầu mua sắm
         routeRoles.put("/request/procurement-update", Arrays.asList(Message.NV_QUAN_LY)); // Chỉnh sửa khi Pending
         routeRoles.put("/request/procurement-cancel", Arrays.asList(Message.NV_QUAN_LY)); // UC19: Hủy khi Pending
-        routeRoles.put("/request/procurement-approve", Arrays.asList(Message.HIEU_TRUONG, Message.TP_TAI_CHINH)); // UC18:
-                                                                                                                  // Phê
+        routeRoles.put("/request/procurement-approve", Arrays.asList(Message.HIEU_TRUONG, Message.TP_TAI_CHINH)); // UC18:Phê
                                                                                                                   // duyệt
-        routeRoles.put("/request/procurement-reject", Arrays.asList(Message.HIEU_TRUONG, Message.TP_TAI_CHINH)); // UC18:
-                                                                                                                 // Từ
-                                                                                                                 // chối
-                                                                                                                 // (kèm
+        routeRoles.put("/request/procurement-reject", Arrays.asList(Message.HIEU_TRUONG, Message.TP_TAI_CHINH)); // UC18:Từ
+                                                                                                                 // chối(kèm
                                                                                                                  // lý
                                                                                                                  // do)
+        routeRoles.put("/request/procurement-stockin", Arrays.asList(Message.NV_QUAN_LY)); // Nhập kho khi đơn proc được
+                                                                                           // approve
         routeRoles.put("/procurement/create", Arrays.asList(Message.NV_QUAN_LY)); // UC16 (legacy)
         routeRoles.put("/procurement/cancel", Arrays.asList(Message.NV_QUAN_LY)); // UC19 (legacy)
         routeRoles.put("/procurement/approve", Arrays.asList(Message.HIEU_TRUONG)); // UC18 (legacy)
