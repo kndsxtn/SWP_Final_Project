@@ -71,8 +71,7 @@ public class UserUpdateRoleController extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/user-mgt/user-list");
     }
 
-    // Helper: lay role_id tu role_name (de kiem tra xem roleId moi co phai Admin
-    // khong)
+    // lay role_id tu role_name (de kiem tra xem roleId moi co phai Admin khong
     private int getRoleIdByName(UserDAO dao, String roleName) {
         List<Role> roles = dao.getAllRoles();
         for (model.Role r : roles) {

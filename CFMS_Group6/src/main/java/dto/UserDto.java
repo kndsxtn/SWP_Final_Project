@@ -19,11 +19,12 @@ public class UserDto {
     private int deptId;
     private String status;
     private Date createdAt;
+    private boolean isForceChange; // Truong moi de bat buoc doi mat khau
 
     public UserDto() {
     }
 
-    public UserDto(int userId, String username, String fullName, String email, String phone, int roleId, String roleName, int deptId, String status, Date createdAt) {
+    public UserDto(int userId, String username, String fullName, String email, String phone, int roleId, String roleName, int deptId, String status, Date createdAt, boolean isForceChange) {
         this.userId = userId;
         this.username = username;
         this.fullName = fullName;
@@ -34,6 +35,15 @@ public class UserDto {
         this.deptId = deptId;
         this.status = status;
         this.createdAt = createdAt;
+        this.isForceChange = isForceChange;
+    }
+
+    public boolean isForceChange() {
+        return isForceChange;
+    }
+
+    public void setForceChange(boolean forceChange) {
+        isForceChange = forceChange;
     }
 
     public int getUserId() {
