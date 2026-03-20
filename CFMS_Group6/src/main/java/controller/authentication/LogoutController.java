@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,15 +25,27 @@ public class LogoutController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        //lay session hien tai
+        // lay session hien tai
         HttpSession session = request.getSession(false);
         
-        //neu session ton tai thi huy het session
+        // neu session ton tai thi huy het session
         if(session != null){
             session.invalidate();
         }
+
+        // Xoa Cookie JSESSIONID
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("JSESSIONID")) {
+                    cookie.setMaxAge(0);
+                    cookie.setPath(request.getContextPath()); // Quan trong: set dung path de xoa
+                    response.addCookie(cookie);
+                }
+            }
+        }
         
-        //chuyen huong ve trang login
+        // chuyen huong ve trang login
         response.sendRedirect("loginHome");
     } 
 }

@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import validation.UserValidator;
+
 /**
  *
  * @author Nguyen Dinh Giap
@@ -36,18 +38,13 @@ public class ChangePasswordController extends HttpServlet {
         String confirmPass = request.getParameter("confirmPass");
 
         UserDAO dao = new UserDAO();
+        String currentPassDB = dao.getPasswordByUserName(currentUser.getUsername());
 
-        // Kiểm tra mật khẩu cũ có đúng không
-        String currentPass = dao.getPasswordByUserName(currentUser.getUsername());
-        if (!oldPass.equals(currentPass)) {
-            session.setAttribute("errorMsg", "Mật khẩu hiện tại không đúng!");
-            response.sendRedirect(request.getContextPath() + "/profile");
-            return;
-        }
+        // Use Validator
+        String error = UserValidator.validateChangePassword(oldPass, currentPassDB, newPass, confirmPass);
 
-        // Kiểm tra mật khẩu mới và xác nhận có khớp không
-        if (!newPass.equals(confirmPass)) {
-            session.setAttribute("errorMsg", "Mật khẩu mới và xác nhận không khớp!");
+        if (error != null) {
+            session.setAttribute("errorMsg", error);
             response.sendRedirect(request.getContextPath() + "/profile");
             return;
         }
@@ -56,6 +53,8 @@ public class ChangePasswordController extends HttpServlet {
         boolean ok = dao.changePassword(currentUser.getUserId(), newPass);
 
         if (ok) {
+            currentUser.setForceChange(false); // Quan trong: xoa co bat buoc doi de Filter khong chan nua
+            session.setAttribute("user", currentUser);
             session.setAttribute("successMsg", "Đổi mật khẩu thành công!");
         } else {
             session.setAttribute("errorMsg", "Đổi mật khẩu thất bại, vui lòng thử lại!");

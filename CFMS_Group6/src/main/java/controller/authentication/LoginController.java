@@ -4,7 +4,6 @@
  */
 package controller.authentication;
 
-import constant.Message;
 import dal.UserDAO;
 import dto.UserDto;
 import java.io.IOException;
@@ -14,6 +13,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import validation.UserValidator;
+import constant.Message;
 
 /**
  *
@@ -50,37 +51,35 @@ public class LoginController extends HttpServlet {
         // khai bao password
         String password = request.getParameter("password");
 
-        // call DAO
-        UserDAO dao = new UserDAO();
+        // Use Validator (No Map used)
+        String error = UserValidator.validateLogin(user, password);
 
-        try {
-            UserDto account = dao.getUserByUserName(user);
-            // kiem tra account co trong database ko
-            if (account == null) {
-                request.setAttribute("errorMsg", Message.NO_EXITING);
-                request.setAttribute("username", user);
-                request.getRequestDispatcher("/views/auth/login.jsp").forward(request, response);
-                return;
-            }
-            String passwordDB = dao.getPasswordByUserName(user);
-
-            // kiem tra mat khau
-            if (passwordDB != null && passwordDB.trim().equals(password)) {
-
-                // neu dung thi cho dang nhap
-                HttpSession session = request.getSession(true);
-                session.setAttribute("user", account);
-                session.setMaxInactiveInterval(30 * 60);
-                // redirectBasedOnRole(request, response, account);
-                // return;
-                response.sendRedirect(request.getContextPath() + "/dashboard");
+        if (error != null) {
+            // Check if error is related to password or username
+            if (error.equals(Message.ERROR_PASS) || error.equals(Message.EMPTY_PASSWORD)) {
+                request.setAttribute("errorPass", error);
             } else {
-                // neu sai thi view ra thong bao
-                request.setAttribute("errorPass", Message.ERROR_PASS);
-                request.setAttribute("username", user);
-                request.getRequestDispatcher("/views/auth/login.jsp").forward(request, response);
-                return;
+                request.setAttribute("errorMsg", error);
             }
+            request.setAttribute("username", user);
+            request.getRequestDispatcher("/views/auth/login.jsp").forward(request, response);
+            return;
+        }
+
+        // Neu khong co loi validation, tuc la user da duoc tim thay va password dung
+        UserDAO dao = new UserDAO();
+        try {
+            // Tim tai khoan theo Username hoac Email
+            UserDto account = dao.getUserByUserName(user);
+            if (account == null) {
+                account = dao.getUserByEmail(user);
+            }
+            
+            // neu dung thi cho dang nhap
+            HttpSession session = request.getSession(true);
+            session.setAttribute("user", account);
+            session.setMaxInactiveInterval(30 * 60);
+            response.sendRedirect(request.getContextPath() + "/dashboard");
         } catch (Exception e) {
             // neu loi thi quay ra login
             e.printStackTrace();
@@ -88,41 +87,4 @@ public class LoginController extends HttpServlet {
         }
 
     }
-
-    // private void redirectBasedOnRole(HttpServletRequest request,
-    // HttpServletResponse response, UserDto user)
-    // throws IOException {
-    // //lay role name
-    // String roleName = user.getRoleName();
-    // String redirect = request.getContextPath();
-    //
-    // //dieu huong dua vao vai tro
-    // switch (roleName) {
-    // case Message.ADMIN:
-    // //quan ly nguoi dung
-    // response.sendRedirect(redirect + "/admin/user-list");
-    // break;
-    // case Message.HIEU_TRUONG:
-    // //xem bao cao
-    // response.sendRedirect(redirect + "/report/dashboard");
-    // break;
-    // case Message.NV_QUAN_LY:
-    // //xu ly yeu cau
-    // response.sendRedirect(redirect + "/request/allocation-list");
-    // break;
-    // case Message.TP_TAI_CHINH:
-    // //quan ly tai san va thanh ly
-    // response.sendRedirect(redirect + "/asset/list");
-    // break;
-    // case Message.TRUONG_BAN:
-    // //theo doi lich su yeu cau
-    // response.sendRedirect(redirect + "/request/my-requests");
-    // break;
-    // default:
-    // request.getSession().invalidate();
-    // response.sendRedirect(redirect + "/loginHome?error=invalidRole");
-    // break;
-    // }
-    //
-    // }
 }
