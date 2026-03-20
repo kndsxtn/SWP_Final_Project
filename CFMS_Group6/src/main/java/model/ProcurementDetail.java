@@ -10,6 +10,8 @@ public class ProcurementDetail {
     private int assetId;
     private int quantity;
     private String note;
+    private Integer receivedQuantity; // Số lượng thực nhận (NULL = chưa nhập kho)
+    private int missingQuantity; // Số lượng thiếu = quantity - receivedQuantity
 
     private Asset asset;
 
@@ -54,6 +56,22 @@ public class ProcurementDetail {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public Integer getReceivedQuantity() {
+        return receivedQuantity;
+    }
+
+    public void setReceivedQuantity(Integer receivedQuantity) {
+        this.receivedQuantity = receivedQuantity;
+    }
+
+    public int getMissingQuantity() {
+        return missingQuantity;
+    }
+
+    public void setMissingQuantity(int missingQuantity) {
+        this.missingQuantity = missingQuantity;
     }
 
     public Asset getAsset() {

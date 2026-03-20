@@ -6,7 +6,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Kiểm tra tồn kho tài sản - CFMS</title>
+        <title>Thống kê tài sản - CFMS</title>
 
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
@@ -36,9 +36,9 @@
 
                     <!-- ===== Page Header ===== -->
                     <div class="cfms-page-header">
-                        <h2><i class="bi bi-box-seam me-2"></i>Kiểm tra tồn kho tài sản</h2>
+                        <h2><i class="bi bi-bar-chart-line me-2"></i>Thống kê tài sản</h2>
                         <p class="text-muted small mb-0">
-                            Xem tài sản nào đang có sẵn trong kho để đáp ứng yêu cầu cấp phát. Dùng bộ lọc bên dưới để nhanh chóng xem <strong>tài sản khả dụng</strong> (có thể cấp phát).
+                            Xem thống kê tổng quan từng mã tài sản theo trạng thái. Dùng bộ lọc bên dưới để lọc nhanh, hoặc nhấn <strong>Xem chi tiết</strong> để xem từng instance của mã tài sản đó đang ở phòng nào.
                         </p>
                     </div>
 
@@ -149,13 +149,14 @@
                                     <th class="text-center">Thanh lý</th>
                                     <th class="text-center">Khả dụng</th>
                                     <th>Có thể cấp phát?</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <c:choose>
                                     <c:when test="${empty inventoryList}">
                                         <tr>
-                                            <td colspan="13">
+                                            <td colspan="14">
                                                 <div class="cfms-table-empty">
                                                     <i class="bi bi-inbox"></i>
                                                     Chưa có tài sản nào trong hệ thống để hiển thị tồn kho.
@@ -223,6 +224,12 @@
                                                             </span>
                                                         </c:otherwise>
                                                     </c:choose>
+                                                </td>
+                                                <td>
+                                                    <a href="${pageContext.request.contextPath}/asset/detail?id=${inv.assetId}"
+                                                       class="btn btn-sm btn-outline-primary" title="Xem chi tiết từng instance">
+                                                        <i class="bi bi-eye me-1"></i>
+                                                    </a>
                                                 </td>
                                             </tr>
                                         </c:forEach>

@@ -1,8 +1,10 @@
 package controller.request;
 
 import dal.AllocationRequestDAO;
+import dal.ProcurementRequestDAO;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -34,6 +36,7 @@ public class AllocationDetailController extends HttpServlet {
         }
 
         AllocationRequestDAO dao = new AllocationRequestDAO();
+        ProcurementRequestDAO procDao = new ProcurementRequestDAO();
         AllocationRequest req = dao.getRequestById(id);
 
         if (req == null) {
@@ -54,6 +57,10 @@ public class AllocationDetailController extends HttpServlet {
         if ("Completed".equals(req.getStatus())) {
             request.setAttribute("allocatedInstancesByAsset", dao.getAllocatedInstancesByRequestId(id));
         }
+
+        // Load procured quantity per asset (for hiding "Tạo đề xuất mua sắm" button)
+        Map<Integer, Integer> procuredQty = procDao.getProcuredQuantityByAllocation(id);
+        request.setAttribute("procuredQtyByAsset", procuredQty);
 
         request.setAttribute("req", req);
 

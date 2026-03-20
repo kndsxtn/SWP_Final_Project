@@ -15,6 +15,9 @@ public class AllocationDetail {
     /** Số lượng tồn kho hiện có cho asset này (dùng khi hiển thị cột Tồn kho). */
     private int availableInStock;
 
+    /** Số lượng đã cấp phát thực tế (từ cột allocated_quantity trong DB). */
+    private int allocatedQuantity;
+
     // Relationships
     private Asset asset;
 
@@ -75,6 +78,14 @@ public class AllocationDetail {
 
     public void setAvailableInStock(int availableInStock) {
         this.availableInStock = availableInStock;
+    }
+
+    public int getAllocatedQuantity() {
+        return allocatedQuantity;
+    }
+
+    public void setAllocatedQuantity(int allocatedQuantity) {
+        this.allocatedQuantity = allocatedQuantity;
     }
 
     public Asset getAsset() {

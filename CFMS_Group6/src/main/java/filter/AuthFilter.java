@@ -34,8 +34,9 @@ import java.io.IOException;
         // --- 4. QUẢN LÝ ĐIỀU CHUYỂN ---
         "/transfer/*",
 
-        // --- 5. BÁO CÁO & ADMIN ---
+        // --- 5. BÁO CÁO, KIỂM KÊ & ADMIN ---
         "/report/*",
+        "/inventory/*",
         "/user-mgt/*"
 })
 public class AuthFilter implements Filter {
