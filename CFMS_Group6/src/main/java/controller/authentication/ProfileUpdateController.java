@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import validation.UserValidator;
 
 /**
  *
@@ -36,6 +37,15 @@ public class ProfileUpdateController extends HttpServlet {
         String fullName = request.getParameter("fullName");
         String email = request.getParameter("email");
         String phone = request.getParameter("phone");
+
+        // Use Validator
+        String error = UserValidator.validateProfileUpdate(fullName, email, phone, currentUser.getUserId());
+
+        if (error != null) {
+            session.setAttribute("errorMsg", error);
+            response.sendRedirect(request.getContextPath() + "/profile");
+            return;
+        }
 
         // Cập nhật vào object
         currentUser.setFullName(fullName);
