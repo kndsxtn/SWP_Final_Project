@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,11 +60,12 @@ public class AllocationAssignInstanceController extends HttpServlet {
             return;
         }
 
-        // Chỉ cho phép chọn instance khi yêu cầu đã được duyệt
+        // Chỉ cho phép chọn instance khi yêu cầu đã được duyệt hoặc đang cấp phát từng phần
         String status = reqAlloc.getStatus();
         boolean isApproved = "Approved_By_Staff".equals(status)
                 || "Approved_By_VP".equals(status)
-                || "Approved_By_Principal".equals(status);
+                || "Approved_By_Principal".equals(status)
+                || "Partially_Completed".equals(status);
         if (!isApproved) {
             session.setAttribute("errorMsg", "Chỉ có thể chọn cá thể cho các yêu cầu đã được duyệt.");
             response.sendRedirect(request.getContextPath() + "/request/allocation-detail?id=" + requestId);
@@ -140,15 +142,16 @@ public class AllocationAssignInstanceController extends HttpServlet {
             selectedInstancesByDetail.put(d.getDetailId(), ids);
         }
 
-        // Validate: mỗi dòng phải chọn đúng số lượng cá thể = quantity
+        // Validate: mỗi dòng không được chọn nhiều hơn số lượng còn thiếu (quantity - allocated_quantity)
         for (AllocationDetail d : details) {
             List<Integer> ids = selectedInstancesByDetail.get(d.getDetailId());
             int picked = (ids != null) ? ids.size() : 0;
-            if (picked != d.getQuantity()) {
+            int remaining = d.getQuantity() - d.getAllocatedQuantity();
+            if (picked > remaining) {
                 session.setAttribute("errorMsg",
                         "Dòng tài sản " + d.getAsset().getAssetCode()
                                 + " – " + d.getAsset().getAssetName()
-                                + " yêu cầu " + d.getQuantity()
+                                + " chỉ còn cần thêm " + remaining
                                 + " cá thể, nhưng bạn đã chọn " + picked + ".");
                 response.sendRedirect(request.getContextPath()
                         + "/request/allocation-assign?id=" + requestId);
@@ -158,8 +161,14 @@ public class AllocationAssignInstanceController extends HttpServlet {
 
         // Gom tất cả instanceId được chọn vào một list chung để cập nhật
         List<Integer> allInstanceIds = new ArrayList<>();
-        for (List<Integer> ids : selectedInstancesByDetail.values()) {
-            allInstanceIds.addAll(ids);
+        // Track số lượng đã chọn cho từng detail để cộng dồn allocated_quantity
+        Map<Integer, Integer> allocatedPerDetail = new HashMap<>();
+        for (AllocationDetail d : details) {
+            List<Integer> ids = selectedInstancesByDetail.get(d.getDetailId());
+            if (ids != null && !ids.isEmpty()) {
+                allInstanceIds.addAll(ids);
+                allocatedPerDetail.put(d.getDetailId(), ids.size());
+            }
         }
 
         if (allInstanceIds.isEmpty()) {
@@ -169,7 +178,7 @@ public class AllocationAssignInstanceController extends HttpServlet {
             return;
         }
 
-        // Transaction: cập nhật asset_details + asset_history + đánh dấu Completed
+        // Transaction: cập nhật asset_details + asset_history + cập nhật allocated_quantity + status
         try (Connection con = new DBContext().getConnection()) {
             con.setAutoCommit(false);
 
@@ -213,33 +222,53 @@ public class AllocationAssignInstanceController extends HttpServlet {
                 ps.executeBatch();
             }
 
-            // 3) Đánh dấu yêu cầu Completed (tận dụng hàm có sẵn)
-            boolean updated = allocationDao.markCompleted(requestId);
+            // 3) Cộng dồn allocated_quantity và cập nhật status (Completed hoặc Partially_Completed)
+            boolean updated = allocationDao.updateAllocatedQuantities(con, requestId, allocatedPerDetail);
             if (!updated) {
                 con.rollback();
-                session.setAttribute("errorMsg", "Không thể đánh dấu yêu cầu REQ-" + requestId + " là hoàn thành.");
+                session.setAttribute("errorMsg", "Không thể cập nhật trạng thái yêu cầu REQ-" + requestId + ".");
                 response.sendRedirect(request.getContextPath()
                         + "/request/allocation-assign?id=" + requestId);
                 return;
             }
 
-            // 4) Chỉ khi cấp phát xong mới cập nhật procurement liên kết sang Completed.
-            // Điều kiện: procurement vẫn đang Approved và đã từng "Nhập kho" (Stock_In) theo PROC-id.
-            try (PreparedStatement ps = con.prepareStatement(
-                    "UPDATE pr SET pr.status = N'Completed' "
-                            + "FROM procurement_requests pr "
-                            + "WHERE pr.allocation_request_id = ? "
-                            + "AND pr.status = N'Approved' "
-                            + "AND EXISTS (SELECT 1 FROM asset_history ah "
-                            + "            WHERE ah.action = N'Stock_In' "
-                            + "              AND ah.description LIKE (N'%PROC-' + CAST(pr.procurement_id AS NVARCHAR(20)) + N'%'))")) {
+            // 4) Chỉ khi cấp phát HOÀN TOÀN xong mới cập nhật procurement liên kết sang Completed.
+            // Kiểm tra status sau khi update
+            String sqlCheckStatus = "SELECT status FROM allocation_requests WHERE request_id = ?";
+            boolean isFullyCompleted = false;
+            try (PreparedStatement ps = con.prepareStatement(sqlCheckStatus)) {
                 ps.setInt(1, requestId);
-                ps.executeUpdate();
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        isFullyCompleted = "Completed".equals(rs.getString("status"));
+                    }
+                }
+            }
+
+            if (isFullyCompleted) {
+                try (PreparedStatement ps = con.prepareStatement(
+                        "UPDATE pr SET pr.status = N'Completed' "
+                                + "FROM procurement_requests pr "
+                                + "WHERE pr.allocation_request_id = ? "
+                                + "AND pr.status = N'Approved' "
+                                + "AND EXISTS (SELECT 1 FROM asset_history ah "
+                                + "            WHERE ah.action = N'Stock_In' "
+                                + "              AND ah.description LIKE (N'%PROC-' + CAST(pr.procurement_id AS NVARCHAR(20)) + N'%'))")) {
+                    ps.setInt(1, requestId);
+                    ps.executeUpdate();
+                }
             }
 
             con.commit();
-            session.setAttribute("successMsg",
-                    "Đã chọn cá thể và hoàn thành cấp phát cho yêu cầu REQ-" + requestId + ".");
+
+            if (isFullyCompleted) {
+                session.setAttribute("successMsg",
+                        "Đã cấp phát đủ số lượng. Yêu cầu REQ-" + requestId + " đã hoàn thành.");
+            } else {
+                session.setAttribute("successMsg",
+                        "Đã cấp phát " + allInstanceIds.size() + " cá thể cho yêu cầu REQ-" + requestId
+                        + ". Yêu cầu đang ở trạng thái Chưa hoàn thành – có thể cấp phát tiếp.");
+            }
             response.sendRedirect(request.getContextPath()
                     + "/request/allocation-detail?id=" + requestId);
 

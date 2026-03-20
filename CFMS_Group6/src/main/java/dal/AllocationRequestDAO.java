@@ -714,6 +714,61 @@ public class AllocationRequestDAO {
         return false;
     }
 
+    /**
+     * Tăng allocated_quantity cho từng detail và cập nhật trạng thái yêu cầu:
+     * - Nếu tất cả detail đã đủ số lượng → Completed
+     * - Nếu chỉ một phần → Partially_Completed
+     *
+     * @param con              connection đang trong transaction
+     * @param requestId        mã yêu cầu
+     * @param allocatedPerDetail map detailId → số lượng vừa cấp phát thêm
+     * @return true nếu thành công
+     */
+    public boolean updateAllocatedQuantities(Connection con, int requestId,
+            Map<Integer, Integer> allocatedPerDetail) throws Exception {
+
+        // 1) Cộng dồn allocated_quantity cho từng detail
+        String sqlUpd = "UPDATE allocation_details "
+                + "SET allocated_quantity = allocated_quantity + ? "
+                + "WHERE detail_id = ? AND request_id = ?";
+        try (PreparedStatement ps = con.prepareStatement(sqlUpd)) {
+            for (Map.Entry<Integer, Integer> e : allocatedPerDetail.entrySet()) {
+                ps.setInt(1, e.getValue());
+                ps.setInt(2, e.getKey());
+                ps.setInt(3, requestId);
+                ps.addBatch();
+            }
+            ps.executeBatch();
+        }
+
+        // 2) Kiểm tra xem tất cả detail đã đủ chưa
+        String sqlCheck = "SELECT SUM(quantity) AS total_req, SUM(allocated_quantity) AS total_alloc "
+                + "FROM allocation_details WHERE request_id = ?";
+        boolean allDone = false;
+        try (PreparedStatement ps = con.prepareStatement(sqlCheck)) {
+            ps.setInt(1, requestId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int totalReq = rs.getInt("total_req");
+                    int totalAlloc = rs.getInt("total_alloc");
+                    allDone = (totalReq > 0 && totalAlloc >= totalReq);
+                }
+            }
+        }
+
+        // 3) Cập nhật status của yêu cầu
+        String newStatus = allDone ? "Completed" : "Partially_Completed";
+        String sqlStatus = "UPDATE allocation_requests "
+                + "SET status = ?, completed_date = " + (allDone ? "GETDATE()" : "NULL") + " "
+                + "WHERE request_id = ? "
+                + "AND status IN (N'Approved_By_Staff', N'Approved_By_VP', N'Approved_By_Principal', N'Partially_Completed')";
+        try (PreparedStatement ps = con.prepareStatement(sqlStatus)) {
+            ps.setString(1, newStatus);
+            ps.setInt(2, requestId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     public boolean updateRequest(int requestId, int createdByUserId, int targetRoomId, String reason,
                                  int[] assetIds, int[] quantities, String[] notes) {
         if (assetIds == null || quantities == null || assetIds.length == 0 || assetIds.length != quantities.length) {
@@ -866,6 +921,7 @@ public class AllocationRequestDAO {
         d.setAssetId(rs.getInt("asset_id"));
         d.setQuantity(rs.getInt("quantity"));
         d.setNote(rs.getString("note"));
+        try { d.setAllocatedQuantity(rs.getInt("allocated_quantity")); } catch (SQLException ignored) {}
 
         Asset asset = new Asset();
         asset.setAssetId(rs.getInt("asset_id"));

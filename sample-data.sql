@@ -263,7 +263,7 @@ GO
 -- TẦNG 4: NGHIỆP VỤ (Demo flow)
 -- ==========================================================
 
--- 10. Allocation Requests (6 yêu cầu cấp phát - đủ trạng thái)
+-- 10. Allocation Requests (7 yêu cầu cấp phát - đủ trạng thái)
 SET IDENTITY_INSERT allocation_requests ON;
 INSERT INTO allocation_requests (request_id, created_by, target_room_id, created_date, approved_by, approved_date, completed_date, status, reason, reason_reject) VALUES
 (1, 7,  1,  '2025-02-10', NULL, NULL,         NULL,         N'Pending',
@@ -277,19 +277,23 @@ INSERT INTO allocation_requests (request_id, created_by, target_room_id, created
 (5, 12, 16, '2025-02-01', NULL, NULL,         NULL,         N'Rejected',
    N'Xin cấp phát 10 laptop cho xưởng Cơ khí', N'Số lượng yêu cầu vượt quá ngân sách quý'),
 (6, 9,  7,  '2025-02-20', NULL, NULL,         NULL,         N'Pending',
-   N'Xin cấp phát 2 máy in cho phòng 202', NULL);
+   N'Xin cấp phát 2 máy in cho phòng 202', NULL),
+(7, 11, 11, '2025-03-01', 5,   '2025-03-02', NULL,         N'Partially_Completed',
+   N'Xin cấp phát 3 máy tính bảng cho phòng thí nghiệm', NULL);
 SET IDENTITY_INSERT allocation_requests OFF;
 GO
 
 -- Allocation Details (vẫn dùng asset_id - cấp phát theo lô)
-INSERT INTO allocation_details (request_id, asset_id, quantity, note) VALUES
-(1, 2,  2, N'Laptop Dell Inspiron mới nhập kho'),
-(2, 11, 1, N'Máy chiếu BenQ mới'),
-(3, 5,  3, N'PC Dell Vostro từ kho'),
-(4, 6,  5, N'Màn hình Dell cho lab'),
-(5, 2,  10, N'Laptop Dell Inspiron'),
-(6, 9,  1, N'Máy in Canon'),
-(6, 8,  1, N'Máy in HP');
+-- allocated_quantity: số lượng đã cấp phát thực tế (mặc định 0)
+INSERT INTO allocation_details (request_id, asset_id, quantity, allocated_quantity, note) VALUES
+(1, 2,  2,  0, N'Laptop Dell Inspiron mới nhập kho'),
+(2, 11, 1,  0, N'Máy chiếu BenQ mới'),
+(3, 5,  3,  0, N'PC Dell Vostro từ kho'),
+(4, 6,  5,  5, N'Màn hình Dell cho lab'),
+(5, 2,  10, 0, N'Laptop Dell Inspiron'),
+(6, 9,  1,  0, N'Máy in Canon'),
+(6, 8,  1,  0, N'Máy in HP'),
+(7, 5,  3,  1, N'Máy tính bảng Samsung - cấp được 1, còn thiếu 2');
 GO
 
 -- 11. Transfer Orders (4 phiếu điều chuyển - đủ trạng thái)

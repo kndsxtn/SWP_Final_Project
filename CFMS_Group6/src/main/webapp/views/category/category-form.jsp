@@ -105,7 +105,7 @@
 
                                     <div class="col-md-3 mb-3">
                                         <label for="upCode" class="form-label fw-semibold">Mã Tiền Tố</label>
-                                        <input type="text" id="upCode" name="prefix_code" class="form-control text-uppercase" value="${category.prefixCode}">
+                                        <input type="text" id="upCode" name="prefix_code" class="form-control text-uppercase" value="${category.prefixCode}" disabled>
                                     </div>
                                 </div>
 

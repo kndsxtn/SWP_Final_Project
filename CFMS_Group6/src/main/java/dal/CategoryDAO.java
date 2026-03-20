@@ -139,4 +139,17 @@ public class CategoryDAO {
         }
     }
 
+    public boolean isHasAttributeCategory(String attributeName, String attributeValue) {
+        String sql = "select * from categories where " + attributeName + " = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, attributeValue);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

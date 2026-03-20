@@ -97,6 +97,9 @@
                                 <c:when test="${req.status == 'Rejected'}">
                                     <span class="cfms-badge cfms-badge-rejected">Từ chối</span>
                                 </c:when>
+                                <c:when test="${req.status == 'Partially_Completed'}">
+                                    <span class="cfms-badge cfms-badge-stock-partial">Chưa hoàn thành</span>
+                                </c:when>
                                 <c:when test="${req.status == 'Completed'}">
                                     <span class="cfms-badge cfms-badge-completed">Hoàn thành</span>
                                 </c:when>
@@ -154,22 +157,67 @@
                 </div>
 
                 <!-- ===== Complete Allocation (Hoàn thành cấp phát) ===== -->
-                <c:if test="${sessionScope.user.roleName == 'Asset Staff'
+                <c:set var="canAssign" value="${sessionScope.user.roleName == 'Asset Staff'
                              && (req.status == 'Approved_By_Staff'
                                  || req.status == 'Approved_By_VP'
-                                 || req.status == 'Approved_By_Principal')}">
+                                 || req.status == 'Approved_By_Principal'
+                                 || req.status == 'Partially_Completed')}"/>
+                <c:if test="${canAssign}">
                     <div class="detail-card">
-                        <h5><i class="bi bi-check2-square me-2"></i>Hoàn thành cấp phát</h5>
-                        <p class="mb-3 text-muted small">
-                            Sử dụng khi tài sản đã được duyệt cấp phát. Bạn có thể chọn cụ thể
-                            từng cá thể (instance) để cấp phát cho đơn vị yêu cầu, sau đó hệ thống
-                            sẽ đánh dấu yêu cầu là <strong>Hoàn thành (Completed)</strong>.
-                        </p>
+                        <h5><i class="bi bi-check2-square me-2"></i>Cấp phát tài sản</h5>
+                        <%-- Tính tổng đã cấp phát thực tế từ allocated_quantity của từng detail --%>
+                        <c:set var="totalAllocated" value="0"/>
+                        <c:forEach items="${req.details}" var="d">
+                            <c:set var="totalAllocated" value="${totalAllocated + d.allocatedQuantity}"/>
+                        </c:forEach>
 
-                        <a href="${pageContext.request.contextPath}/request/allocation-assign?id=${req.requestId}"
-                           class="btn btn-primary">
-                            <i class="bi bi-list-check me-1"></i>Chọn cá thể cấp phát
-                        </a>
+                        <%-- stockShortage = true khi kho không đủ (PARTIAL/NONE) hoặc đang cấp dở --%>
+                        <c:set var="stockShortage" value="${req.stockStatus == 'PARTIAL' || req.stockStatus == 'NONE' || req.status == 'Partially_Completed'}"/>
+
+                        <c:choose>
+                            <c:when test="${req.status == 'Partially_Completed'}">
+                                <div class="alert alert-warning py-2 mb-3 small">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    Đã cấp phát <strong>${totalAllocated}/${req.totalRequestedAssets}</strong> tài sản.
+                                    Còn thiếu <strong>${req.totalRequestedAssets - totalAllocated}</strong> – kho hiện có thêm
+                                    <strong>${req.totalAvailableInStock}</strong> cá thể khả dụng.
+                                    Bạn có thể kết hợp nhiều cách để bổ sung hàng về kho trước khi cấp phát tiếp.
+                                </div>
+                            </c:when>
+                            <c:when test="${stockShortage}">
+                                <div class="alert alert-warning py-2 mb-3 small">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    Kho hiện tại chỉ có <strong>${req.totalAvailableInStock}/${req.totalRequestedAssets}</strong> tài sản khả dụng.
+                                    Bạn có thể cấp phần có sẵn trước, sau đó kết hợp nhiều cách bổ sung phần còn thiếu.
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <p class="mb-3 text-muted small">
+                                    Kho đủ tài sản. Chọn cụ thể từng cá thể (instance) để hoàn tất cấp phát.
+                                </p>
+                            </c:otherwise>
+                        </c:choose>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <!-- Cấp phát (hoặc cấp phát tiếp) -->
+                            <a href="${pageContext.request.contextPath}/request/allocation-assign?id=${req.requestId}"
+                               class="btn btn-primary">
+                                <i class="bi bi-list-check me-1"></i>
+                                <c:choose>
+                                    <c:when test="${req.status == 'Partially_Completed'}">Cấp phát tiếp</c:when>
+                                    <c:otherwise>Chọn cá thể cấp phát</c:otherwise>
+                                </c:choose>
+                            </a>
+
+                            <c:if test="${stockShortage}">
+                                <!-- Bổ sung hàng: Thu hồi tài sản từ phòng khác (có thể dùng độc lập hoặc kết hợp) -->
+                                <a href="${pageContext.request.contextPath}/asset/retrieval-list?allocationId=${req.requestId}"
+                                   class="btn btn-secondary"
+                                   title="Thu hồi tài sản từ phòng khác về kho (có thể dùng đồng thời với mua sắm)">
+                                    <i class="bi bi-arrow-return-left me-1"></i>Thu hồi tài sản từ phòng khác
+                                </a>
+                            </c:if>
+                        </div>
                     </div>
                 </c:if>
 
@@ -254,6 +302,24 @@
                                     </div>
                                 </c:if>
                             </div>
+
+                            <!-- Tạo đề xuất mua sắm per-asset (khi còn thiếu và canAssign) -->
+                            <c:if test="${canAssign && stockShortage}">
+                                <c:set var="remainingForAsset" value="${d.quantity - d.allocatedQuantity}"/>
+                                <c:set var="procuredForAsset" value="${procuredQtyByAsset[d.assetId]}"/>
+                                <c:if test="${empty procuredForAsset}"><c:set var="procuredForAsset" value="0"/></c:if>
+                                <c:set var="coveredForAsset" value="${d.allocatedQuantity + procuredForAsset}"/>
+                                <c:if test="${remainingForAsset > 0 && coveredForAsset < d.quantity}">
+                                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-warning text-dark">Còn thiếu: ${remainingForAsset}</span>
+                                        <a href="${pageContext.request.contextPath}/request/procurement-add?allocationId=${req.requestId}&assetId=${d.assetId}"
+                                           class="btn btn-warning btn-sm"
+                                           title="Tạo đề xuất mua sắm cho tài sản này">
+                                            <i class="bi bi-cart-plus me-1"></i>Tạo đề xuất mua sắm
+                                        </a>
+                                    </div>
+                                </c:if>
+                            </c:if>
 
                             <!-- Allocated instances (only when request is Completed) -->
                             <c:if test="${req.status == 'Completed'}">
@@ -353,15 +419,13 @@
                     var stockStatus = '${req.stockStatus}';
                     var totalReq = ${req.totalRequestedAssets};
                     var totalAvail = ${req.totalAvailableInStock};
-                    var shortage = totalReq - totalAvail;
 
                     var message = 'Bạn có chắc chắn muốn duyệt yêu cầu REQ-' + reqId + ' ?';
                     var extraHtml = '';
                     if (stockStatus === 'PARTIAL' || stockStatus === 'NONE') {
                         extraHtml = '<div class="alert alert-warning p-2 mb-0 small">'
-                                + 'Tồn kho hiện tại chỉ đáp ứng <strong>' + totalAvail + '/' + totalReq + '</strong> tài sản.<br>'
-                                + 'Hệ thống sẽ tự động tạo <strong>đề xuất mua sắm</strong> cho '
-                                + '<strong>' + (shortage > 0 ? shortage : 0) + '</strong> tài sản còn thiếu.'
+                                + 'Kho hiện tại chỉ đáp ứng <strong>' + totalAvail + '/' + totalReq + '</strong> tài sản.<br>'
+                                + 'Sau khi duyệt, bạn có thể chọn phương án xử lý phần còn thiếu trong trang chi tiết.'
                                 + '</div>';
                     }
 

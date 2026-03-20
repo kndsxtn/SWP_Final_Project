@@ -91,6 +91,8 @@
                                 ${statusFilter == 'Approved_By_Principal' ? 'selected' : ''}>Đã duyệt (Hiệu trưởng)</option>
                             <option value="Rejected"
                                 ${statusFilter == 'Rejected' ? 'selected' : ''}>Từ chối</option>
+                            <option value="Partially_Completed"
+                                ${statusFilter == 'Partially_Completed' ? 'selected' : ''}>Chưa hoàn thành</option>
                             <option value="Completed"
                                 ${statusFilter == 'Completed' ? 'selected' : ''}>Hoàn thành</option>
                         </select>
@@ -266,6 +268,9 @@
                                                             </c:if>
                                                         </span>
                                                     </c:when>
+                                                    <c:when test="${req.status == 'Partially_Completed'}">
+                                                        <span class="cfms-badge cfms-badge-stock-partial">Chưa hoàn thành</span>
+                                                    </c:when>
                                                     <c:when test="${req.status == 'Completed'}">
                                                         <span class="cfms-badge cfms-badge-completed">Hoàn thành</span>
                                                     </c:when>
@@ -317,16 +322,25 @@
                                                     </button>
                                                 </c:if>
 
-                                                <!-- Assign instances for Asset Staff when approved & stock is FULL -->
+                                                <!-- Assign instances for Asset Staff when approved -->
                                                 <c:if test="${sessionScope.user.roleName == 'Asset Staff'
                                                              && (req.status == 'Approved_By_Staff'
                                                                  || req.status == 'Approved_By_VP'
-                                                                 || req.status == 'Approved_By_Principal')
-                                                             && req.stockStatus == 'FULL'}">
+                                                                 || req.status == 'Approved_By_Principal')}">
                                                     <a href="${pageContext.request.contextPath}/request/allocation-assign?id=${req.requestId}"
                                                        class="btn btn-sm btn-primary ms-1"
                                                        title="Chọn cá thể để cấp phát">
                                                         <i class="bi bi-check2-square"></i>
+                                                    </a>
+                                                </c:if>
+
+                                                <!-- Continue partial allocation for Asset Staff -->
+                                                <c:if test="${sessionScope.user.roleName == 'Asset Staff'
+                                                             && req.status == 'Partially_Completed'}">
+                                                    <a href="${pageContext.request.contextPath}/request/allocation-assign?id=${req.requestId}"
+                                                       class="btn btn-sm btn-warning ms-1"
+                                                       title="Cấp phát tiếp (chưa đủ số lượng)">
+                                                        <i class="bi bi-arrow-right-circle"></i>
                                                     </a>
                                                 </c:if>
                                             </td>
@@ -443,15 +457,13 @@
                         var stockStatus = btn.getAttribute('data-stock-status') || '';
                         var totalReq = parseInt(btn.getAttribute('data-total') || '0', 10);
                         var totalAvail = parseInt(btn.getAttribute('data-available') || '0', 10);
-                        var shortage = totalReq - totalAvail;
 
                         var message = 'Bạn có chắc chắn muốn duyệt yêu cầu REQ-' + reqId + ' ?';
                         var extraHtml = '';
                         if (stockStatus === 'PARTIAL' || stockStatus === 'NONE') {
                             extraHtml = '<div class="alert alert-warning p-2 mb-0 small">'
-                                    + 'Tồn kho hiện tại chỉ đáp ứng <strong>' + totalAvail + '/' + totalReq + '</strong> tài sản.<br>'
-                                    + 'Hệ thống sẽ tự động tạo <strong>đề xuất mua sắm</strong> cho '
-                                    + '<strong>' + (shortage > 0 ? shortage : 0) + '</strong> tài sản còn thiếu.'
+                                    + 'Kho hiện tại chỉ đáp ứng <strong>' + totalAvail + '/' + totalReq + '</strong> tài sản.<br>'
+                                    + 'Sau khi duyệt, bạn có thể chọn phương án xử lý phần còn thiếu trong trang chi tiết.'
                                     + '</div>';
                         }
 
