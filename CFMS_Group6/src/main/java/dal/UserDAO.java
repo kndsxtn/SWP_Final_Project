@@ -68,9 +68,22 @@ public class UserDAO {
         return false;
     }
 
-    // change password
+    // change password (nguoi dung tu doi)
     public boolean changePassword(int userId, String newPass) {
-        String sql = "UPDATE Users SET password_hash=? WHERE user_id=?";
+        String sql = "UPDATE Users SET password_hash=?, is_force_change=0 WHERE user_id=?";
+        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, newPass);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // reset password (admin hoac quen mat khau - se bat buoc doi)
+    public boolean resetPassword(int userId, String newPass) {
+        String sql = "UPDATE Users SET password_hash=?, is_force_change=1 WHERE user_id=?";
         try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, newPass);
             ps.setInt(2, userId);
@@ -199,6 +212,25 @@ public class UserDAO {
         return null;
     }
 
+    public UserDto getUserByPhone(String phone) {
+        String sql = "SELECT u.*, r.role_name "
+                + "FROM Users u "
+                + "JOIN Roles r ON u.role_id = r.role_id "
+                + "WHERE u.phone = ?";
+        try (java.sql.Connection con = new DBContext().getConnection();
+                java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapUserDto(rs);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     // them nguoi dung moi vao DB, mat khau luu dang plain (co the hash sau)
     public boolean createUser(String username, String password, String fullName,
             String email, String phone, int roleId) {
@@ -272,10 +304,10 @@ public class UserDAO {
 
     public String getRoleNameByUserId(int userId) {
         String sql = "SELECT r.role_name FROM Users u "
-                   + "JOIN Roles r ON u.role_id = r.role_id "
-                   + "WHERE u.user_id = ?";
+                + "JOIN Roles r ON u.role_id = r.role_id "
+                + "WHERE u.user_id = ?";
         try (Connection con = new DBContext().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+                PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -286,6 +318,94 @@ public class UserDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    // Tìm kiếm người dùng với bộ lọc đơn giản, dễ hiểu
+    public List<UserDto> searchUsers(String query, Integer roleId, int page, int pageSize) {
+        List<UserDto> list = new ArrayList<>();
+        
+        // 1. Khởi tạo câu lệnh SQL gốc
+        String sql = "SELECT u.*, r.role_name FROM Users u "
+                   + "JOIN Roles r ON u.role_id = r.role_id "
+                   + "WHERE 1=1 "; // 1=1 là mẹo để dễ dàng cộng thêm các điều kiện AND phía sau
+
+        // 2. Cộng thêm điều kiện nếu có nhập ô tìm kiếm (Tên/Email)
+        if (query != null && !query.trim().isEmpty()) {
+            sql += " AND (u.username LIKE ? OR u.full_name LIKE ? OR u.email LIKE ?) ";
+        }
+
+        // 3. Cộng thêm điều kiện nếu có chọn Role
+        if (roleId != null && roleId > 0) {
+            sql += " AND u.role_id = ? ";
+        }
+
+        // 4. Thêm phần phân trang (Sắp xếp và lấy số lượng bản ghi)
+        sql += " ORDER BY u.user_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            int index = 1;
+            // 5. Truyền giá trị vào các dấu hỏi (?) theo đúng thứ tự đã cộng ở trên
+            if (query != null && !query.trim().isEmpty()) {
+                String value = "%" + query.trim() + "%";
+                ps.setString(index++, value);
+                ps.setString(index++, value);
+                ps.setString(index++, value);
+            }
+            if (roleId != null && roleId > 0) {
+                ps.setInt(index++, roleId);
+            }
+            
+            // 6. Truyền tham số phân trang (luôn ở cuối cùng)
+            ps.setInt(index++, (page - 1) * pageSize);
+            ps.setInt(index++, pageSize);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapUserDto(rs));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Đếm tổng số bản ghi thỏa mãn điều kiện lọc (để tính tổng số trang)
+    public int countSearchUsers(String query, Integer roleId) {
+        String sql = "SELECT COUNT(*) FROM Users u WHERE 1=1 ";
+
+        if (query != null && !query.trim().isEmpty()) {
+            sql += " AND (u.username LIKE ? OR u.full_name LIKE ? OR u.email LIKE ?) ";
+        }
+        if (roleId != null && roleId > 0) {
+            sql += " AND u.role_id = ? ";
+        }
+
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            int index = 1;
+            if (query != null && !query.trim().isEmpty()) {
+                String value = "%" + query.trim() + "%";
+                ps.setString(index++, value);
+                ps.setString(index++, value);
+                ps.setString(index++, value);
+            }
+            if (roleId != null && roleId > 0) {
+                ps.setInt(index++, roleId);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     // mapping
@@ -302,6 +422,15 @@ public class UserDAO {
         user.setDeptId(rs.wasNull() ? 0 : deptId);
         user.setStatus(rs.getString("status"));
         user.setCreatedAt(rs.getTimestamp("created_at"));
+        
+        // Doc cot moi: is_force_change
+        try {
+            user.setForceChange(rs.getBoolean("is_force_change"));
+        } catch (Exception e) {
+            // Phong truong hop dev chua chay SQL thi mac dinh la false
+            user.setForceChange(false);
+        }
+        
         return user;
     }
 

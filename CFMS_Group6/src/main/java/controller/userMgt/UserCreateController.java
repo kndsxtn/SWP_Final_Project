@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import model.Role;
+import validation.UserValidator;
 
 /**
  *
@@ -43,14 +44,32 @@ public class UserCreateController extends HttpServlet {
         int roleId = Integer.parseInt(request.getParameter("roleId"));
 
         UserDAO dao = new UserDAO();
+
+        // Use Validator
+        String error = UserValidator.validateCreateUser(username, password, fullName, email, phone);
+
+        if (error != null) {
+            request.getSession().setAttribute("errorMsg", error);
+            List<Role> roles = dao.getAllRoles();
+            request.setAttribute("roles", roles);
+            // giu lai du lieu cu de user khoi phai nhap lai
+            request.setAttribute("oldUsername", username);
+            request.setAttribute("oldFullName", fullName);
+            request.setAttribute("oldEmail", email);
+            request.setAttribute("oldPhone", phone);
+            request.setAttribute("oldRoleId", roleId);
+            request.getRequestDispatcher("/views/user-mgt/user-form.jsp").forward(request, response);
+            return;
+        }
+
         boolean success = dao.createUser(username, password, fullName, email, phone, roleId);
 
         if (success) {
             // Them thanh cong -> quay ve danh sach voi thong bao
-            request.getSession().setAttribute("successMsg", "Them nguoi dung thanh cong!");
+            request.getSession().setAttribute("successMsg", "Thêm người dùng thành công!");
         } else {
-            // That bai (co the username da ton tai) -> giu lai form + thong bao loi
-            request.getSession().setAttribute("errorMsg", "Them that bai! Username da ton tai hoac co loi xay ra.");
+            // That bai -> giu lai form + thong bao loi
+            request.getSession().setAttribute("errorMsg", "Thêm thất bại! Có lỗi xảy ra trong hệ thống.");
             List<Role> roles = dao.getAllRoles();
             request.setAttribute("roles", roles);
             // giu lai du lieu cu de user khoi phai nhap lai

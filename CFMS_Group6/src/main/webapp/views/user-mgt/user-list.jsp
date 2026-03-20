@@ -56,6 +56,46 @@
                         <% session.removeAttribute("errorMsg"); %>
                     </c:if>
 
+                    <%-- Filter Search --%>
+                    <div class="card shadow-sm border-0 mb-4" style="border-radius: 15px;">
+                        <div class="card-body p-3">
+                            <form action="${pageContext.request.contextPath}/user-mgt/user-list" method="GET" class="row g-3">
+                                <div class="col-md-5">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="bi bi-search text-muted"></i>
+                                        </span>
+                                        <input type="text" name="searchQuery" class="form-control border-start-0" 
+                                               placeholder="Tìm theo tên hoặc email..." value="${searchQuery}">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="bi bi-person-badge text-muted"></i>
+                                        </span>
+                                        <select name="roleId" class="form-select border-start-0">
+                                            <option value="">Tất cả vai trò</option>
+                                            <c:forEach items="${roles}" var="r">
+                                                <option value="${r.roleId}" ${selectedRoleId == r.roleId ? 'selected' : ''}>
+                                                    ${r.roleName}
+                                                </option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary flex-grow-1">
+                                        <i class="bi bi-funnel me-1"></i>Lọc
+                                    </button>
+                                    <a href="${pageContext.request.contextPath}/user-mgt/user-list" class="btn btn-outline-secondary">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
                     <%-- Table --%>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
@@ -117,7 +157,7 @@
                                 <c:if test="${empty list}">
                                     <tr>
                                         <td colspan="6" class="text-center text-muted py-4">
-                                            Không có người dùng nào
+                                            Không có người dùng nào phù hợp với kết quả tìm kiếm
                                         </td>
                                     </tr>
                                 </c:if>
@@ -129,23 +169,25 @@
                         <c:if test="${totalPages > 1}">
                             <div class="cfms-paging">
                                 <ul class="pagination">
+                                    <c:set var="searchParam" value="searchQuery=${searchQuery}&roleId=${selectedRoleId}" />
+                                    
                                     <c:if test="${currentPage > 1}">
-
                                         <a class="page-link"
-                                           href="${pageContext.request.contextPath}/user-mgt/user-list?page=${currentPage - 1}"><</a>
+                                           href="${pageContext.request.contextPath}/user-mgt/user-list?page=${currentPage - 1}&${searchParam}"><</a>
                                     </c:if>
                                     <c:forEach begin="1" end="${totalPages}" var="i">
                                         <a class="page-link ${i == currentPage ? 'active' : ''}"
-                                           href="${pageContext.request.contextPath}/user-mgt/user-list?page=${i}">${i}</a>
+                                           href="${pageContext.request.contextPath}/user-mgt/user-list?page=${i}&${searchParam}">${i}</a>
                                     </c:forEach>
                                     <c:if test="${currentPage < totalPages}">
                                         <a class="page-link"
-                                           href="${pageContext.request.contextPath}/user-mgt/user-list?page=${currentPage + 1}">></a>
+                                           href="${pageContext.request.contextPath}/user-mgt/user-list?page=${currentPage + 1}&${searchParam}">></a>
 
                                     </c:if>
                                 </ul>
                             </div>
                         </c:if>
+                    </div>
                     </div>
 
                 </main>

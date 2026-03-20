@@ -30,33 +30,48 @@ public class UserManagementController extends HttpServlet {
             throws ServletException, IOException {
         UserDAO dao = new UserDAO();
 
-        // lay so trang tu parameter, mac dinh la 1
+        // 1. Lay tham so tim kiem
+        String searchQuery = request.getParameter("searchQuery");
+        String roleIdStr = request.getParameter("roleId");
+        Integer roleId = null;
+        if (roleIdStr != null && !roleIdStr.isEmpty()) {
+            try {
+                roleId = Integer.parseInt(roleIdStr);
+            } catch (NumberFormatException e) {
+                roleId = 0;
+            }
+        }
+
+        // 2. Phan trang
         int page = 1;
         String pageStr = request.getParameter("page");
         if (pageStr != null) {
             try {
                 page = Integer.parseInt(pageStr);
-                if (page < 1)
-                    page = 1;
+                if (page < 1) page = 1;
             } catch (NumberFormatException e) {
                 page = 1;
             }
         }
 
-        // dem tong so user va tinh tong so trang
-        int totalUsers = dao.countAllUser();
+        // 3. Lay du lieu da qua filter
+        int totalUsers = dao.countSearchUsers(searchQuery, roleId);
         int totalPages = (int) Math.ceil((double) totalUsers / PAGE_SIZE);
-        if (page > totalPages && totalPages > 0)
-            page = totalPages;
+        if (page > totalPages && totalPages > 0) page = totalPages;
 
-        // lay danh sach user theo trang
-        List<UserDto> list = dao.getUsersByPage(page, PAGE_SIZE);
+        List<UserDto> list = dao.searchUsers(searchQuery, roleId, page, PAGE_SIZE);
+
+        // 4. Day du lieu sang JSP
         request.setAttribute("list", list);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("totalUsers", totalUsers);
+        
+        // Luu lai cac input tim kiem de hien thi tren form
+        request.setAttribute("searchQuery", searchQuery);
+        request.setAttribute("selectedRoleId", roleId);
 
-        // lay danh sach role de hien thi trong modal
+        // Lay danh sach role de hien thi trong dropdown filter va modal
         List<Role> roles = dao.getAllRoles();
         request.setAttribute("roles", roles);
 
