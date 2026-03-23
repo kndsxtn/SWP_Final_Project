@@ -207,7 +207,7 @@
 
                                                 <div class="mb-3">
                                                     <label for="purchaseDate" class="form-label">Ngày mua</label>
-                                                    <input type="date" id="purchaseDate" name="purchaseDate"
+                                                    <input type="date" id="purchaseDate" name="purchaseDate" required
                                                         class="form-control"
                                                         value="<c:if test='${asset != null && asset.purchaseDate != null}'><fmt:formatDate value='${asset.purchaseDate}' pattern='yyyy-MM-dd' /></c:if>">
                                                 </div>
@@ -216,7 +216,7 @@
                                                     <label for="warrantyExpiryDate" class="form-label">Ngày hết bảo
                                                         hành</label>
                                                     <input type="date" id="warrantyExpiryDate" name="warrantyExpiryDate"
-                                                        class="form-control"
+                                                        required class="form-control"
                                                         value="<c:if test='${asset != null && asset.warrantyExpiryDate != null}'><fmt:formatDate value='${asset.warrantyExpiryDate}' pattern='yyyy-MM-dd' /></c:if>">
                                                 </div>
                                             </div>
