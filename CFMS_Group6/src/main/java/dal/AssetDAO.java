@@ -220,7 +220,7 @@ public class AssetDAO {
             ps.setBigDecimal(5, asset.getPrice());
             setNullableDate(ps, 6, asset.getPurchaseDate());
             setNullableDate(ps, 7, asset.getWarrantyExpiryDate());
-            ps.setInt(8, Math.max(asset.getQuantity(), 1));
+            ps.setInt(8, 0); // Luôn set mặc định số lượng về 0 lúc khởi tạo
             ps.setString(9, asset.getDescription());
             ps.setTimestamp(10, new java.sql.Timestamp(System.currentTimeMillis()));
 
@@ -332,7 +332,7 @@ public class AssetDAO {
     public boolean updateAsset(Asset asset) {
         String sql = "UPDATE assets SET asset_name = ?, category_id = ?, supplier_id = ?, "
                 + "price = ?, purchase_date = ?, warranty_expiry_date = ?, "
-                + "quantity = ?, description = ? WHERE asset_id = ?";
+                + "description = ? WHERE asset_id = ?";
 
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -342,9 +342,8 @@ public class AssetDAO {
             ps.setBigDecimal(4, asset.getPrice());
             setNullableDate(ps, 5, asset.getPurchaseDate());
             setNullableDate(ps, 6, asset.getWarrantyExpiryDate());
-            ps.setInt(7, Math.max(asset.getQuantity(), 1));
-            ps.setString(8, asset.getDescription());
-            ps.setInt(9, asset.getAssetId());
+            ps.setString(7, asset.getDescription());
+            ps.setInt(8, asset.getAssetId());
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -399,7 +398,8 @@ public class AssetDAO {
 
     /**
      * @deprecated Dùng {@link #updateInstanceStatus(int, String)} thay thế.
-     * Method này update TẤT CẢ cá thể của 1 asset – chỉ giữ lại cho backward compatibility.
+     *             Method này update TẤT CẢ cá thể của 1 asset – chỉ giữ lại cho
+     *             backward compatibility.
      */
     @Deprecated
     public boolean updateStatus(int assetId, String newStatus) {
@@ -595,64 +595,70 @@ public class AssetDAO {
         }
     }
 
-    /* Phần của pvtung */
-    // không dùng nữa
-    public List<Asset> getByRoomId(int id) {
-        String sql = "SELECT DISTINCT a.asset_id, a.asset_code, a.asset_name FROM assets a "
-                + "JOIN asset_details ad ON a.asset_id = ad.asset_id WHERE ad.room_id = ?";
-        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            List<Asset> assets = new ArrayList<>();
-            while (rs.next()) {
-                Asset a = new Asset();
-                a.setAssetId(rs.getInt("asset_id"));
-                a.setAssetCode(rs.getString("asset_code"));
-                a.setAssetName(rs.getString("asset_name"));
-                assets.add(a);
-            }
-            return assets;
+    // /* Phần của pvtung */
+    // // không dùng nữa
+    // public List<Asset> getByRoomId(int id) {
+    // String sql = "SELECT DISTINCT a.asset_id, a.asset_code, a.asset_name FROM
+    // assets a "
+    // + "JOIN asset_details ad ON a.asset_id = ad.asset_id WHERE ad.room_id = ?";
+    // try (Connection con = new DBContext().getConnection(); PreparedStatement ps =
+    // con.prepareStatement(sql)) {
+    // ps.setInt(1, id);
+    // ResultSet rs = ps.executeQuery();
+    // List<Asset> assets = new ArrayList<>();
+    // while (rs.next()) {
+    // Asset a = new Asset();
+    // a.setAssetId(rs.getInt("asset_id"));
+    // a.setAssetCode(rs.getString("asset_code"));
+    // a.setAssetName(rs.getString("asset_name"));
+    // assets.add(a);
+    // }
+    // return assets;
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // return null;
+    // }
 
-    public void setRoomId(int roomId, int assetId) {
-        String sql = "UPDATE asset_details SET room_id = ? WHERE asset_id = ?";
+    // public void setRoomId(int roomId, int assetId) {
+    // String sql = "UPDATE asset_details SET room_id = ? WHERE asset_id = ?";
 
-        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, roomId);
-            ps.setInt(2, assetId);
-            ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    // try (Connection con = new DBContext().getConnection(); PreparedStatement ps =
+    // con.prepareStatement(sql)) {
+    // ps.setInt(1, roomId);
+    // ps.setInt(2, assetId);
+    // ps.executeUpdate();
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // }
 
-    public Asset getById2(int id) {
-        String sql = "SELECT asset_id, asset_code, asset_name, category_id, supplier_id, price, "
-                + "purchase_date, warranty_expiry_date, quantity, description, created_at FROM assets WHERE asset_id = ?";
-        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                Asset a = new Asset();
-                a.setAssetId(rs.getInt("asset_id"));
-                a.setAssetCode(rs.getString("asset_code"));
-                a.setAssetName(rs.getString("asset_name"));
-                a.setCategoryId(rs.getInt("category_id"));
-                a.setSupplierId(rs.getInt("supplier_id"));
-                a.setPrice(rs.getBigDecimal("price"));
-                a.setQuantity(rs.getInt("quantity"));
-                return a;
-            }
-            return null;
+    // public Asset getById2(int id) {
+    // String sql = "SELECT asset_id, asset_code, asset_name, category_id,
+    // supplier_id, price, "
+    // + "purchase_date, warranty_expiry_date, quantity, description, created_at
+    // FROM assets WHERE asset_id = ?";
+    // try (Connection con = new DBContext().getConnection(); PreparedStatement ps =
+    // con.prepareStatement(sql)) {
+    // ps.setInt(1, id);
+    // ResultSet rs = ps.executeQuery();
+    // if (rs.next()) {
+    // Asset a = new Asset();
+    // a.setAssetId(rs.getInt("asset_id"));
+    // a.setAssetCode(rs.getString("asset_code"));
+    // a.setAssetName(rs.getString("asset_name"));
+    // a.setCategoryId(rs.getInt("category_id"));
+    // a.setSupplierId(rs.getInt("supplier_id"));
+    // a.setPrice(rs.getBigDecimal("price"));
+    // a.setQuantity(rs.getInt("quantity"));
+    // return a;
+    // }
+    // return null;
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // return null;
+    // }
 }
