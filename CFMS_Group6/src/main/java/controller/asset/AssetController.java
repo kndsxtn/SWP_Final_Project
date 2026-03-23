@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
+import exception.AssetException;
+import validation.AssetValidation;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -121,26 +123,30 @@ public class AssetController extends HttpServlet {
 
         // Lấy params filter
         String keyword = request.getParameter("keyword");
-        if (keyword != null && keyword.trim().isEmpty())
+        if (keyword != null && keyword.trim().isEmpty()) {
             keyword = null;
+        }
 
         int categoryId = parseIntParam(request.getParameter("category"), 0);
 
         String status = request.getParameter("status");
-        if (status != null && status.isEmpty())
+        if (status != null && status.isEmpty()) {
             status = null;
+        }
 
         // Paging
         int page = parseIntParam(request.getParameter("page"), 1);
-        if (page < 1)
+        if (page < 1) {
             page = 1;
+        }
 
         // Query
         List<Asset> assets = assetDao.search(keyword, categoryId, status, page, PAGE_SIZE);
         int totalRecords = assetDao.countAssets(keyword, categoryId, status);
         int totalPages = (int) Math.ceil((double) totalRecords / PAGE_SIZE);
-        if (page > totalPages && totalPages > 0)
+        if (page > totalPages && totalPages > 0) {
             page = totalPages;
+        }
 
         // Dropdown data cho filter
         List<Category> categories = assetDao.getAllCategories();
@@ -181,19 +187,27 @@ public class AssetController extends HttpServlet {
 
         // --- Phân trang + search/filter cá thể ---
         String instanceKeyword = request.getParameter("instanceKeyword");
-        if (instanceKeyword != null && instanceKeyword.trim().isEmpty()) instanceKeyword = null;
+        if (instanceKeyword != null && instanceKeyword.trim().isEmpty()) {
+            instanceKeyword = null;
+        }
 
         String instanceStatus = request.getParameter("instanceStatus");
-        if (instanceStatus != null && instanceStatus.isEmpty()) instanceStatus = null;
+        if (instanceStatus != null && instanceStatus.isEmpty()) {
+            instanceStatus = null;
+        }
 
         int instancePage = parseIntParam(request.getParameter("instancePage"), 1);
-        if (instancePage < 1) instancePage = 1;
+        if (instancePage < 1) {
+            instancePage = 1;
+        }
 
         List<AssetDetail> assetDetails = assetDetailDao.searchByAssetId(
                 id, instanceKeyword, instanceStatus, instancePage, INSTANCE_PAGE_SIZE);
         int instanceTotal = assetDetailDao.countByAssetId(id, instanceKeyword, instanceStatus);
         int instanceTotalPages = (int) Math.ceil((double) instanceTotal / INSTANCE_PAGE_SIZE);
-        if (instancePage > instanceTotalPages && instanceTotalPages > 0) instancePage = instanceTotalPages;
+        if (instancePage > instanceTotalPages && instanceTotalPages > 0) {
+            instancePage = instanceTotalPages;
+        }
 
         request.setAttribute("asset", asset);
         request.setAttribute("assetImages", images);
@@ -223,9 +237,21 @@ public class AssetController extends HttpServlet {
             throws ServletException, IOException {
 
         Asset asset = parseAssetFromRequest(request);
+
+        try {
+            AssetValidation.validateAsset(asset);
+        } catch (AssetException e) {
+            request.setAttribute("errorMsg", e.getMessage());
+            loadFormData(request);
+            request.setAttribute("asset", asset);
+            request.setAttribute("formAction", "create");
+            request.getRequestDispatcher("/views/asset/asset-form.jsp").forward(request, response);
+            return;
+        }
+
         UserDto user = (UserDto) request.getSession().getAttribute("user");
         if (user == null) {
-            response.sendRedirect(request.getContextPath() + "/login"); // Hoặc xử lý lỗi
+            response.sendRedirect(request.getContextPath() + "/login"); // trả về trang login nếu chưa đăng nhập
             return;
         }
 
@@ -238,7 +264,7 @@ public class AssetController extends HttpServlet {
                         asset.getAssetCode(),
                         asset.getQuantity(),
                         user.getUserId(),
-                        "Nhập kho thủ công từ nhân viên tài sản: " + user.getUsername());
+                        "Khởi tạo tài sản từ nhân viên tài sản: " + user.getUsername());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -284,6 +310,18 @@ public class AssetController extends HttpServlet {
 
         Asset asset = parseAssetFromRequest(request);
         asset.setAssetId(parseIntParam(request.getParameter("assetId"), 0));
+
+        try {
+            AssetValidation.validateAsset(asset);
+        } catch (AssetException e) {
+            request.setAttribute("errorMsg", e.getMessage());
+            loadFormData(request);
+            request.setAttribute("asset", asset);
+            request.setAttribute("formAction", "update");
+            request.setAttribute("assetImages", assetDao.getImagesByAssetId(asset.getAssetId()));
+            request.getRequestDispatcher("/views/asset/asset-form.jsp").forward(request, response);
+            return;
+        }
 
         if (assetDao.updateAsset(asset)) {
             // Upload ảnh mới (nếu có)
@@ -486,7 +524,7 @@ public class AssetController extends HttpServlet {
         }
 
         asset.setDescription(request.getParameter("description"));
-        asset.setQuantity(parseIntParam(request.getParameter("quantity"), 1));
+        asset.setQuantity(parseIntParam(request.getParameter("quantity"), 0)); // Mặc định là 0
         return asset;
     }
 
