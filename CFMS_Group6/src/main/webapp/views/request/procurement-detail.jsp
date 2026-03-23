@@ -206,18 +206,38 @@
                                     <c:forEach items="${proc.details}" var="d" varStatus="loop">
                                         <div class="asset-card">
                                             <div class="asset-card-header">
-                                                <div class="d-flex align-items-center" style="gap: 0.75rem;">
+                                                <div class="d-flex align-items-center flex-wrap" style="gap: 0.75rem;">
                                                     <span class="badge bg-light text-dark"
                                                         style="font-size: 0.75rem; padding: 0.3rem 0.5rem; min-width: 2rem;">
                                                         ${loop.count}
                                                     </span>
                                                     <h6 class="mb-0 flex-grow-1">${d.asset.assetCode} –
                                                         ${d.asset.assetName}</h6>
-                                                    <span class="badge bg-info text-dark"
-                                                        style="font-size: 0.85rem; padding: 0.4rem 0.7rem;">
-                                                        <i class="bi bi-hash me-1"></i>Số lượng:
-                                                        <strong>${d.quantity}</strong>
-                                                    </span>
+
+                                                    <c:set var="receivedQty"
+                                                        value="${d.receivedQuantity == null ? 0 : d.receivedQuantity}" />
+                                                    <c:set var="remainingQty" value="${d.quantity - receivedQty}" />
+
+                                                    <div class="d-flex flex-wrap" style="gap: 0.5rem;">
+                                                        <span class="badge bg-secondary text-light"
+                                                            style="font-size: 0.85rem; padding: 0.4rem 0.7rem;">
+                                                            <i class="bi bi-cart me-1"></i>Đặt mua:
+                                                            <strong>${d.quantity}</strong>
+                                                        </span>
+                                                        <span class="badge bg-success text-light"
+                                                            style="font-size: 0.85rem; padding: 0.4rem 0.7rem;">
+                                                            <i class="bi bi-check-circle me-1"></i>Đã nhận:
+                                                            <strong>${receivedQty}</strong>
+                                                        </span>
+                                                        <c:if test="${remainingQty > 0}">
+                                                            <span class="badge bg-warning text-dark"
+                                                                style="font-size: 0.85rem; padding: 0.4rem 0.7rem;">
+                                                                <i class="bi bi-exclamation-triangle me-1"></i>Còn
+                                                                thiếu:
+                                                                <strong>${remainingQty}</strong>
+                                                            </span>
+                                                        </c:if>
+                                                    </div>
                                                 </div>
                                             </div>
 
