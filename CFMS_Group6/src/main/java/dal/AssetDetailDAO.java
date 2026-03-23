@@ -123,17 +123,18 @@ public class AssetDetailDAO {
      *
      * Assumes caller manages the transaction (uses provided Connection).
      */
-    public void stockInInstances(Connection con,
+    public List<Integer> stockInInstances(Connection con,
             int assetId,
             String assetCode,
             int quantity,
             int performedByUserId,
             String description) throws Exception {
+        List<Integer> generatedIds = new ArrayList<>();
         if (con == null) {
             throw new IllegalArgumentException("Connection is required");
         }
         if (assetId <= 0 || quantity <= 0) {
-            return;
+            return generatedIds;
         }
         if (assetCode == null || assetCode.isBlank()) {
             assetCode = getAssetCodeById(con, assetId);
@@ -178,6 +179,8 @@ public class AssetDetailDAO {
                                 description != null ? description : ("Nhập kho từ mua sắm: " + instanceCode));
                         psHis.addBatch();
 
+                        generatedIds.add(instanceId);
+
                         nextSeq++;
                         break;
                     } catch (Exception e) {
@@ -192,7 +195,59 @@ public class AssetDetailDAO {
 
             psHis.executeBatch();
         }
+        return generatedIds;
+    }
 
+    public List<AssetDetail> getInstancesByIds(List<Integer> ids) {
+        List<AssetDetail> list = new ArrayList<>();
+        if (ids == null || ids.isEmpty())
+            return list;
+
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < ids.size(); i++) {
+            placeholders.append("?");
+            if (i < ids.size() - 1)
+                placeholders.append(", ");
+        }
+
+        String sql = "SELECT ad.*, a.asset_code, a.asset_name, c.category_name "
+                + "FROM asset_details ad "
+                + "JOIN assets a ON ad.asset_id = a.asset_id "
+                + "JOIN categories c ON a.category_id = c.category_id "
+                + "WHERE ad.instance_id IN (" + placeholders.toString() + ") "
+                + "ORDER BY ad.instance_code";
+
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+
+            for (int i = 0; i < ids.size(); i++) {
+                ps.setInt(i + 1, ids.get(i));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    AssetDetail ad = new AssetDetail();
+                    ad.setInstanceId(rs.getInt("instance_id"));
+                    ad.setAssetId(rs.getInt("asset_id"));
+                    ad.setInstanceCode(rs.getString("instance_code"));
+                    ad.setRoomId(rs.getInt("room_id") == 0 ? null : rs.getInt("room_id"));
+                    ad.setStatus(rs.getString("status"));
+
+                    Asset asset = new Asset();
+                    asset.setAssetCode(rs.getString("asset_code"));
+                    asset.setAssetName(rs.getString("asset_name"));
+                    Category cat = new Category();
+                    cat.setCategoryName(rs.getString("category_name"));
+                    asset.setCategory(cat);
+                    ad.setAsset(asset);
+
+                    list.add(ad);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
     private int getNextInstanceSequence(Connection con, int assetId) throws Exception {

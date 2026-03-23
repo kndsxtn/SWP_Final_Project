@@ -18,12 +18,7 @@
                 <link href="${pageContext.request.contextPath}/css/page-header.css" rel="stylesheet">
                 <link href="${pageContext.request.contextPath}/css/message.css" rel="stylesheet">
 
-                <style>
-                    .warning-row {
-                        background-color: #fff3cd !important;
-                        transition: background-color 0.3s ease;
-                    }
-                </style>
+
             </head>
 
             <body class="d-flex flex-column">
@@ -105,7 +100,6 @@
                                                         <th class="text-center text-primary">Đã nhận</th>
                                                         <th class="text-center" style="width: 200px;">Thực nhận đợt này
                                                         </th>
-                                                        <th>Tình trạng giao hàng</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -113,7 +107,7 @@
                                                         <c:set var="receivedQty"
                                                             value="${d.receivedQuantity == null ? 0 : d.receivedQuantity}" />
                                                         <c:set var="remainingQty" value="${d.quantity - receivedQty}" />
-                                                        <tr id="row_${d.detailId}">
+                                                        <tr>
                                                             <td class="px-4">${loop.count}</td>
                                                             <td><strong>${d.asset != null ? d.asset.assetName :
                                                                     'N/A'}</strong></td>
@@ -130,19 +124,15 @@
                                                             </td>
 
                                                             <td class="text-center">
-                                                                <!-- Giữ lại ID expected_ để thẻ JS chạy logic bắt lỗi không nhập quá số lượng còn nợ -->
-                                                                <span class="d-none"
-                                                                    id="expected_${d.detailId}">${remainingQty}</span>
+
 
                                                                 <c:choose>
                                                                     <c:when test="${remainingQty > 0}">
                                                                         <input type="number"
-                                                                            class="form-control text-center fw-bold recv-qty-input border-primary"
+                                                                            class="form-control text-center fw-bold border-primary"
                                                                             name="recvQty_${d.detailId}"
-                                                                            id="recvQty_${d.detailId}"
                                                                             value="${remainingQty}" min="0"
-                                                                            max="${remainingQty}"
-                                                                            data-detailid="${d.detailId}" required>
+                                                                            max="${remainingQty}" required>
                                                                     </c:when>
                                                                     <c:otherwise>
                                                                         <input type="number"
@@ -151,34 +141,10 @@
                                                                     </c:otherwise>
                                                                 </c:choose>
                                                             </td>
-
-                                                            <td id="status_${d.detailId}">
-                                                                <c:choose>
-                                                                    <c:when test="${remainingQty > 0}">
-                                                                        <span class="text-success fw-bold"><i
-                                                                                class="bi bi-check-circle-fill me-1"></i>Đủ
-                                                                            số lượng nợ</span>
-                                                                    </c:when>
-                                                                    <c:otherwise>
-                                                                        <span class="text-primary fw-bold"><i
-                                                                                class="bi bi-check-all me-1"></i>Đã nhập
-                                                                            đủ từ trước</span>
-                                                                    </c:otherwise>
-                                                                </c:choose>
-                                                            </td>
                                                         </tr>
                                                     </c:forEach>
                                                 </tbody>
                                             </table>
-                                        </div>
-
-                                        <!-- Cảnh báo nếu có hàng thiếu -->
-                                        <div id="missingWarning" class="alert alert-warning m-4 d-none">
-                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                            <strong>Cảnh báo:</strong> Bạn đang xác nhận nhập kho với số lượng
-                                            <strong>ít hơn</strong> số lượng đã đặt.
-                                            Hệ thống sẽ chuyển trạng thái Đơn đặt hàng thành <em>"Nhận một phần"</em> và
-                                            ghi nhận số hàng bị thiếu để tiếp tục theo dõi!
                                         </div>
 
                                         <div class="card-footer bg-light p-3 text-end">
@@ -197,81 +163,6 @@
                 </div>
 
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        const inputs = document.querySelectorAll('.recv-qty-input');
-                        const warningBox = document.getElementById('missingWarning');
-                        const btnSubmit = document.getElementById('btnSubmit');
-
-                        function checkAllQuantities() {
-                            let hasMissing = false;
-
-                            inputs.forEach(input => {
-                                const detailId = input.dataset.detailid;
-                                const expectedStr = document.getElementById('expected_' + detailId).innerText;
-                                const expectedQty = parseInt(expectedStr, 10);
-                                let actualQty = parseInt(input.value, 10);
-
-                                if (isNaN(actualQty) || actualQty < 0) {
-                                    actualQty = 0;
-                                    input.value = 0;
-                                }
-                                if (actualQty > expectedQty) {
-                                    actualQty = expectedQty;
-                                    input.value = expectedQty; // Không cho phép nhập vượt quá
-                                }
-
-                                const statusTd = document.getElementById('status_' + detailId);
-                                const row = document.getElementById('row_' + detailId);
-
-                                if (actualQty < expectedQty) {
-                                    hasMissing = true;
-                                    const missing = expectedQty - actualQty;
-                                    statusTd.innerHTML = '<span class="text-danger fw-bold"><i class="bi bi-exclamation-circle-fill me-1"></i>Giao thiếu ' + missing + '</span>';
-                                    row.classList.add('warning-row');
-                                } else {
-                                    statusTd.innerHTML = '<span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Đủ số lượng</span>';
-                                    row.classList.remove('warning-row');
-                                }
-                            });
-
-                            if (hasMissing) {
-                                warningBox.classList.remove('d-none');
-                                btnSubmit.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-1"></i> Xác nhận nhập (Giao thiếu)';
-                                btnSubmit.classList.replace('btn-success', 'btn-warning');
-                                btnSubmit.classList.add('text-dark');
-                            } else {
-                                warningBox.classList.add('d-none');
-                                btnSubmit.innerHTML = '<i class="bi bi-box-arrow-in-down me-1"></i> Xác nhận & Sinh mã cá thể';
-                                btnSubmit.classList.replace('btn-warning', 'btn-success');
-                                btnSubmit.classList.remove('text-dark');
-                            }
-                        }
-
-                        // Gắn event listener cho việc nhập liệu
-                        inputs.forEach(input => {
-                            input.addEventListener('input', checkAllQuantities);
-                            input.addEventListener('change', checkAllQuantities);
-                        });
-
-                        // Xử lý xác nhận Submit
-                        document.getElementById('stockinForm').addEventListener('submit', function (e) {
-                            const isWarningVisible = !warningBox.classList.contains('d-none');
-
-                            if (isWarningVisible) {
-                                const confirmMsg = "Xác nhận: Bạn đang thao tác NHẬP KHO THIẾU. \n\nBạn có chắc chắn muốn tiến hành nhập kho ngay bây giờ không?";
-                                if (!confirm(confirmMsg)) {
-                                    e.preventDefault(); // Ngăn submit nếu ấn Cancel
-                                }
-                            }
-
-                            // Vô hiệu hóa nút sau khi confirm để tránh click double (double submit)
-                            setTimeout(() => {
-                                btnSubmit.disabled = true;
-                            }, 50);
-                        });
-                    });
-                </script>
             </body>
 
             </html>
