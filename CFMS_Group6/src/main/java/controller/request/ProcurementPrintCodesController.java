@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.AssetDetail;
 import model.ProcurementRequest;
 
-@WebServlet(name = "ProcurementPrintCodesController", urlPatterns = {"/request/procurement-print-codes"})
+@WebServlet(name = "ProcurementPrintCodesController", urlPatterns = { "/request/procurement-print-codes" })
 public class ProcurementPrintCodesController extends HttpServlet {
 
     @Override
@@ -21,7 +21,7 @@ public class ProcurementPrintCodesController extends HttpServlet {
         String idParam = request.getParameter("id");
         try {
             int procurementId = Integer.parseInt(idParam);
-            
+
             // Lấy ra thông tin PO
             ProcurementRequestDAO procDao = new ProcurementRequestDAO();
             ProcurementRequest proc = procDao.getProcurementById(procurementId);
@@ -29,16 +29,22 @@ public class ProcurementPrintCodesController extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/request/procurement-list");
                 return;
             }
-            
-            // Lấy danh sách cá thể vừa được nhập kho từ PO này
-            AssetDetailDAO adDao = new AssetDetailDAO();
-            List<AssetDetail> instances = adDao.getInstancesStockedInForProcurement(procurementId);
-            
+
+            // Lấy danh sách cá thể từ Flash Attribute (Túi lưới ArrayList trên RAM)
+            List<AssetDetail> instances = (List<AssetDetail>) request.getSession().getAttribute("newlyGeneratedInstances");
+            request.getSession().removeAttribute("newlyGeneratedInstances"); // Xoá sạch tàn dư ngay lập tức
+
+            if (instances == null) {
+                // Fallback (dùng phòng khi người ta ấn F5 lại trang in, mảng RAM bị reset mất)
+                AssetDetailDAO adDao = new AssetDetailDAO();
+                instances = adDao.getInstancesStockedInForProcurement(procurementId);
+            }
+
             request.setAttribute("proc", proc);
             request.setAttribute("instances", instances);
-            
+
             request.getRequestDispatcher("/views/request/procurement-print-codes.jsp").forward(request, response);
-            
+
         } catch (NumberFormatException e) {
             response.sendRedirect(request.getContextPath() + "/request/procurement-list");
         }

@@ -12,7 +12,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
+import model.AssetDetail;
 import model.ProcurementDetail;
 import model.ProcurementRequest;
 
@@ -21,19 +23,11 @@ public class ProcurementStockInController extends HttpServlet {
     private final ProcurementRequestDAO procurementDao = new ProcurementRequestDAO();
     private final AssetDetailDAO assetDetailDAO = new AssetDetailDAO();
 
+    // GET: Hiển thị trang nhập kho
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession(true);
-        // UserDto user = (UserDto) session.getAttribute("user");
-
-        // if (!"Asset Staff".equals(user.getRoleName())) {
-        // session.setAttribute("errorMsg", "Chỉ nhân viên thiết bị mới được thực hiện
-        // tính năng này.");
-        // response.sendRedirect(request.getContextPath() +
-        // "/request/procurement-list");
-        // return;
-        // }
 
         int procurementId;
         try {
@@ -64,11 +58,6 @@ public class ProcurementStockInController extends HttpServlet {
         HttpSession session = request.getSession(false);
         UserDto user = (UserDto) session.getAttribute("user");
 
-        if (!"Asset Staff".equals(user.getRoleName())) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
-            return;
-        }
-
         int procurementId;
         try {
             procurementId = Integer.parseInt(request.getParameter("id"));
@@ -98,6 +87,7 @@ public class ProcurementStockInController extends HttpServlet {
             con.setAutoCommit(false); // Bắt đầu Transaction
 
             String desc = "Nhập kho từ PO: PROC-" + procurementId;
+            List<Integer> newlyGeneratedIds = new ArrayList<>();
 
             for (ProcurementDetail d : details) {
                 String paramName = "recvQty_" + d.getDetailId();
@@ -111,8 +101,9 @@ public class ProcurementStockInController extends HttpServlet {
                     }
                 }
 
-                if (recvQty < 0)
+                if (recvQty < 0) {
                     recvQty = 0;
+                }
 
                 int currentReceived = (d.getReceivedQuantity() == null) ? 0 : d.getReceivedQuantity();
 
@@ -123,10 +114,13 @@ public class ProcurementStockInController extends HttpServlet {
                     recvQty = remainingToReceive; // Không cho phép nhập vượt quá số lượng còn lại
                 }
 
+                // Tính toán số lượng mới và số lượng còn thiếu
                 int newTotalReceived = currentReceived + recvQty;
                 int missingQty = d.getQuantity() - newTotalReceived;
 
+                // Kiểm tra xem còn thiếu hay không
                 if (missingQty > 0) {
+                    // Nếu còn thiếu thì set hasMissing = true
                     hasMissing = true;
                 }
 
@@ -135,21 +129,30 @@ public class ProcurementStockInController extends HttpServlet {
 
                 // 2. Sinh tài sản: Gọi AssetDetailDAO để sinh mã cá thể tự cộng dồn
                 if (recvQty > 0) {
-                    assetDetailDAO.stockInInstances(
+                    List<Integer> batchIds = assetDetailDAO.stockInInstances(
                             con,
                             d.getAssetId(),
                             d.getAsset() != null ? d.getAsset().getAssetCode() : null,
                             recvQty, // Số lượng nhập TRONG LẦN NÀY
                             user.getUserId(),
                             desc);
+                    if (batchIds != null) {
+                        newlyGeneratedIds.addAll(batchIds);
+                    }
                 }
             }
 
-            // 3. Cập nhật trạng thái tổng của PO này (Đủ -> Completed, Thiếu -> Partially_Received)
+            // 3. Cập nhật trạng thái tổng của PO này (Đủ -> Completed, Thiếu ->
+            // Partially_Received)
             String newStatus = hasMissing ? "Partially_Received" : "Completed";
             procurementDao.updateProcurementStatus(con, procurementId, newStatus);
 
             con.commit(); // Thành công tất cả
+
+            // Query ArrayList các bản ghi đầy đủ thông tin để in ấn
+            List<AssetDetail> newlyGeneratedInstances = assetDetailDAO.getInstancesByIds(newlyGeneratedIds);
+            session.setAttribute("newlyGeneratedInstances", newlyGeneratedInstances); // Flash Attribute túi lưới bảo
+                                                                                      // bối
 
             session.setAttribute("successMsg", "Nhập kho thành công! Vui lòng in tem nhãn tài sản.");
             // Chuyển hướng sang trang hiển thị mã cá thể vừa sinh để In mã (Bước 5)
