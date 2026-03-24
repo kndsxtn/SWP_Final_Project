@@ -26,23 +26,19 @@ public class ReportController extends HttpServlet {
         
         String startDateStr = request.getParameter("startDate");
         String endDateStr = request.getParameter("endDate");
-        String status = request.getParameter("status");
 
-        if (startDateStr != null && !startDateStr.isEmpty() && endDateStr != null && !endDateStr.isEmpty()) {
-            try {
-                java.sql.Date startDate = java.sql.Date.valueOf(startDateStr);
-                java.sql.Date endDate = java.sql.Date.valueOf(endDateStr);
+        java.sql.Date startDate = (startDateStr != null && !startDateStr.isEmpty()) ? java.sql.Date.valueOf(startDateStr) : null;
+        java.sql.Date endDate = (endDateStr != null && !endDateStr.isEmpty()) ? java.sql.Date.valueOf(endDateStr) : new java.sql.Date(System.currentTimeMillis());
 
-                dal.ReportDAO reportDAO = new dal.ReportDAO();
-                java.util.List<dto.AssetReportDto> reportData = reportDAO.getAssetReport(startDate, endDate, status);
+        try {
+            dal.ReportDAO reportDAO = new dal.ReportDAO();
+            java.util.List<dto.AssetReportDto> reportData = reportDAO.getAssetReport(startDate, endDate);
 
-                request.setAttribute("reportData", reportData);
-                request.setAttribute("startDate", startDateStr);
-                request.setAttribute("endDate", endDateStr);
-                request.setAttribute("status", status);
-            } catch (IllegalArgumentException e) {
-                request.setAttribute("errorMessage", "Invalid date format");
-            }
+            request.setAttribute("reportData", reportData);
+            request.setAttribute("startDate", startDateStr);
+            request.setAttribute("endDate", endDateStr);
+        } catch (IllegalArgumentException e) {
+            request.setAttribute("errorMessage", "Invalid date format");
         }
 
         request.getRequestDispatcher("/views/report/dashboard-main.jsp").forward(request, response);
