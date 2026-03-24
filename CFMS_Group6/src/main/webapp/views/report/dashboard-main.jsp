@@ -40,138 +40,138 @@
                     <h1 class="h2 text-secondary" style="font-weight: 500;">Báo Cáo Tổng Quan Tài Sản</h1>
                 </div>
 
-                <!-- Lọc Theo Date -->
+                <!-- Nút Tác Vụ -->
                 <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-body p-4 bg-white rounded">
-                        <form action="${pageContext.request.contextPath}/report/dashboard" method="GET" class="row g-3 align-items-end">
-                            <div class="col-md-3">
-                                <label for="startDate" class="form-label fw-semibold text-muted">Từ Ngày:</label>
-                                <input type="date" class="form-control" id="startDate" name="startDate" value="${startDate}" required>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="endDate" class="form-label fw-semibold text-muted">Đến Ngày:</label>
-                                <input type="date" class="form-control" id="endDate" name="endDate" value="${endDate}" required>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="status" class="form-label fw-semibold text-muted">Trạng Thái:</label>
-                                <select class="form-select" id="status" name="status">
-                                    <option value="All" ${status == 'All' ? 'selected' : ''}>Tất Cả</option>
-                                    <option value="In_Stock" ${status == 'In_Stock' ? 'selected' : ''}>Trong Kho</option>
-                                    <option value="In_Use" ${status == 'In_Use' ? 'selected' : ''}>Đang Sử Dụng</option>
-                                    <option value="Maintenance" ${status == 'Maintenance' ? 'selected' : ''}>Đang Bảo Trì</option>
-                                    <option value="Broken" ${status == 'Broken' ? 'selected' : ''}>Hỏng Hóc</option>
-                                    <option value="Liquidated" ${status == 'Liquidated' ? 'selected' : ''}>Đã Thanh Lý</option>
-                                    <option value="Lost" ${status == 'Lost' ? 'selected' : ''}>Thất Lạc</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <button type="submit" class="btn btn-primary px-4 shadow-sm w-100">
-                                    <i class="bi bi-funnel"></i> Xem Báo Cáo
-                                </button>
-                            </div>
-                        </form>
+                    <div class="card-body p-3 bg-white rounded d-flex justify-content-between align-items-center">
+                        <div class="text-muted small">
+                            <i class="bi bi-info-circle"></i> Báo cáo hiển thị tình trạng tài sản tính đến thời điểm hiện tại.
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="${pageContext.request.contextPath}/report/dashboard" class="btn btn-primary px-4 shadow-sm">
+                                <i class="bi bi-arrow-clockwise"></i> Làm Mới Dữ Liệu
+                            </a>
+                            <button onclick="exportPDF()" class="btn btn-success px-4 shadow-sm">
+                                <i class="bi bi-file-earmark-pdf"></i> Xuất PDF
+                            </button>
+                        </div>
                     </div>
                 </div>
-                
-                <c:if test="${not empty errorMessage}">
-                    <div class="alert alert-danger">${errorMessage}</div>
-                </c:if>
 
-                <!-- Show report only if both dates are provided -->
-                <c:if test="${not empty startDate and not empty endDate}">
-                    <div class="d-flex justify-content-end mb-3">
-                        <button onclick="exportPDF()" class="btn btn-success px-4 shadow-sm">
-                            <i class="bi bi-file-earmark-pdf"></i> Xuất PDF
-                        </button>
-                    </div>
-
-                    <!-- PDF Content Area -->
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body d-flex justify-content-center bg-white">
-                            <div id="report-content" class="p-4 px-md-5 w-100 text-dark bg-white">
-                                <!-- Header Document -->
-                                <div class="row text-center mb-4">
-                                    <div class="col-6">
-                                        <h6 class="fw-bold mb-1 fs-5">TRƯỜNG ĐẠI HỌC KINH TẾ QUỐC DÂN</h6>
-                                        <p class="mb-2 fs-6">VIỆN CÔNG NGHỆ THÔNG TIN & KINH TẾ SỐ</p>
-                                        <div class="divider mx-auto"></div>
-                                    </div>
-                                    <div class="col-6">
-                                        <h6 class="fw-bold mb-1 fs-5">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</h6>
-                                        <p class="mb-2 fs-6 fw-bold">Độc Lập - Tự Do - Hạnh Phúc</p>
-                                        <div class="divider mx-auto"></div>
-                                    </div>
+                <!-- PDF Content Area -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-body d-flex justify-content-center bg-white">
+                        <div id="report-content" class="p-4 px-md-5 w-100 text-dark bg-white">
+                            <!-- Header Document -->
+                            <div class="row text-center mb-4">
+                                <div class="col-6 text-start">
+                                    <h6 class="fw-bold mb-1 fs-5">BỘ GIÁO DỤC VÀ ĐÀO TẠO</h6>
+                                    <p class="mb-2 fs-6">TRƯỜNG TRUNG HỌC PHỔ THÔNG HÀ NỘI</p>
+                                    <div class="divider"></div>
                                 </div>
-
-                                <!-- Title -->
-                                <div class="text-center my-5">
-                                    <h3 class="fw-bold fs-4 mb-1">BÁO CÁO TỔNG QUAN TÀI SẢN</h3>
-                                    <span class="fs-6">(Thời gian mua từ ngày ${startDate} đến ngày ${endDate})</span>
+                                <div class="col-6">
+                                    <h6 class="fw-bold mb-1 fs-5">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</h6>
+                                    <p class="mb-2 fs-6 fw-bold">Độc Lập - Tự Do - Hạnh Phúc</p>
+                                    <div class="divider mx-auto"></div>
                                 </div>
+                            </div>
 
-                                <!-- Table Data -->
-                                <table class="table table-bordered text-center align-middle report-table mb-5">
-                                    <thead class="fw-bold text-dark">
-                                        <tr>
-                                            <th style="width: 5%;">STT</th>
-                                            <th style="width: 15%;">Mã Tài Sản</th>
-                                            <th style="width: 25%;">Tên Tài Sản</th>
-                                            <th style="width: 20%;">Danh Mục</th>
-                                            <th style="width: 15%;">Trạng Thái</th>
-                                            <th style="width: 20%;">Ngày Mua</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="text-dark">
-                                        <c:choose>
-                                            <c:when test="${not empty reportData}">
-                                                <c:forEach items="${reportData}" var="item">
-                                                    <tr>
-                                                        <td>${item.stt}</td>
-                                                        <td>${item.assetCode}</td>
-                                                        <td>${item.assetName}</td>
-                                                        <td>${item.categoryName}</td>
-                                                        <td>
-                                                            <c:choose>
-                                                                <c:when test="${item.status == 'In_Stock'}">Trong Kho</c:when>
-                                                                <c:when test="${item.status == 'In_Use'}">Đang Sử Dụng</c:when>
-                                                                <c:when test="${item.status == 'Maintenance'}">Đang Bảo Trì</c:when>
-                                                                <c:when test="${item.status == 'Broken'}">Hỏng Hóc</c:when>
-                                                                <c:when test="${item.status == 'Liquidated'}">Đã Thanh Lý</c:when>
-                                                                <c:when test="${item.status == 'Lost'}">Thất Lạc</c:when>
-                                                                <c:otherwise>${item.status}</c:otherwise>
-                                                            </c:choose>
-                                                        </td>
-                                                        <td>${item.purchaseDate}</td>
-                                                    </tr>
-                                                </c:forEach>
-                                            </c:when>
-                                            <c:otherwise>
+                            <!-- Title -->
+                            <div class="text-center my-5">
+                                <h3 class="fw-bold fs-4 mb-1">BÁO CÁO TỔNG QUAN TÀI SẢN</h3>
+                                <p class="fs-6">(Tính đến ngày: <span id="currentDate"></span>)</p>
+                            </div>
+
+                            <c:set var="t1" value="0" />
+                            <c:set var="t2" value="0" />
+                            <c:set var="t3" value="0" />
+                            <c:set var="t4" value="0" />
+                            <c:set var="t5" value="0" />
+                            <c:set var="t6" value="0" />
+                            <c:set var="tTotal" value="0" />
+
+                            <!-- Table Data -->
+                            <table class="table table-bordered text-center align-middle report-table mb-5">
+                                <thead class="fw-bold text-dark" style="background-color: #f8f9fa;">
+                                    <tr>
+                                        <th style="width: 5%;">STT</th>
+                                        <th style="width: 15%;">Danh Mục</th>
+                                        <th style="width: 20%;">Tên Tài Sản</th>
+                                        <th style="width: 10%;">Trong Kho</th>
+                                        <th style="width: 10%;">Sử Dụng</th>
+                                        <th style="width: 10%;">Bảo Trì</th>
+                                        <th style="width: 8%;">Hỏng</th>
+                                        <th style="width: 8%;">Thanh Lý</th>
+                                        <th style="width: 7%;">Mất</th>
+                                        <th style="width: 7%;">Tổng</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-dark">
+                                    <c:choose>
+                                        <c:when test="${not empty reportData}">
+                                            <c:forEach items="${reportData}" var="item">
                                                 <tr>
-                                                    <td colspan="6" class="text-center">Không có dữ liệu tài sản tương ứng với bộ lọc.</td>
+                                                    <td>${item.stt}</td>
+                                                    <td>${item.categoryName}</td>
+                                                    <td class="text-start">${item.assetName}</td>
+                                                    <td>${item.inStockCount}</td>
+                                                    <td>${item.inUseCount}</td>
+                                                    <td>${item.maintenanceCount}</td>
+                                                    <td>${item.brokenCount}</td>
+                                                    <td>${item.liquidatedCount}</td>
+                                                    <td>${item.lostCount}</td>
+                                                    <td class="fw-bold">${item.totalCount}</td>
                                                 </tr>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </tbody>
-                                </table>
+                                                <c:set var="t1" value="${t1 + item.inStockCount}" />
+                                                <c:set var="t2" value="${t2 + item.inUseCount}" />
+                                                <c:set var="t3" value="${t3 + item.maintenanceCount}" />
+                                                <c:set var="t4" value="${t4 + item.brokenCount}" />
+                                                <c:set var="t5" value="${t5 + item.liquidatedCount}" />
+                                                <c:set var="t6" value="${t6 + item.lostCount}" />
+                                                <c:set var="tTotal" value="${tTotal + item.totalCount}" />
+                                            </c:forEach>
+                                            <tr class="fw-bold" style="background-color: #f0f0f0;">
+                                                <td colspan="3">TỔNG CỘNG</td>
+                                                <td>${t1}</td>
+                                                <td>${t2}</td>
+                                                <td>${t3}</td>
+                                                <td>${t4}</td>
+                                                <td>${t5}</td>
+                                                <td>${t6}</td>
+                                                <td class="fs-5">${tTotal}</td>
+                                            </tr>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <tr>
+                                                <td colspan="10" class="text-center">Không có dữ liệu tài sản tương ứng với bộ lọc.</td>
+                                            </tr>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </tbody>
+                            </table>
 
-                                <!-- Footer Signatures -->
-                                <div class="row mt-5 pt-3">
-                                    <div class="col-6"></div>
-                                    <div class="col-6 text-center pe-md-5">
-                                        <h6 class="fw-bold fs-6 mb-1">NGƯỜI BÁO CÁO</h6>
-                                        <p class="fst-italic" style="margin-bottom: 120px;">(Ký và ghi rõ họ tên)</p>
-                                    </div>
+                            <!-- Footer Signatures -->
+                            <div class="row mt-5 pt-3">
+                                <div class="col-6"></div>
+                                <div class="col-6 text-center pe-md-5">
+                                    <h6 class="fw-bold fs-6 mb-1">NGƯỜI LẬP BIỂU</h6>
+                                    <p class="fst-italic" style="margin-bottom: 120px;">(Ký và ghi rõ họ tên)</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </c:if>
+                </div>
 
             </main>
         </div>
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('vi-VN');
+            document.getElementById('currentDate').innerText = dateStr;
+        });
+
         function exportPDF() {
             if (confirm("Bạn có đồng ý xuất báo cáo này ra file PDF không?")) {
                 const element = document.getElementById('report-content');

@@ -1,25 +1,19 @@
 package dto;
 
-import java.sql.Date;
 
 public class AssetReportDto {
     private int stt;
-    private String assetCode;
-    private String assetName;
     private String categoryName;
-    private Date purchaseDate;
-    private String status;
+    private String assetName;
+    private int inStockCount;
+    private int inUseCount;
+    private int maintenanceCount;
+    private int brokenCount;
+    private int liquidatedCount;
+    private int lostCount;
+    private int totalCount;
 
     public AssetReportDto() {
-    }
-
-    public AssetReportDto(int stt, String assetCode, String assetName, String categoryName, Date purchaseDate, String status) {
-        this.stt = stt;
-        this.assetCode = assetCode;
-        this.assetName = assetName;
-        this.categoryName = categoryName;
-        this.purchaseDate = purchaseDate;
-        this.status = status;
     }
 
     public int getStt() {
@@ -30,12 +24,12 @@ public class AssetReportDto {
         this.stt = stt;
     }
 
-    public String getAssetCode() {
-        return assetCode;
+    public String getCategoryName() {
+        return categoryName;
     }
 
-    public void setAssetCode(String assetCode) {
-        this.assetCode = assetCode;
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
     public String getAssetName() {
@@ -46,27 +40,59 @@ public class AssetReportDto {
         this.assetName = assetName;
     }
 
-    public String getCategoryName() {
-        return categoryName;
+    public int getInStockCount() {
+        return inStockCount;
     }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
+    public void setInStockCount(int inStockCount) {
+        this.inStockCount = inStockCount;
     }
 
-    public Date getPurchaseDate() {
-        return purchaseDate;
+    public int getInUseCount() {
+        return inUseCount;
     }
 
-    public void setPurchaseDate(Date purchaseDate) {
-        this.purchaseDate = purchaseDate;
+    public void setInUseCount(int inUseCount) {
+        this.inUseCount = inUseCount;
     }
 
-    public String getStatus() {
-        return status;
+    public int getMaintenanceCount() {
+        return maintenanceCount;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setMaintenanceCount(int maintenanceCount) {
+        this.maintenanceCount = maintenanceCount;
+    }
+
+    public int getBrokenCount() {
+        return brokenCount;
+    }
+
+    public void setBrokenCount(int brokenCount) {
+        this.brokenCount = brokenCount;
+    }
+
+    public int getLiquidatedCount() {
+        return liquidatedCount;
+    }
+
+    public void setLiquidatedCount(int liquidatedCount) {
+        this.liquidatedCount = liquidatedCount;
+    }
+
+    public int getLostCount() {
+        return lostCount;
+    }
+
+    public void setLostCount(int lostCount) {
+        this.lostCount = lostCount;
+    }
+
+    public int getTotalCount() {
+        return totalCount;
+    }
+
+    public void setTotalCount(int totalCount) {
+        this.totalCount = totalCount;
     }
 }
