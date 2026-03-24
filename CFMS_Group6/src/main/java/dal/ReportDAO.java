@@ -13,7 +13,7 @@ public class ReportDAO {
 
     public List<ProcurementReportDto> getProcurementReport(Date startDate, Date endDate) {
         List<ProcurementReportDto> list = new ArrayList<>();
-        String sql = "SELECT u.full_name AS approver_name, c.category_name, pd.quantity "
+        String sql = "SELECT COALESCE(u.full_name, 'N/A') AS approver_name, c.category_name, SUM(pd.quantity) AS total_quantity "
                 + "FROM procurement_requests pr "
                 + "JOIN procurement_details pd ON pr.procurement_id = pd.procurement_id "
                 + "JOIN assets a ON pd.asset_id = a.asset_id "
@@ -22,7 +22,8 @@ public class ReportDAO {
                 + "WHERE pr.status IN ('Approved', 'Completed') "
                 + "AND CAST(pr.approved_date AS DATE) >= ? "
                 + "AND CAST(pr.approved_date AS DATE) <= ? "
-                + "ORDER BY pr.approved_date DESC";
+                + "GROUP BY COALESCE(u.full_name, 'N/A'), c.category_name "
+                + "ORDER BY approver_name, c.category_name";
 
         try (Connection con = new DBContext().getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -32,13 +33,20 @@ public class ReportDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 int stt = 1;
+                ProcurementReportDto currentDto = null;
                 while (rs.next()) {
-                    ProcurementReportDto dto = new ProcurementReportDto();
-                    dto.setStt(stt++);
-                    dto.setApproverName(rs.getString("approver_name") != null ? rs.getString("approver_name") : "N/A");
-                    dto.setCategoryName(rs.getString("category_name"));
-                    dto.setQuantity(rs.getInt("quantity"));
-                    list.add(dto);
+                    String approverName = rs.getString("approver_name");
+                    String categoryName = rs.getString("category_name");
+                    int quantity = rs.getInt("total_quantity");
+
+                    if (currentDto == null || !currentDto.getApproverName().equals(approverName)) {
+                        currentDto = new ProcurementReportDto();
+                        currentDto.setStt(stt++);
+                        currentDto.setApproverName(approverName);
+                        currentDto.setDetails(new ArrayList<>());
+                        list.add(currentDto);
+                    }
+                    currentDto.getDetails().add(new dto.CategoryQuantityDto(categoryName, quantity));
                 }
             }
         } catch (Exception e) {
