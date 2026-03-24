@@ -40,6 +40,7 @@ CREATE TABLE users (
     role_id INT NOT NULL,
     dept_id INT, 
     status NVARCHAR(20) DEFAULT N'Active',
+	is_force_change BIT DEFAULT 0,
     created_at DATETIME DEFAULT GETDATE(),
     
     -- Ràng buộc khóa ngoại
