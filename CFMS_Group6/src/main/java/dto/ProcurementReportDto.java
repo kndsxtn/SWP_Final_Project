@@ -3,17 +3,15 @@ package dto;
 public class ProcurementReportDto {
     private int stt;
     private String approverName;
-    private String categoryName;
-    private int quantity;
+    private java.util.List<CategoryQuantityDto> details;
 
     public ProcurementReportDto() {
     }
 
-    public ProcurementReportDto(int stt, String approverName, String categoryName, int quantity) {
+    public ProcurementReportDto(int stt, String approverName, java.util.List<CategoryQuantityDto> details) {
         this.stt = stt;
         this.approverName = approverName;
-        this.categoryName = categoryName;
-        this.quantity = quantity;
+        this.details = details;
     }
 
     public int getStt() {
@@ -32,19 +30,11 @@ public class ProcurementReportDto {
         this.approverName = approverName;
     }
 
-    public String getCategoryName() {
-        return categoryName;
+    public java.util.List<CategoryQuantityDto> getDetails() {
+        return details;
     }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setDetails(java.util.List<CategoryQuantityDto> details) {
+        this.details = details;
     }
 }

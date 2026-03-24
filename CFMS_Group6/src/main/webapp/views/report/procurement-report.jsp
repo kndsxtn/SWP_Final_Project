@@ -80,8 +80,7 @@
                                 <!-- Header Document -->
                                 <div class="row text-center mb-4">
                                     <div class="col-6">
-                                        <h6 class="fw-bold mb-1 fs-5">TRƯỜNG ĐẠI HỌC KINH TẾ QUỐC DÂN</h6>
-                                        <p class="mb-2 fs-6">VIỆN CÔNG NGHỆ THÔNG TIN & KINH TẾ SỐ</p>
+                                        <h6 class="fw-bold mb-1 fs-5">TRƯỜNG THPT HÀ NỘI</h6>
                                         <div class="divider mx-auto"></div>
                                     </div>
                                     <div class="col-6">
@@ -111,12 +110,16 @@
                                         <c:choose>
                                             <c:when test="${not empty reportData}">
                                                 <c:forEach items="${reportData}" var="item">
-                                                    <tr>
-                                                        <td>${item.stt}</td>
-                                                        <td>${item.approverName}</td>
-                                                        <td>${item.categoryName}</td>
-                                                        <td>${item.quantity}</td>
-                                                    </tr>
+                                                    <c:forEach items="${item.details}" var="detail" varStatus="loop">
+                                                        <tr>
+                                                            <c:if test="${loop.index == 0}">
+                                                                <td rowspan="${item.details.size()}">${item.stt}</td>
+                                                                <td rowspan="${item.details.size()}">${item.approverName}</td>
+                                                            </c:if>
+                                                            <td>${detail.categoryName}</td>
+                                                            <td>${detail.quantity}</td>
+                                                        </tr>
+                                                    </c:forEach>
                                                 </c:forEach>
                                             </c:when>
                                             <c:otherwise>
