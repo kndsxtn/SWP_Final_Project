@@ -48,6 +48,13 @@ public class LoginGoogleServlet extends HttpServlet {
             return;
         }
 
+        // Chặn nếu tài khoản bị khóa
+        if (!"Active".equalsIgnoreCase(account.getStatus())) {
+            request.setAttribute("errorMsg", "Tài khoản của bạn đã bị khóa hoặc ngừng hoạt động!");
+            request.getRequestDispatcher("/views/auth/login.jsp").forward(request, response);
+            return;
+        }
+
         HttpSession session = request.getSession(true);
         session.setAttribute("user", account);
         session.setAttribute("googleUser", googleAccount);
