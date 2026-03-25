@@ -31,17 +31,18 @@ public class EmailValidation {
         try {
             //noi dung email
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(fromEmail));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-            message.setSubject("Yêu cầu cấp lại mật khẩu: " + username);
+            MimeMessage mimeMessage = (MimeMessage) message;
+            mimeMessage.setFrom(new InternetAddress(fromEmail));
+            mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            mimeMessage.setSubject("Yêu cầu cấp lại mật khẩu cho tài khoản: " + username, "UTF-8");
             
-            String content = "Hello " + username + ",\n\n"
-                    + "Bạn đã yêu cầu cấp lại mật khẩu. Hệ thống đã tự tạo mới mật khẩu mới cho bạn.\n\n"
+            String content = "Xin chào " + username + ",\n\n"
+                    + "Bạn đã yêu cầu cấp lại mật khẩu. Hệ thống đã tự tạo mật khẩu mới cho bạn.\n\n"
                     + "Mật khẩu mới của bạn là: " + newPassword + "\n\n"
-                    + "Vui lòng đăng nhập bằng mật khẩu này.\n\n"
-                    + "Trân trọng,\nAdmin CFMS.";
+                    + "Vui lòng đăng nhập và đổi lại mật khẩu để đảm bảo bảo mật.\n\n"
+                    + "Trân trọng,\nBan quản trị hệ thống.";
             
-            message.setText(content);
+            mimeMessage.setText(content, "UTF-8");
 
             // thuc hien gui mail
             Transport.send(message);
