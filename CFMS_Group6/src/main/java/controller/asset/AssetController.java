@@ -8,6 +8,8 @@ import model.Asset;
 import model.AssetDetail;
 import model.AssetImage;
 import model.Category;
+import model.TransferOrder;
+import dal.TransferOrderDAO;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -48,7 +50,8 @@ import dto.UserDto;
         "/asset/update",
         "/asset/status",
         "/asset/delete",
-        "/asset/deleteImage"
+        "/asset/deleteImage",
+        "/asset/instance/history"
 })
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, // 1 MB
         maxFileSize = 5 * 1024 * 1024, // 5 MB / file
@@ -64,6 +67,7 @@ public class AssetController extends HttpServlet {
     private final AssetDAO assetDao = new AssetDAO();
     private final AssetDetailDAO assetDetailDao = new AssetDetailDAO();
     private final AssetHistoryDAO historyDao = new AssetHistoryDAO();
+    private final TransferOrderDAO transferOrderDao = new TransferOrderDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -83,6 +87,9 @@ public class AssetController extends HttpServlet {
                 break;
             case "/asset/update":
                 doUpdateForm(request, response);
+                break;
+            case "/asset/instance/history":
+                doInstanceHistory(request, response);
                 break;
             default:
                 response.sendRedirect(request.getContextPath() + "/asset/list");
@@ -526,6 +533,21 @@ public class AssetController extends HttpServlet {
         asset.setDescription(request.getParameter("description"));
         asset.setQuantity(parseIntParam(request.getParameter("quantity"), 0)); // Mặc định là 0
         return asset;
+    }
+
+    private void doInstanceHistory(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int instanceId = parseIntParam(request.getParameter("instanceId"), 0);
+        if (instanceId <= 0) {
+            response.sendRedirect(request.getContextPath() + "/asset/list");
+            return;
+        }
+
+        model.AssetDetail detail = assetDetailDao.getAssetDetailByInstanceId(instanceId);
+        List<TransferOrder> history = transferOrderDao.getTransferHistoryByInstanceId(instanceId);
+        request.setAttribute("history", history);
+        request.setAttribute("detail", detail);
+        request.getRequestDispatcher("/views/asset/instance-history.jsp").forward(request, response);
     }
 
     /** Parse int an toàn, trả defaultValue nếu lỗi */

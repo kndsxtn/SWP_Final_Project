@@ -203,7 +203,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title">
-                                    <i class="bi bi-person-circle me-2"></i>Chi tiet: ${u.fullName}
+                                    <i class="bi bi-person-circle me-2"></i>Chi tiết: ${u.fullName}
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
@@ -212,8 +212,8 @@
                                 <%-- Thong tin --%>
                                 <div class="row g-3 mb-3">
                                     <div class="col-md-6">
-                                        <label class="form-label fw-semibold small text-muted">User
-                                            ID</label>
+                                        <label class="form-label fw-semibold small text-muted">ID Người Dùng
+                                            </label>
                                         <div class="form-control-plaintext">${u.userId}</div>
                                     </div>
                                     <div class="col-md-6">
@@ -232,13 +232,13 @@
                                                                               '-'}</div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label fw-semibold small text-muted">Dien
-                                            thoai</label>
+                                        <label class="form-label fw-semibold small text-muted">Số Điện Thoại
+                                            </label>
                                         <div class="form-control-plaintext">${u.phone != null ? u.phone :
                                                                               '-'}</div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label fw-semibold small text-muted">Phong ban
+                                        <label class="form-label fw-semibold small text-muted">Phòng Ban
                                             (ID)</label>
                                         <div class="form-control-plaintext">${u.deptId > 0 ? u.deptId : '-'}
                                         </div>

@@ -199,6 +199,7 @@
                                                                         test="${sessionScope.user.roleName == 'Asset Staff'}">
                                                                         <th>Thao tác</th>
                                                                     </c:if>
+                                                                    <th>Lịch sử</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
@@ -372,6 +373,13 @@
                                                                                 </c:if>
                                                                             </td>
                                                                         </c:if>
+                                                                        <td>
+                                                                            <a href="${pageContext.request.contextPath}/asset/instance/history?instanceId=${detail.instanceId}" 
+                                                                                class="btn btn-sm btn-outline-info" 
+                                                                                title="Xem lịch sử trung chuyển">
+                                                                                <i class="bi bi-clock-history"></i>
+                                                                            </a>
+                                                                        </td>
                                                                     </tr>
                                                                 </c:forEach>
                                                             </tbody>

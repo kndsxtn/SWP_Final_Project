@@ -16,7 +16,6 @@ public class UserValidator {
     private static final String EMAIL_REGEX = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
     private static final String PHONE_REGEX = "^0[0-9]{9,10}$";
 
-   
     public static String validateLogin(String loginInput, String password) {
         if (loginInput == null || loginInput.trim().isEmpty()) {
             return Message.EMPTY_USERNAME;
@@ -37,7 +36,7 @@ public class UserValidator {
 
         // Lay password tu DB theo Username cua tai khoan vua tim thay
         String passwordDB = userDAO.getPasswordByUserName(account.getUsername());
-        
+
         if (passwordDB == null || !passwordDB.trim().equals(password)) {
             return Message.ERROR_PASS; // Sai mat khau
         }
@@ -62,14 +61,26 @@ public class UserValidator {
         return null;
     }
 
+    private static final String USERNAME_REGEX = "^[a-zA-Z0-9._-]+$";
+
     public static String validateCreateUser(String username, String password, String fullName, String email,
             String phone) {
         if (username == null || username.trim().isEmpty())
             return Message.EMPTY_USERNAME;
+        if (username.contains(" "))
+            return "Tên đăng nhập không được chứa khoảng trắng!";
+        if (!username.matches(USERNAME_REGEX))
+            return Message.INVALID_USERNAME;
         if (password == null || password.trim().isEmpty())
             return Message.EMPTY_PASSWORD;
+        if (password.contains(" "))
+            return "Mật khẩu không được chứa khoảng trắng!";
         if (fullName == null || fullName.trim().isEmpty())
             return Message.EMPTY_FULLNAME;
+        if (fullName.startsWith(" "))
+            return "Họ và tên không được chứa khoảng trắng ở đầu!";
+        if (fullName.contains("  "))
+            return "Họ và tên không được chứa 2 khoảng trắng liên tiếp!";
         if (email == null || !email.matches(EMAIL_REGEX))
             return Message.INVALID_EMAIL;
         if (phone == null || !phone.matches(PHONE_REGEX))
