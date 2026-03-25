@@ -6,7 +6,7 @@
 
             <head>
                 <meta charset="UTF-8">
-                <title>Them nguoi dung - CFMS</title>
+                <title>Thêm người dùng - CFMS</title>
                 <%-- Bootstrap, FontAwesome, Bootstrap Icons, CSS rieng --%>
                     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
                         rel="stylesheet">
@@ -72,8 +72,7 @@
                                                                         <input type="text" name="fullName"
                                                                             class="form-control py-2"
                                                                             value="${oldFullName}"
-                                                                            placeholder="Nguyen Van A" required>
-                                                                        <div class="invalid-feedback">Vui lòng nhập họ và tên</div>
+                                                                            placeholder="Nguyen Van A">
                                                                     </div>
 
                                                                     <%-- Email --%>
@@ -81,12 +80,10 @@
                                                                             <label class="form-label fw-semibold">Email
                                                                                 <span
                                                                                     class="text-danger">*</span></label>
-                                                                            <input type="email" name="email"
+                                                                            <input type="text" name="email"
                                                                                 class="form-control py-2"
                                                                                 value="${oldEmail}"
-                                                                                placeholder="example@email.com"
-                                                                                required>
-                                                                            <div class="invalid-feedback">Email không hợp lệ</div>
+                                                                                placeholder="example@email.com">
                                                                         </div>
 
                                                                         <%-- So dien thoai --%>
@@ -95,9 +92,7 @@
                                                                                 <input type="text" name="phone"
                                                                                     class="form-control py-2"
                                                                                     value="${oldPhone}"
-                                                                                    placeholder="0901234567"
-                                                                                    pattern="[0-9]{9,11}">
-                                                                                <div class="invalid-feedback">Số điện thoại không hợp lệ(9-11 số)</div>
+                                                                                    placeholder="Số điện thoại...">
                                                                             </div>
 
                                                                             <%-- Vai tro (Role) – lay tu DB --%>
@@ -107,8 +102,7 @@
                                                                                         Trò <span
                                                                                             class="text-danger">*</span></label>
                                                                                     <select name="roleId"
-                                                                                        class="form-select py-2"
-                                                                                        required>
+                                                                                        class="form-select py-2">
                                                                                         <option value="" disabled
                                                                                             selected>-- Chọn vai trò --
                                                                                         </option>
@@ -122,7 +116,6 @@
                                                                                             </option>
                                                                                         </c:forEach>
                                                                                     </select>
-                                                                                    <div class="invalid-feedback">Vui lòng chọn vai trò</div>
                                                                                 </div>
 
                                                                                 <hr class="my-2">
@@ -133,15 +126,12 @@
                                                                                         <label
                                                                                             class="form-label fw-semibold">Tên tài khoản <span
                                                                                                 class="text-danger">*</span></label>
-                                                                                        <input type="text"
-                                                                                            name="username"
-                                                                                            class="form-control py-2"
-                                                                                            value="${oldUsername}"
-                                                                                            placeholder="user123"
-                                                                                            required autocomplete="off">
-                                                                                        <div class="invalid-feedback">
-                                                                                           Vui lòng nhập tên tài khoản
-                                                                                        </div>
+                                                                                         <input type="text"
+                                                                                              name="username"
+                                                                                              class="form-control py-2"
+                                                                                              value="${oldUsername}"
+                                                                                              placeholder="user123"
+                                                                                              autocomplete="off">
                                                                                     </div>
 
                                                                                     <%-- Mat khau mac dinh --%>
@@ -155,8 +145,7 @@
                                                                                                     id="passInput"
                                                                                                     class="form-control py-2"
                                                                                                     placeholder="Tối thiểu 1 ký tự"
-                                                                                                    required
-                                                                                                    minlength="1"
+                                                                                                    value="${oldPassword}"
                                                                                                     autocomplete="new-password">
                                                                                                 <%-- Nut hien/an mat
                                                                                                     khau --%>
@@ -168,9 +157,6 @@
                                                                                                             id="eyeIcon"></i>
                                                                                                     </button>
                                                                                             </div>
-                                                                                            <div
-                                                                                                class="invalid-feedback">
-                                                                                                Mật khẩu ít nhất 1 ký tự</div>
                                                                                         </div>
 
                                                             </div><%-- end row --%>
@@ -198,35 +184,23 @@
                     <%-- Footer chung --%>
                         <jsp:include page="/views/components/footer.jsp"></jsp:include>
 
-                        <script
-                            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-                        <script>
-                            // Validate Bootstrap khi submit
-                            (() => {
-                                const form = document.getElementById('createUserForm');
-                                form.addEventListener('submit', e => {
-                                    if (!form.checkValidity()) {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                    }
-                                    form.classList.add('was-validated');
-                                });
-                            })();
 
-                            // Hien / an mat khau khi bam icon mat
-                            document.getElementById('togglePass').addEventListener('click', () => {
-                                const inp = document.getElementById('passInput');
-                                const icon = document.getElementById('eyeIcon');
-                                if (inp.type === 'password') {
-                                    inp.type = 'text';
-                                    icon.classList.replace('fa-eye', 'fa-eye-slash');
-                                } else {
-                                    inp.type = 'password';
-                                    icon.classList.replace('fa-eye-slash', 'fa-eye');
-                                }
-                            });
-                        </script>
-
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                <script>
+                    document.getElementById('togglePass').addEventListener('click', function () {
+                        const passInput = document.getElementById('passInput');
+                        const eyeIcon = document.getElementById('eyeIcon');
+                        if (passInput.type === 'password') {
+                            passInput.type = 'text';
+                            eyeIcon.classList.remove('fa-eye');
+                            eyeIcon.classList.add('fa-eye-slash');
+                        } else {
+                            passInput.type = 'password';
+                            eyeIcon.classList.remove('fa-eye-slash');
+                            eyeIcon.classList.add('fa-eye');
+                        }
+                    });
+                </script>
             </body>
 
             </html>

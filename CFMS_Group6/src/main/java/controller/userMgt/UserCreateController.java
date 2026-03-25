@@ -36,11 +36,11 @@ public class UserCreateController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         // Lay du lieu tu form
-        String username = request.getParameter("username").trim();
-        String password = request.getParameter("password").trim();
-        String fullName = request.getParameter("fullName").trim();
-        String email = request.getParameter("email").trim();
-        String phone = request.getParameter("phone").trim();
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        String fullName = request.getParameter("fullName");
+        String email = request.getParameter("email");
+        String phone = request.getParameter("phone");
         int roleId = Integer.parseInt(request.getParameter("roleId"));
 
         UserDAO dao = new UserDAO();
@@ -54,6 +54,7 @@ public class UserCreateController extends HttpServlet {
             request.setAttribute("roles", roles);
             // giu lai du lieu cu de user khoi phai nhap lai
             request.setAttribute("oldUsername", username);
+            request.setAttribute("oldPassword", password);
             request.setAttribute("oldFullName", fullName);
             request.setAttribute("oldEmail", email);
             request.setAttribute("oldPhone", phone);
@@ -74,6 +75,7 @@ public class UserCreateController extends HttpServlet {
             request.setAttribute("roles", roles);
             // giu lai du lieu cu de user khoi phai nhap lai
             request.setAttribute("oldUsername", username);
+            request.setAttribute("oldPassword", password);
             request.setAttribute("oldFullName", fullName);
             request.setAttribute("oldEmail", email);
             request.setAttribute("oldPhone", phone);

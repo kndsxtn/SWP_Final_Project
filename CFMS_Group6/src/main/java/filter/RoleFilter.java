@@ -17,7 +17,7 @@ import java.util.*;
 @WebFilter({
         // Danh sách các URL cần bảo vệ quyền hạn
         "/category/create", "/category/update", "/category/delete",
-        "/asset/create", "/asset/update", "/asset/status", "/asset/delete", "/asset/deleteImage",
+        "/asset/create", "/asset/update", "/asset/status", "/asset/delete", "/asset/deleteImage", "/asset/instance/history",
         "/request/create", "/request/cancel", "/request/approve", "/request/check-stock", "/request/complete",
         "/request/procurement-create", "/request/procurement-update", "/request/procurement-cancel",
         "/request/procurement-stockin",
@@ -49,6 +49,7 @@ public class RoleFilter implements Filter {
                                                                                                   // TP Tài chính
         routeRoles.put("/asset/deleteImage", Arrays.asList(Message.NV_QUAN_LY)); // Xóa ảnh tài sản
         routeRoles.put("/asset/list", Arrays.asList(Message.NV_QUAN_LY));
+        routeRoles.put("/asset/instance/history", Arrays.asList(Message.NV_QUAN_LY, Message.TP_TAI_CHINH, Message.HIEU_TRUONG));
 
         // --- NHÓM 3: YÊU CẦU CẤP PHÁT (UC11-UC15) ---
         routeRoles.put("/request/create", Arrays.asList(Message.TRUONG_BAN)); // UC11
