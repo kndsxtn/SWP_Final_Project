@@ -213,15 +213,18 @@ public class TransferOrderDAO {
 
     // Update trạng thái (Approve, Reject, Complete)
     public void updateStatus(int transferId, String status) {
-        String sql = "UPDATE transfer_orders SET status = ? WHERE transfer_id = ?";
+        String sql = "UPDATE transfer_orders SET status = ?, "
+                + "completed_date = (CASE WHEN ? = 'Completed' THEN GETDATE() ELSE completed_date END) "
+                + "WHERE transfer_id = ?";
 
         try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, status);
-            ps.setInt(2, transferId);
+            ps.setString(2, status);
+            ps.setInt(3, transferId);
             ps.executeUpdate();
 
-            if ("Completed".equals(status) || "Cancelled".equals(status) 
+            if ("Completed".equals(status) || "Cancelled".equals(status)
                     || "Failed".equals(status) || "Return_Confirmed".equals(status)) {
                 String unlockSql = "UPDATE asset_details SET is_locked = 0 WHERE instance_id IN (SELECT instance_id FROM transfer_details WHERE transfer_id = ?)";
                 try (PreparedStatement psUnlock = con.prepareStatement(unlockSql)) {
@@ -651,5 +654,48 @@ public class TransferOrderDAO {
         dest.setDeptId(rs.getInt("dest_dept"));
         t.setDestRoom(dest);
         return t;
+    }
+    // Lấy lịch sử trung chuyển của một cá thể tài sản
+    public List<TransferOrder> getTransferHistoryByInstanceId(int instanceId) {
+        List<TransferOrder> list = new ArrayList<>();
+        String sql = "SELECT t.transfer_id, t.created_date, t.completed_date, t.status, "
+                + "sr.room_name AS src_name, dr.room_name AS dest_name, u.full_name "
+                + "FROM transfer_orders t "
+                + "JOIN transfer_details td ON t.transfer_id = td.transfer_id "
+                + "JOIN rooms sr ON t.source_room_id = sr.room_id "
+                + "JOIN rooms dr ON t.dest_room_id = dr.room_id "
+                + "JOIN users u ON t.created_by = u.user_id "
+                + "WHERE td.instance_id = ? AND t.status = 'Completed' "
+                + "ORDER BY t.completed_date DESC";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, instanceId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    TransferOrder t = new TransferOrder();
+                    t.setTransferId(rs.getInt("transfer_id"));
+                    t.setCreatedDate(rs.getTimestamp("created_date"));
+                    t.setCompletedDate(rs.getTimestamp("completed_date"));
+                    t.setStatus(rs.getString("status"));
+
+                    Room src = new Room();
+                    src.setRoomName(rs.getString("src_name"));
+                    t.setSourceRoom(src);
+
+                    Room dest = new Room();
+                    dest.setRoomName(rs.getString("dest_name"));
+                    t.setDestRoom(dest);
+
+                    User u = new User();
+                    u.setFullName(rs.getString("full_name"));
+                    t.setCreator(u);
+
+                    list.add(t);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }

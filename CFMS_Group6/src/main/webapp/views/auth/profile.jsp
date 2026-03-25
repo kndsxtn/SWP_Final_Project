@@ -6,7 +6,7 @@
 
     <head>
         <meta charset="UTF-8">
-        <title>Ho so &amp; Bao mat - CFMS</title>
+        <title>Hồ Sơ &amp; Bảo Mật - CFMS</title>
 
         <%-- Bootstrap, FontAwesome, Bootstrap Icons, CSS rieng --%>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -215,13 +215,8 @@
             </div>
         </div>
 
-        <%-- Footer chung --%>
         <jsp:include page="/views/components/footer.jsp"></jsp:include>
-
-        <%-- Bootstrap JS (can cho chuc nang tab) --%>
-        <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 
 </html>
