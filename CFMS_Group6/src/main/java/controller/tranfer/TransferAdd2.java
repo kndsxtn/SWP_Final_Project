@@ -84,11 +84,15 @@ public class TransferAdd2 extends HttpServlet {
         if (srcParam != null && !srcParam.isEmpty()) {
             srcRoomId = Integer.parseInt(srcParam);
             session.setAttribute("srcRoomId", srcRoomId);
+        } else {
+            srcRoomId = (Integer) session.getAttribute("srcRoomId");
         }
 
         if (destParam != null && !destParam.isEmpty()) {
             destRoomId = Integer.parseInt(destParam);
             session.setAttribute("destRoomId", destRoomId);
+        } else {
+            destRoomId = (Integer) session.getAttribute("destRoomId");
         }
         RoomDAO rDao = new RoomDAO();
         List<Room> rooms = rDao.getAll();
@@ -98,6 +102,19 @@ public class TransferAdd2 extends HttpServlet {
             List<CreateTransferDto> assetDetailList = assetDetailDao.getByRoomId(srcRoomId);
             request.setAttribute("assetDetailList", assetDetailList);
         }
+
+        List<Integer> checkedAssetIds = (List<Integer>) session.getAttribute("checkedAssetIds");
+        if (checkedAssetIds != null) {
+            request.setAttribute("checkedAssetIds", checkedAssetIds);
+            session.removeAttribute("checkedAssetIds");
+        }
+
+        String savedNote = (String) session.getAttribute("savedNote");
+        if (savedNote != null) {
+            request.setAttribute("note", savedNote);
+            session.removeAttribute("savedNote");
+        }
+
         request.getRequestDispatcher("/views/tranfer/transfer-add-step1.jsp").forward(request, response);
     }
 
@@ -132,8 +149,31 @@ public class TransferAdd2 extends HttpServlet {
         Integer dest = (Integer) session.getAttribute("destRoomId");
         String note = request.getParameter("note");
 
-        if (u == null || src == null || dest == null || selectedAssetIds.isEmpty()) {
+        if (u == null) {
             response.sendRedirect(request.getContextPath() + "/transfer/add");
+            return;
+        }
+
+        if (src == null) {
+            session.setAttribute("error", "Vui lòng chọn phòng nguồn.");
+            session.setAttribute("checkedAssetIds", selectedAssetIds);
+            session.setAttribute("savedNote", note);
+            response.sendRedirect(request.getContextPath() + "/transfer/addstep2");
+            return;
+        }
+
+        if (dest == null) {
+            session.setAttribute("error", "Vui lòng chọn phòng đích.");
+            session.setAttribute("checkedAssetIds", selectedAssetIds);
+            session.setAttribute("savedNote", note);
+            response.sendRedirect(request.getContextPath() + "/transfer/addstep2");
+            return;
+        }
+
+        if (selectedAssetIds.isEmpty()) {
+            session.setAttribute("error", "Vui lòng chọn ít nhất một tài sản để điều chuyển.");
+            session.setAttribute("savedNote", note);
+            response.sendRedirect(request.getContextPath() + "/transfer/addstep2");
             return;
         }
 
@@ -148,8 +188,14 @@ public class TransferAdd2 extends HttpServlet {
         t.setDestRoomId(dest);
         t.setSourceRoomId(src);
         t.setNote(note);
+        
+        RoomDAO rDao = new RoomDAO();
+        Room srcRoom = rDao.getById(src);
+        Room destRoom = rDao.getById(dest);
+        String historyDesc = "chuyển từ " + (srcRoom != null ? srcRoom.getRoomName() : "") + " sang " + (destRoom != null ? destRoom.getRoomName() : "");
+
         try {
-            int i = tDao.createTransfer(t, selectedAssetList);
+            int i = tDao.createTransfer(t, selectedAssetList, historyDesc);
         } catch (Exception ex) {
             Logger.getLogger(TransferAdd2.class.getName()).log(Level.SEVERE, null, ex);
         }

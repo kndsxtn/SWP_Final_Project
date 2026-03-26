@@ -18,11 +18,12 @@ import model.TransferOrder;
  */
 public class TransferDAO {
 
-    public int createTransfer(TransferOrder t, List<CreateTransferDto> assetList) throws Exception {
+    public int createTransfer(TransferOrder t, List<CreateTransferDto> assetList, String historyDesc) throws Exception {
 
         String insertOrder = "INSERT INTO transfer_orders(created_by, source_room_id, dest_room_id, note) VALUES (?, ?, ?, ?)";
         String insertDetail = "INSERT INTO transfer_details(transfer_id, instance_id, status_at_transfer) VALUES (?, ?, ?)";
         String lockInstance = "UPDATE asset_details SET is_locked = 1 WHERE instance_id = ?";
+        String insertHistory = "INSERT INTO asset_history (instance_id, action, performed_by, description) VALUES (?, 'Điều chuyển tài sản', ?, ?)";
 
         try (Connection con = new DBContext().getConnection()) {
             con.setAutoCommit(false);
@@ -42,6 +43,8 @@ public class TransferDAO {
             // 2️⃣ Insert details and lock asset instance
             PreparedStatement ps2 = con.prepareStatement(insertDetail);
             PreparedStatement ps3 = con.prepareStatement(lockInstance);
+            PreparedStatement ps4 = con.prepareStatement(insertHistory);
+
             for (CreateTransferDto a : assetList) {
                 ps2.setInt(1, transferId);
                 ps2.setInt(2, a.getInstanceId());
@@ -50,9 +53,15 @@ public class TransferDAO {
 
                 ps3.setInt(1, a.getInstanceId());
                 ps3.addBatch();
+                
+                ps4.setInt(1, a.getInstanceId());
+                ps4.setInt(2, t.getCreatedBy());
+                ps4.setString(3, historyDesc);
+                ps4.addBatch();
             }
             ps2.executeBatch();
             ps3.executeBatch();
+            ps4.executeBatch();
 
             con.commit();
             return transferId;
