@@ -86,9 +86,11 @@ public class ProcurementStockInController extends HttpServlet {
         try (Connection con = new DBContext().getConnection()) {
             con.setAutoCommit(false); // Bắt đầu Transaction
 
+            // Lấy thông tin chi tiết tài sản
             String desc = "Nhập kho từ PO: PROC-" + procurementId;
             List<Integer> newlyGeneratedIds = new ArrayList<>();
 
+            // Lặp qua từng chi tiết tài sản
             for (ProcurementDetail d : details) {
                 String paramName = "recvQty_" + d.getDetailId();
                 String valStr = request.getParameter(paramName);
@@ -101,10 +103,13 @@ public class ProcurementStockInController extends HttpServlet {
                     }
                 }
 
+                // Kiểm tra số lượng nhập kho
                 if (recvQty < 0) {
+                    // Nếu số lượng nhập kho nhỏ hơn 0 thì set bằng 0
                     recvQty = 0;
                 }
 
+                // Lấy số lượng đã nhập kho
                 int currentReceived = (d.getReceivedQuantity() == null) ? 0 : d.getReceivedQuantity();
 
                 // Số lượng còn thiếu trước khi nhập lần này

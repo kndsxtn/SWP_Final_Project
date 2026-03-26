@@ -272,14 +272,16 @@
                                     </div>
                                     <div class="col-6 col-lg-4">
                                         <div class="stat-card">
-                                            <div class="stat-icon icon-danger"><i class="bi bi-exclamation-octagon"></i></div>
+                                            <div class="stat-icon icon-danger"><i class="bi bi-exclamation-octagon"></i>
+                                            </div>
                                             <div class="stat-value">${assetsBroken}</div>
                                             <div class="stat-label">Đang bị hỏng</div>
                                         </div>
                                     </div>
                                     <div class="col-6 col-lg-4">
                                         <div class="stat-card">
-                                            <div class="stat-icon icon-secondary"><i class="bi bi-question-circle"></i></div>
+                                            <div class="stat-icon icon-secondary"><i class="bi bi-question-circle"></i>
+                                            </div>
                                             <div class="stat-value">${assetsLost}</div>
                                             <div class="stat-label">Thất lạc / Mất</div>
                                         </div>
@@ -415,7 +417,7 @@
                             <!-- ═════════════════════════════════════════════════════
                      PRINCIPAL / VICE PRINCIPAL (Hiệu trưởng / Phó HT)
                 ══════════════════════════════════════════════════════ -->
-                            <c:if test="${role == 'Principal' || role == 'Vice Principal'}">
+                            <c:if test="${role == 'Principal'}">
 
                                 <h6 class="section-heading">Tổng quan hệ thống</h6>
                                 <div class="row g-3 mb-3">

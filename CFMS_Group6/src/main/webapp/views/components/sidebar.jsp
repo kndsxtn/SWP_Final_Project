@@ -166,8 +166,16 @@
                             </li>
                         </c:if>
 
-                        <!-- ========== PRINCIPAL / VICE PRINCIPAL ========== -->
-                        <c:if test="${role == 'Principal' || role == 'Vice Principal'}">
+                        <!-- ========== PRINCIPAL ========== -->
+                        <c:if test="${role == 'Principal'}">
+                            <!-- Danh sách tài sản (chỉ xem, không có thao tác sửa/xóa) -->
+                            <h6 class="sidebar-heading">Tài sản</h6>
+                            <li class="nav-item">
+                                <a class="nav-link ${param.page == 'asset_list' ? 'active' : ''}"
+                                    href="${pageContext.request.contextPath}/asset/list">
+                                    <i class="bi bi-pc-display-horizontal"></i> Danh sách tài sản
+                                </a>
+                            </li>
                             <h6 class="sidebar-heading">Phê duyệt</h6>
                             <li class="nav-item">
                                 <a class="nav-link ${param.page == 'procurement_list' ? 'active' : ''}"
