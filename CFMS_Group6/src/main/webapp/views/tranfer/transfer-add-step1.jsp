@@ -33,12 +33,21 @@
                                 <h1 class="h2 text-secondary" style="font-weight: 500;">Tạo Phiếu Điều Chuyển</h1>
                             </div>
 
-                            <c:if test="${not empty msg}">
-                                <div class="alert alert-info alert-dismissible fade show shadow-sm" role="alert">
-                                    ${msg}
+                            <c:if test="${not empty sessionScope.error}">
+                                <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                                    ${sessionScope.error}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert"
                                         aria-label="Close"></button>
                                 </div>
+                                <c:remove var="error" scope="session"/>
+                            </c:if>
+                            <c:if test="${not empty sessionScope.msg}">
+                                <div class="alert alert-info alert-dismissible fade show shadow-sm" role="alert">
+                                    ${sessionScope.msg}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                </div>
+                                <c:remove var="msg" scope="session"/>
                             </c:if>
 
                             <div class="card shadow-sm border-0 mb-4">
@@ -55,9 +64,9 @@
                                                     onchange="this.form.submit()">
                                                     <option value="">-- Chọn phòng đích --</option>
                                                     <c:forEach items="${rooms}" var="r">
-                                                        <c:if test="${r.roomId != param.sourceRoom}">
+                                                        <c:if test="${r.roomId != sessionScope.srcRoomId}">
                                                             <option value="${r.roomId}"
-                                                                ${r.roomId==param.destinationRoom ? "selected" : "" }>
+                                                                ${r.roomId==sessionScope.destRoomId ? "selected" : "" }>
                                                                 ${r.roomName}
                                                             </option>
                                                         </c:if>
@@ -71,8 +80,8 @@
                                                     onchange="this.form.submit()">
                                                     <option value="">-- Chọn phòng nguồn --</option>
                                                     <c:forEach items="${rooms}" var="r">
-                                                        <c:if test="${r.roomId != param.destinationRoom}">
-                                                            <option value="${r.roomId}" ${r.roomId==param.sourceRoom
+                                                        <c:if test="${r.roomId != sessionScope.destRoomId}">
+                                                            <option value="${r.roomId}" ${r.roomId==sessionScope.srcRoomId
                                                                 ? "selected" : "" }>
                                                                 ${r.roomName}
                                                             </option>
@@ -118,7 +127,8 @@
                                                                         class="form-check d-flex justify-content-center">
                                                                         <input class="form-check-input" type="checkbox"
                                                                             name="assetIds" value="${a.instanceId}"
-                                                                            id="assetDetail_${a.instanceId}">
+                                                                            id="assetDetail_${a.instanceId}"
+                                                                            ${checkedAssetIds != null && checkedAssetIds.contains(a.instanceId) ? 'checked' : ''}>
                                                                     </div>
                                                                 </td>
                                                                 <td class="text-secondary fw-semibold">
@@ -156,7 +166,7 @@
                                                 <div class="mb-4">
                                                     <label class="form-label fw-semibold text-muted">Ghi Chú</label>
                                                     <textarea name="note" class="form-control shadow-sm" rows="3"
-                                                        placeholder="Nhập lý do hoặc thông tin thêm...">${param.note}</textarea>
+                                                        placeholder="Nhập lý do hoặc thông tin thêm...">${not empty note ? note : param.note}</textarea>
                                                 </div>
                                                 <div class="d-flex justify-content-end gap-2">
                                                     <a href="${pageContext.request.contextPath}/transfer/list"
