@@ -23,14 +23,17 @@ public class PagingTool {
     private int totalPage, start, end, pageStart, pageEnd;
 
     public void caclPaging(){
-        totalPage = size/nrpp + (size%nrpp==0?0:1);
-        index = index<0?0:index;
-        index = index> totalPage-1?totalPage-1:index;
+        totalPage = size / nrpp + (size % nrpp == 0 ? 0 : 1);
+        totalPage = totalPage < 1 ? 1 : totalPage;
+        index = index < 0 ? 0 : index;
+        index = index > totalPage - 1 ? totalPage - 1 : index;
         start = index * nrpp;
-        end = start + nrpp - 1;
-        end = end > size - 1 ? size - 1 : end;
-        pageStart = index-3<0?0:index-3;
-        pageEnd = index+3>totalPage-1?totalPage-1:index+3;
+        int tempEnd = start + nrpp - 1;
+        end = tempEnd > size - 1 ? size - 1 : tempEnd;
+        end = end < 0 ? 0 : end;
+        pageStart = index - 3 < 0 ? 0 : index - 3;
+        int tempPageEnd = index + 3 > totalPage - 1 ? totalPage - 1 : index + 3;
+        pageEnd = tempPageEnd < pageStart ? pageStart : tempPageEnd;
     }
 
     public int getSize() {
