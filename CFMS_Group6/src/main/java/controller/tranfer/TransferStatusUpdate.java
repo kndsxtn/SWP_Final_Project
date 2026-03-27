@@ -130,8 +130,8 @@ public class TransferStatusUpdate extends HttpServlet {
             List<TransferDetail> transferDetails = tdDao.getByTransferId(id);
             for (TransferDetail t : transferDetails) {
                 assetHistoryDao.create(t.getInstanceId(), u.getUserId(),
-                        "Phòng đích từ chối nhận tài sản",
-                        "Phòng đích từ chối nhận, yêu cầu trả hàng");
+                        "Phòng "+room+" từ chối nhận tài sản",
+                        "Phòng "+room+" từ chối nhận, yêu cầu trả hàng");
             }
             response.sendRedirect(request.getContextPath() + "/transfer/receive?msg=return_success");
         }
@@ -141,7 +141,7 @@ public class TransferStatusUpdate extends HttpServlet {
             for (TransferDetail t : transferDetails) {
                 assetHistoryDao.create(t.getInstanceId(), u.getUserId(),
                         "Tài sản được xác nhận trả về phòng " + room,
-                        "Bên nguồn xác nhận nhận lại tài sản");
+                        "Phòng "+room+" nguồn xác nhận nhận lại tài sản");
             }
             response.sendRedirect(request.getContextPath() + "/transfer/handover?msg=return_confirmed");
         }

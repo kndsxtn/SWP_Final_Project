@@ -41,23 +41,19 @@
                                     <table class="table table-hover align-middle">
                                         <thead class="table-light">
                                             <tr>
-                                                <th>Mã đơn</th>
-                                                <th>Thời gian hoàn thành</th>
-                                                <th>Từ phòng</th>
-                                                <th>Đến phòng</th>
+                                                <th>Thời gian thực hiện</th>
+                                                <th>Hành động</th>
                                                 <th>Người thực hiện</th>
-                                                <th>Trạng thái</th>
+                                                <th>Mô tả chi tiết</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <c:forEach items="${history}" var="h">
                                                 <tr>
-                                                    <td><code>#TRANS-${h.transferId}</code></td>
-                                                    <td><fmt:formatDate value="${h.completedDate}" pattern="dd/MM/yyyy HH:mm" /></td>
-                                                    <td><i class="bi bi-box-arrow-right me-1 text-danger"></i>${h.sourceRoom.roomName}</td>
-                                                    <td><i class="bi bi-box-arrow-in-left me-1 text-success"></i>${h.destRoom.roomName}</td>
-                                                    <td>${h.creator.fullName}</td>
-                                                    <td><span class="badge bg-success">Hoàn thành</span></td>
+                                                    <td><fmt:formatDate value="${h.actionDate}" pattern="dd/MM/yyyy HH:mm" /></td>
+                                                    <td><span class="badge bg-secondary">${h.action}</span></td>
+                                                    <td>${h.performer.fullName}</td>
+                                                    <td>${h.description}</td>
                                                 </tr>
                                             </c:forEach>
                                         </tbody>

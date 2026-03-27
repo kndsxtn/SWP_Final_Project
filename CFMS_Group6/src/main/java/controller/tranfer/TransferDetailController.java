@@ -62,6 +62,16 @@ public class TransferDetailController extends HttpServlet {
         TransferDetailDAO tdDao = new TransferDetailDAO();
         List<TransferDetail> transferDetails = tdDao.getByTransferId(id);
         request.setAttribute("transferDetails", transferDetails);
+        
+        dal.TransferOrderDAO toDao = new dal.TransferOrderDAO();
+        model.TransferOrder transfer = toDao.getTransferWithRoomsById(id);
+        request.setAttribute("transfer", transfer);
+        
+        dto.UserDto user = (dto.UserDto) request.getSession().getAttribute("user");
+        if (user != null) {
+            request.setAttribute("userDeptId", user.getDeptId());
+        }
+        
         request.getRequestDispatcher("/views/tranfer/transfer-detail.jsp").forward(request, response);
     } 
 
