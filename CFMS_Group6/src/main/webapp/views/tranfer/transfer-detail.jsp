@@ -51,8 +51,17 @@
                                                 <td class="fw-medium">${t.assetName}</td>
                                                 <td class="text-secondary">${t.assetDetail.instanceCode}</td>
                                                 <td>
-                                                    <span
-                                                        class="badge bg-light text-dark border border-secondary-subtle px-2 py-1 fw-normal">${t.statusAtTransfer}</span>
+                                                    <span class="badge bg-light text-dark border border-secondary-subtle px-2 py-1 fw-normal">
+                                                        <c:choose>
+                                                            <c:when test="${t.statusAtTransfer == 'In_Stock'}">Đang trong kho</c:when>
+                                                            <c:when test="${t.statusAtTransfer == 'In_Use'}">Đang sử dụng</c:when>
+                                                            <c:when test="${t.statusAtTransfer == 'Maintenance'}">Đang bảo trì</c:when>
+                                                            <c:when test="${t.statusAtTransfer == 'Broken'}">Hỏng</c:when>
+                                                            <c:when test="${t.statusAtTransfer == 'Liquidated'}">Thanh lý</c:when>
+                                                            <c:when test="${t.statusAtTransfer == 'Lost'}">Mất</c:when>
+                                                            <c:otherwise>${t.statusAtTransfer}</c:otherwise>
+                                                        </c:choose>
+                                                    </span>
                                                 </td>
                                                 <td class="text-muted">${t.transferDate}</td>
                                             </tr>
@@ -61,26 +70,80 @@
                                 </table>
                             </div>
 
-                            <c:choose>
-                                <c:when test="${param.from == 'handover'}">
-                                    <a href="${pageContext.request.contextPath}/transfer/handover"
-                                        class="btn btn-outline-secondary px-4 shadow-sm">
-                                        <i class="bi bi-arrow-left"></i> Trở về đơn bàn giao
-                                    </a>
-                                </c:when>
-                                <c:when test="${param.from == 'receive'}">
-                                    <a href="${pageContext.request.contextPath}/transfer/receive"
-                                        class="btn btn-outline-secondary px-4 shadow-sm">
-                                        <i class="bi bi-arrow-left"></i> Trở về đơn nhận
-                                    </a>
-                                </c:when>
-                                <c:otherwise>
-                                    <a href="${pageContext.request.contextPath}/transfer/list"
-                                        class="btn btn-outline-secondary px-4 shadow-sm">
-                                        <i class="bi bi-arrow-left"></i> Trở về danh sách
-                                    </a>
-                                </c:otherwise>
-                            </c:choose>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <c:choose>
+                                        <c:when test="${param.from == 'handover'}">
+                                            <a href="${pageContext.request.contextPath}/transfer/handover"
+                                                class="btn btn-outline-secondary px-4 shadow-sm">
+                                                <i class="bi bi-arrow-left"></i> Trở về đơn bàn giao
+                                            </a>
+                                        </c:when>
+                                        <c:when test="${param.from == 'receive'}">
+                                            <a href="${pageContext.request.contextPath}/transfer/receive"
+                                                class="btn btn-outline-secondary px-4 shadow-sm">
+                                                <i class="bi bi-arrow-left"></i> Trở về đơn nhận
+                                            </a>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="${pageContext.request.contextPath}/transfer/list"
+                                                class="btn btn-outline-secondary px-4 shadow-sm">
+                                                <i class="bi bi-arrow-left"></i> Trở về danh sách
+                                            </a>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                                
+                                <div>
+                                    <%-- Finance Head --%>
+                                    <c:if test="${sessionScope.user.roleName == 'Finance Head' && transfer.status == 'Pending'}">
+                                        <a href="${pageContext.request.contextPath}/transfer/update?id=${transfer.transferId}&status=Approved"
+                                            class="btn btn-success px-4 shadow-sm ms-2">
+                                            <i class="bi bi-check-circle"></i> Duyệt đơn
+                                        </a>
+                                        <a href="${pageContext.request.contextPath}/transfer/update?id=${transfer.transferId}&status=Rejected"
+                                            class="btn btn-warning px-4 shadow-sm ms-2">
+                                            <i class="bi bi-x-square"></i> Từ chối
+                                        </a>
+                                    </c:if>
+
+                                    <%-- Asset Staff --%>
+                                    <c:if test="${sessionScope.user.roleName == 'Asset Staff' && transfer.status == 'Pending'}">
+                                        <a href="${pageContext.request.contextPath}/transfer/update?id=${transfer.transferId}&status=Cancelled"
+                                            class="btn btn-danger px-4 shadow-sm ms-2">
+                                            <i class="bi bi-x-circle"></i> Huỷ đơn
+                                        </a>
+                                    </c:if>
+
+                                    <%-- Department Head (Source) --%>
+                                    <c:if test="${transfer.status == 'Approved' && transfer.sourceRoom.deptId == userDeptId}">
+                                        <a href="${pageContext.request.contextPath}/transfer/update?id=${transfer.transferId}&status=Ongoing&room=${transfer.sourceRoom.roomName}"
+                                            class="btn btn-success px-4 shadow-sm ms-2">
+                                            <i class="bi bi-box-seam"></i> Bàn giao tài sản
+                                        </a>
+                                    </c:if>
+                                    
+                                    <c:if test="${transfer.status == 'Returned' && transfer.sourceRoom.deptId == userDeptId}">
+                                        <a href="${pageContext.request.contextPath}/transfer/update?id=${transfer.transferId}&status=Return_Confirmed&room=${transfer.sourceRoom.roomName}"
+                                            class="btn btn-warning px-4 shadow-sm ms-2"
+                                            onclick="return confirm('Xác nhận đã nhận lại tài sản trả về?');">
+                                            <i class="bi bi-arrow-return-left"></i> Xác nhận nhận lại tài sản
+                                        </a>
+                                    </c:if>
+
+                                    <%-- Department Head (Dest) --%>
+                                    <c:if test="${transfer.status == 'Ongoing' && transfer.destRoom.deptId == userDeptId}">
+                                        <a href="${pageContext.request.contextPath}/transfer/update?id=${transfer.transferId}&status=Completed&room=${transfer.destRoom.roomName}"
+                                            class="btn btn-success px-4 shadow-sm ms-2">
+                                            <i class="bi bi-check-circle"></i> Nhận tài sản
+                                        </a>
+                                        <a href="${pageContext.request.contextPath}/transfer/update?id=${transfer.transferId}&status=Returned&room=${transfer.sourceRoom.roomName}"
+                                            class="btn btn-danger px-4 shadow-sm ms-2">
+                                            <i class="bi bi-x-circle"></i> Từ chối nhận tài sản
+                                        </a>
+                                    </c:if>
+                                </div>
+                            </div>
 
 
 

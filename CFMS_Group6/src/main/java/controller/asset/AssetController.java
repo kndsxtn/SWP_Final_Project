@@ -8,8 +8,6 @@ import model.Asset;
 import model.AssetDetail;
 import model.AssetImage;
 import model.Category;
-import model.TransferOrder;
-import dal.TransferOrderDAO;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -67,7 +65,6 @@ public class AssetController extends HttpServlet {
     private final AssetDAO assetDao = new AssetDAO();
     private final AssetDetailDAO assetDetailDao = new AssetDetailDAO();
     private final AssetHistoryDAO historyDao = new AssetHistoryDAO();
-    private final TransferOrderDAO transferOrderDao = new TransferOrderDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -352,6 +349,29 @@ public class AssetController extends HttpServlet {
         int instanceId = parseIntParam(request.getParameter("instanceId"), 0);
         int assetId = parseIntParam(request.getParameter("assetId"), 0);
         String newStatus = request.getParameter("status");
+        String convertStatusToVN="";
+        switch (newStatus){
+            case ("In_Stock") :
+                    convertStatusToVN = "Đang trong kho";
+                    break;
+            case ("In_Use"):
+                    convertStatusToVN="Đang sử dụng";
+                    break;
+            case ("Maintenance"):
+                convertStatusToVN="Đang trong bảo trì";
+                break;
+            case ("Broken"):
+                convertStatusToVN="Hỏng";
+                break;
+            case ("Liquidated"):
+                convertStatusToVN="Thanh Lý";
+                break;
+            case "Lost":
+                convertStatusToVN="Mất";
+                break;
+            default:
+                throw new RuntimeException("Lỗi");
+        }
 
         if (instanceId <= 0 || newStatus == null || newStatus.isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/asset/list");
@@ -371,8 +391,8 @@ public class AssetController extends HttpServlet {
             UserDto user = (UserDto) request.getSession().getAttribute("user");
             if (user != null) {
                 historyDao.create(instanceId, user.getUserId(),
-                        "Status_Change",
-                        "Đổi trạng thái sang: " + newStatus);
+                        "Thay đổi trạng thái",
+                        "Đổi trạng thái sang: " + convertStatusToVN);
             }
             request.getSession().setAttribute("successMsg", "Cập nhật trạng thái thành công!");
         } else {
@@ -544,7 +564,7 @@ public class AssetController extends HttpServlet {
         }
 
         model.AssetDetail detail = assetDetailDao.getAssetDetailByInstanceId(instanceId);
-        List<TransferOrder> history = transferOrderDao.getTransferHistoryByInstanceId(instanceId);
+        List<model.AssetHistory> history = historyDao.getByInstanceId(instanceId);
         request.setAttribute("history", history);
         request.setAttribute("detail", detail);
         request.getRequestDispatcher("/views/asset/instance-history.jsp").forward(request, response);
