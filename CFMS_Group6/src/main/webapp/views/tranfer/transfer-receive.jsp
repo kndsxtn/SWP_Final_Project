@@ -110,7 +110,7 @@
                                                                 class="btn btn-sm btn-outline-success shadow-sm">
                                                                 <i class="bi bi-check-circle"></i> Nhận
                                                             </a>
-                                                            <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Returned&room=${t.sourceRoom.roomName}"
+                                                            <a href="${pageContext.request.contextPath}/transfer/update?id=${t.transferId}&status=Returned&room=${t.destRoom.roomName}"
                                                                 class="btn btn-sm btn-outline-danger shadow-sm">
                                                                 <i class="bi bi-x-circle"></i> Trả hàng
                                                             </a>
