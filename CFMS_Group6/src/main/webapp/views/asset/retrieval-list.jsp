@@ -120,7 +120,9 @@
                                                                         <input type="checkbox"
                                                                                class="form-check-input instance-cb cb-asset-${d.assetId}"
                                                                                name="instanceIds"
-                                                                               value="${inst.instanceId}">
+                                                                               value="${inst.instanceId}"
+                                                                               data-asset-id="${d.assetId}"
+                                                                               data-max="${remaining}">
                                                                     </td>
                                                                     <td><strong>${inst.instanceCode}</strong></td>
                                                                     <td>

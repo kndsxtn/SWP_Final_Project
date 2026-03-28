@@ -144,6 +144,53 @@ public class RetrievalController extends HttpServlet {
             return;
         }
 
+        // --- BỔ SUNG VALIDATION SERVER-SIDE ---
+        // 1. Lấy thông tin số lượng còn thiếu của từng asset trong yêu cầu
+        List<AllocationDetail> details = allocationDao.getDetailsByRequestId(allocationId);
+        Map<Integer, Integer> remainingMap = new HashMap<>();
+        for (AllocationDetail d : details) {
+            remainingMap.put(d.getAssetId(), d.getQuantity() - d.getAllocatedQuantity());
+        }
+
+        // 2. Kiểm tra xem các instanceIds gửi lên thuộc về asset nào và đếm số lượng
+        Map<Integer, Integer> pickedCounts = new HashMap<>();
+        try (Connection con = new DBContext().getConnection()) {
+            StringBuilder sb = new StringBuilder("SELECT instance_id, asset_id FROM asset_details WHERE instance_id IN (");
+            for (int i = 0; i < instanceIds.size(); i++) {
+                sb.append(i > 0 ? "," : "").append("?");
+            }
+            sb.append(")");
+
+            try (PreparedStatement ps = con.prepareStatement(sb.toString())) {
+                for (int i = 0; i < instanceIds.size(); i++) {
+                    ps.setInt(i + 1, instanceIds.get(i));
+                }
+                try (var rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        int assetId = rs.getInt("asset_id");
+                        pickedCounts.put(assetId, pickedCounts.getOrDefault(assetId, 0) + 1);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // 3. So sánh số lượng chọn với số lượng còn thiếu
+        for (Map.Entry<Integer, Integer> entry : pickedCounts.entrySet()) {
+            int assetId = entry.getKey();
+            int picked = entry.getValue();
+            int remaining = remainingMap.getOrDefault(assetId, 0);
+
+            if (picked > remaining) {
+                session.setAttribute("errorMsg", "Số lượng thu hồi vượt quá nhu cầu còn thiếu của yêu cầu.");
+                response.sendRedirect(request.getContextPath()
+                        + "/asset/retrieval-list?allocationId=" + allocationId);
+                return;
+            }
+        }
+        // --- KẾT THÚC VALIDATION ---
+
         // Build placeholders
         StringBuilder placeholders = new StringBuilder();
         for (int i = 0; i < instanceIds.size(); i++) {
