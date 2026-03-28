@@ -28,6 +28,7 @@ import java.util.*;
         "/transfer/confirm-handover", "/transfer/confirm-receive",
         "/report/export",
         "/inventory/dept",
+        "/category/ViewCategoryController",
 
         // --- QUẢN LÝ NGƯỜI DÙNG (chỉ Admin) ---
         "/user-mgt/*",
@@ -42,6 +43,7 @@ public class RoleFilter implements Filter {
         routeRoles.put("/category/create", Arrays.asList(Message.NV_QUAN_LY));
         routeRoles.put("/category/update", Arrays.asList(Message.NV_QUAN_LY));
         routeRoles.put("/category/delete", Arrays.asList(Message.NV_QUAN_LY));
+        routeRoles.put("/category/ViewCategoryController", Arrays.asList(Message.NV_QUAN_LY, Message.TP_TAI_CHINH));
 
         // --- NHÓM 2: QUẢN LÝ TÀI SẢN (UC05-UC10) ---
         routeRoles.put("/asset/create", Arrays.asList(Message.NV_QUAN_LY)); // UC05

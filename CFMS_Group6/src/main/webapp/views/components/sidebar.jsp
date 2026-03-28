@@ -31,16 +31,16 @@
                         </c:if>
 
                         <!-- ========== STAFF (Asset Management Staff) ========== -->
-                        <h6 class="sidebar-heading">Danh mục tài sản</h6>
-                        <li class="nav-item">
-                            <a class="nav-link ${param.page == 'category_list' ? 'active' : ''}"
-                                href="${pageContext.request.contextPath}/category/ViewCategoryController">
-                                <i class="bi bi-tags"></i> Danh sách danh mục
-                            </a>
-                        </li>
                         <c:if test="${role == 'Asset Staff'}">
 
                             <!-- Group 1: Danh mục tài sản -->
+                            <h6 class="sidebar-heading">Danh mục tài sản</h6>
+                            <li class="nav-item">
+                                <a class="nav-link ${param.page == 'category_list' ? 'active' : ''}"
+                                    href="${pageContext.request.contextPath}/category/ViewCategoryController">
+                                    <i class="bi bi-tags"></i> Danh sách danh mục
+                                </a>
+                            </li>
 
                             <li class="nav-item">
                                 <a class="nav-link ${param.page == 'category_form' ? 'active' : ''}"
@@ -113,6 +113,13 @@
                         <!-- ========== FINANCE HEAD ========== -->
                         <c:if test="${role == 'Finance Head'}">
                             <!-- Group 1: Danh mục tài sản -->
+                            <h6 class="sidebar-heading">Danh mục tài sản</h6>
+                            <li class="nav-item">
+                                <a class="nav-link ${param.page == 'category_list' ? 'active' : ''}"
+                                    href="${pageContext.request.contextPath}/category/ViewCategoryController">
+                                    <i class="bi bi-tags"></i> Danh sách danh mục
+                                </a>
+                            </li>
 
                             <li class="nav-item">
                                 <a class="nav-link ${param.page == 'category_form' ? 'active' : ''}"
