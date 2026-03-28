@@ -27,6 +27,7 @@ import java.util.*;
         "/transfer/create", "/transfer/cancel", "/transfer/approve",
         "/transfer/confirm-handover", "/transfer/confirm-receive",
         "/report/export",
+        "/inventory/dept",
 
         // --- QUẢN LÝ NGƯỜI DÙNG (chỉ Admin) ---
         "/user-mgt/*",
@@ -86,7 +87,11 @@ public class RoleFilter implements Filter {
         // Cho phép các cấp quản lý xuất báo cáo
         routeRoles.put("/report/export", Arrays.asList(Message.HIEU_TRUONG, Message.TP_TAI_CHINH, Message.NV_QUAN_LY));
 
-        // --- NHÓM 6: QUẢN LÝ NGƯỜI DÙNG (chỉ Admin) ---
+        // --- NHÓM 6: KIỂM KÊ PHÒNG BAN ---
+        routeRoles.put("/inventory/dept",
+                Arrays.asList(Message.NV_QUAN_LY, Message.HIEU_TRUONG, Message.TP_TAI_CHINH, Message.TRUONG_BAN));
+
+        // --- NHÓM 7: QUẢN LÝ NGƯỜI DÙNG (chỉ Admin) ---
         routeRoles.put("/user-mgt/user-list", Arrays.asList(Message.ADMIN));
         routeRoles.put("/user-mgt/user-create", Arrays.asList(Message.ADMIN));
         routeRoles.put("/user-mgt/update-role", Arrays.asList(Message.ADMIN));

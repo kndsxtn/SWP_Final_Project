@@ -1,13 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller.room;
 
 import dal.AssetDetailDAO;
 import dal.RoomDAO;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -21,11 +16,14 @@ import model.Room;
 import dto.UserDto;
 
 /**
+ * Controller xử lý kiểm kê tài sản theo phòng ban / phòng.
+ * - HOD: chỉ xem phòng ban của mình.
+ * - Asset Staff / Principal / Finance Head: xem tất cả phòng ban.
  *
  * @author vuhieu
  */
 @WebServlet(name = "RoomInventoryController", urlPatterns = {
-        "/inventory/room"
+        "/inventory/dept"
 })
 public class RoomInventoryController extends HttpServlet {
 
@@ -37,72 +35,88 @@ public class RoomInventoryController extends HttpServlet {
             throws ServletException, IOException {
         String path = request.getServletPath();
         switch (path) {
-            case "/inventory/room":
-                doInventory(request, response);
+            case "/inventory/dept":
+                doDeptInventory(request, response);
                 break;
         }
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request  servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
     }
 
-    public void doInventory(HttpServletRequest request, HttpServletResponse response)
+    /**
+     * Xem tài sản theo phòng ban.
+     * - HOD: tự động lọc theo dept_id của user, có thể lọc thêm theo phòng.
+     * - Asset Staff / Principal / Finance Head: xem toàn bộ, lọc theo phòng ban và
+     * phòng.
+     */
+    private void doDeptInventory(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        // RoleFilter đã kiểm tra quyền truy cập, ở đây chỉ cần lấy user từ session
         UserDto user = (UserDto) request.getSession().getAttribute("user");
+
+        String role = user.getRoleName();
+        boolean isHod = Message.TRUONG_BAN.equals(role);
+
+        List<AssetDetail> assetDetails;
         List<Room> rooms;
-        // Trưởng bộ môn chỉ xem tài sản trong phòng của bộ môn mình
-        if (user.getRoleName().equals(Message.TRUONG_BAN)) {
-            rooms = roomDao.getByDeptId(user.getDeptId());
+
+        if (isHod) {
+            // HOD: chỉ xem phòng ban của mình
+            int deptId = user.getDeptId();
+            assetDetails = assetDetailDao.getAllAssetDetailByDeptId(deptId);
+            rooms = roomDao.getByDeptId(deptId);
         } else {
-            // Các role nhân viên quản lí tài sản xem tất cả
-            rooms = roomDao.getAll();
+            // Staff / Principal / Finance: xem toàn bộ
+            // Hỗ trợ lọc theo phòng ban
+            String deptIdStr = request.getParameter("deptId");
+            if (deptIdStr != null && !deptIdStr.isEmpty()) {
+                int deptId = Integer.parseInt(deptIdStr);
+                assetDetails = assetDetailDao.getAllAssetDetailByDeptId(deptId);
+                rooms = roomDao.getByDeptId(deptId);
+                request.setAttribute("selectedDeptId", deptId);
+            } else {
+                assetDetails = assetDetailDao.getAllAssetDetails();
+                rooms = roomDao.getAll();
+            }
+
+            // Truyền danh sách phòng ban cho dropdown lọc
+            request.setAttribute("departments", roomDao.getAllDepartments());
         }
+
+        request.setAttribute("assetDetails", assetDetails);
         request.setAttribute("rooms", rooms);
-        // lấy phòng được chọn
+        request.setAttribute("isHod", isHod);
+
+        // Lọc theo phòng cụ thể (nếu user chọn)
         String roomIdStr = request.getParameter("roomId");
         if (roomIdStr != null && !roomIdStr.isEmpty()) {
             try {
                 int roomId = Integer.parseInt(roomIdStr);
-
-                // Kiểm tra xem user có quyền xem phòng này không
+                // Kiểm tra phòng có thuộc danh sách được phép không
                 boolean isAllowed = false;
                 for (Room r : rooms) {
                     if (r.getRoomId() == roomId) {
                         isAllowed = true;
-                        break; // Tìm thấy phòng được xem, trả về true
+                        break;
                     }
                 }
-
                 if (isAllowed) {
-                    // Lấy danh sách tài sản trong phòng
-                    List<AssetDetail> assetDetails = assetDetailDao.getAssetDetailByRoomId(roomId);
+                    assetDetails = assetDetailDao.getAssetDetailByRoomId(roomId);
                     request.setAttribute("assetDetails", assetDetails);
                     request.setAttribute("selectedRoomId", roomId);
-
-                    // Truyền thêm tên phòng để hiển thị Header trên UI
-                    Room selectedRoom = roomDao.getById(roomId);
-                    if (selectedRoom != null) {
-                        request.setAttribute("selectedRoomName", selectedRoom.getRoomName());
-                    }
                 } else {
-                    request.setAttribute("errorMsg", "Bạn không có quyền truy cập dữ liệu của phòng này.");
+                    request.setAttribute("errorMsg", "Bạn không có quyền truy cập dữ liệu của phòng này!");
                 }
             } catch (NumberFormatException e) {
-                request.setAttribute("errorMsg", "Mã phòng không hợp lệ.");
+                request.setAttribute("errorMsg", "Định dạng mã phòng không hợp lệ!");
             }
         }
-        // Forward tới file JSP
-        request.getRequestDispatcher("/views/inventory/room-inventory.jsp").forward(request, response);
+
+        request.getRequestDispatcher("/views/inventory/dept-inventory.jsp").forward(request, response);
     }
 
 }

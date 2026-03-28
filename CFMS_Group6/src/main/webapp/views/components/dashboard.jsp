@@ -306,13 +306,6 @@
                                             <div class="stat-label">Phiếu điều chuyển</div>
                                         </div>
                                     </div>
-                                    <div class="col-6 col-lg-3">
-                                        <div class="stat-card">
-                                            <div class="stat-icon icon-danger"><i class="bi bi-wrench"></i></div>
-                                            <div class="stat-value">${pendingMaintenance}</div>
-                                            <div class="stat-label">Yêu cầu bảo trì</div>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <!-- Quick links -->
@@ -512,9 +505,9 @@
                                         </a>
                                     </div>
                                     <div class="col-md-4">
-                                        <a href="${pageContext.request.contextPath}/asset/dept" class="quick-link">
+                                        <a href="${pageContext.request.contextPath}/inventory/dept" class="quick-link">
                                             <i class="bi bi-pc-display-horizontal"></i>
-                                            <span>Tài sản bộ môn</span>
+                                            <span>Tài sản của phòng ban</span>
                                         </a>
                                     </div>
                                 </div>

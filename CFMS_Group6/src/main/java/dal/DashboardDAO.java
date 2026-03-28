@@ -86,11 +86,6 @@ public class DashboardDAO {
         return countSingle("SELECT COUNT(*) FROM transfer_orders WHERE status = N'Pending'");
     }
 
-    // ─── Đếm yêu cầu bảo trì đang chờ xử lý ───
-    public int countPendingMaintenance() {
-        return countSingle("SELECT COUNT(*) FROM maintenance_requests WHERE status = N'Reported'");
-    }
-
     // ─── Đếm yêu cầu cấp phát của 1 user cụ thể ───
     public int countAllocationsByUser(int userId) {
         return countSingle(

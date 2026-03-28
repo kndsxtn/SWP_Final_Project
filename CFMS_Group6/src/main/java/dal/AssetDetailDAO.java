@@ -500,7 +500,7 @@ public class AssetDetailDAO {
         return ad;
     }
 
-    // UC xx: phục vụ xem tài sản của 1 phòng nhất định dựa vào id
+    // xem tài sản của 1 phòng nhất định dựa vào id
     public List<AssetDetail> getAssetDetailByRoomId(int roomId) {
         List<AssetDetail> assetDetails = new ArrayList<>();
         String sql = "SELECT ad.instance_code, a.asset_name, ad.status FROM asset_details ad LEFT JOIN assets a ON ad.asset_id = a.asset_id LEFT JOIN rooms r ON ad.room_id = r.room_id WHERE r.room_id = ?";
@@ -564,6 +564,70 @@ public class AssetDetailDAO {
             e.printStackTrace();
         }
         return list;
+    }
+
+    // Lấy tất cả tài sản của bộ môn (dựa vào dept_id của các phòng)
+    public List<AssetDetail> getAllAssetDetailByDeptId(int deptId) {
+        List<AssetDetail> assetDetails = new ArrayList<>();
+        String sql = "SELECT ad.instance_code, a.asset_name, ad.status, c.category_name, r.room_name, d.dept_name " +
+                "FROM asset_details ad " +
+                "LEFT JOIN assets a ON ad.asset_id = a.asset_id " +
+                "LEFT JOIN categories c ON a.category_id = c.category_id " +
+                "LEFT JOIN rooms r ON ad.room_id = r.room_id " +
+                "LEFT JOIN departments d ON r.dept_id = d.dept_id " +
+                "WHERE r.dept_id = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql);) {
+            ps.setInt(1, deptId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                assetDetails.add(mapInventoryRow(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return assetDetails;
+    }
+
+    // Lấy toàn bộ tài sản trong hệ thống (dành cho Asset Staff, Principal, Finance Head)
+    public List<AssetDetail> getAllAssetDetails() {
+        List<AssetDetail> assetDetails = new ArrayList<>();
+        String sql = "SELECT ad.instance_code, a.asset_name, ad.status, c.category_name, r.room_name, d.dept_name " +
+                "FROM asset_details ad " +
+                "LEFT JOIN assets a ON ad.asset_id = a.asset_id " +
+                "LEFT JOIN categories c ON a.category_id = c.category_id " +
+                "LEFT JOIN rooms r ON ad.room_id = r.room_id " +
+                "LEFT JOIN departments d ON r.dept_id = d.dept_id";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql);) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                assetDetails.add(mapInventoryRow(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return assetDetails;
+    }
+
+    /**
+     * Map 1 dòng ResultSet thành AssetDetail kèm thông tin phòng ban (dùng cho trang kiểm kê).
+     */
+    private AssetDetail mapInventoryRow(ResultSet rs) throws Exception {
+        AssetDetail ad = new AssetDetail();
+        ad.setInstanceCode(rs.getString("instance_code"));
+        ad.setStatus(rs.getString("status"));
+
+        Asset a = new Asset();
+        a.setAssetName(rs.getString("asset_name"));
+        Category cat = new Category();
+        cat.setCategoryName(rs.getString("category_name"));
+        a.setCategory(cat);
+        ad.setAsset(a);
+
+        Room r = new Room();
+        r.setRoomName(rs.getString("room_name"));
+        ad.setRoom(r);
+
+        return ad;
     }
 
     // test các hàm

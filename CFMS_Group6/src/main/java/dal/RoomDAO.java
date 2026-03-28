@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import model.Room;
 
+import model.Department;
+
 /**
  *
  * @author Admin
@@ -76,6 +78,27 @@ public class RoomDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Lấy danh sách toàn bộ phòng ban (dùng cho dropdown lọc kiểm kê).
+     */
+    public List<Department> getAllDepartments() {
+        String sql = "SELECT dept_id, dept_name, description FROM departments ORDER BY dept_name";
+        List<Department> list = new ArrayList<>();
+        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Department d = new Department();
+                d.setDeptId(rs.getInt("dept_id"));
+                d.setDeptName(rs.getString("dept_name"));
+                d.setDescription(rs.getString("description"));
+                list.add(d);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
     
 }

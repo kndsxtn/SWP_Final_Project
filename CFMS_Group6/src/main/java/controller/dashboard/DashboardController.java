@@ -60,7 +60,6 @@ public class DashboardController extends HttpServlet {
         // ─── Thống kê theo role ───
         request.setAttribute("pendingAllocations", dao.countPendingAllocations());
         request.setAttribute("pendingTransfers", dao.countPendingTransfers());
-        request.setAttribute("pendingMaintenance", dao.countPendingMaintenance());
 
         // Dữ liệu riêng cho Head of Dept
         if ("Head of Dept".equals(role)) {

@@ -100,33 +100,14 @@
                                 </a>
                             </li>
 
-                            <!-- Group 5: Báo cáo & Kiểm Kê -->
-                            <h6 class="sidebar-heading">Báo cáo & Kiểm Kê</h6>
+                            <!-- Group 5: Kiểm Kê -->
+                            <h6 class="sidebar-heading">Kiểm Kê</h6>
                             <li class="nav-item">
-                                <a class="nav-link ${param.page == 'room_inventory' ? 'active' : ''}"
-                                    href="${pageContext.request.contextPath}/inventory/room">
-                                    <i class="bi bi-geo-alt-fill"></i> Kiểm kê theo phòng
+                                <a class="nav-link ${param.page == 'dept_inventory' ? 'active' : ''}"
+                                    href="${pageContext.request.contextPath}/inventory/dept">
+                                    <i class="bi bi-building"></i> Kiểm kê phòng ban
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link ${param.page == 'report_asset' ? 'active' : ''}"
-                                    href="${pageContext.request.contextPath}/report/asset">
-                                    <i class="bi bi-file-earmark-bar-graph"></i> Báo cáo tài sản
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link ${param.page == 'report_request' ? 'active' : ''}"
-                                    href="${pageContext.request.contextPath}/report/request">
-                                    <i class="bi bi-file-earmark-text"></i> Báo cáo yêu cầu
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link ${param.page == 'report_transfer' ? 'active' : ''}"
-                                    href="${pageContext.request.contextPath}/report/transfer">
-                                    <i class="bi bi-file-earmark-arrow-up"></i> Báo cáo điều chuyển
-                                </a>
-                            </li>
-
                         </c:if>
 
                         <!-- ========== FINANCE HEAD ========== -->
@@ -164,6 +145,12 @@
                                     <i class="bi bi-file-earmark-bar-graph"></i> Báo cáo yêu cầu mua sắm
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link ${param.page == 'dept_inventory' ? 'active' : ''}"
+                                    href="${pageContext.request.contextPath}/inventory/dept">
+                                    <i class="bi bi-building"></i> Kiểm kê phòng ban
+                                </a>
+                            </li>
                         </c:if>
 
                         <!-- ========== PRINCIPAL ========== -->
@@ -188,6 +175,12 @@
                                 <a class="nav-link ${param.page == 'report_dashboard' ? 'active' : ''}"
                                     href="${pageContext.request.contextPath}/report/dashboard">
                                     <i class="bi bi-bar-chart-line"></i> Tổng quan báo cáo
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link ${param.page == 'dept_inventory' ? 'active' : ''}"
+                                    href="${pageContext.request.contextPath}/inventory/dept">
+                                    <i class="bi bi-building"></i> Kiểm kê phòng ban
                                 </a>
                             </li>
                         </c:if>
@@ -215,9 +208,9 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link ${param.page == 'room_inventory' ? 'active' : ''}"
-                                    href="${pageContext.request.contextPath}/inventory/room">
-                                    <i class="bi bi-geo-alt-fill"></i> Tài sản trong phòng
+                                <a class="nav-link ${param.page == 'dept_inventory' ? 'active' : ''}"
+                                    href="${pageContext.request.contextPath}/inventory/dept">
+                                    <i class="bi bi-building"></i> Tài sản của phòng ban
                                 </a>
                             </li>
                         </c:if>
