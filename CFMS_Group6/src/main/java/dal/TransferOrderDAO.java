@@ -186,6 +186,45 @@ public class TransferOrderDAO {
         return null;
     }
 
+    public TransferOrder getTransferWithRoomsById(int id) {
+        String sql = " SELECT \n"
+                + "    t.transfer_id,\n"
+                + "    t.created_by,\n"
+                + "    t.source_room_id,\n"
+                + "    t.dest_room_id,\n"
+                + "    t.created_date,\n"
+                + "    t.status,\n"
+                + "    t.note,\n"
+                + "\n"
+                + "    u.user_id,\n"
+                + "    u.full_name,\n"
+                + "\n"
+                + "    sr.room_id AS src_id,\n"
+                + "    sr.room_name AS src_name,\n"
+                + "    sr.dept_id AS src_dept,"
+                + "\n"
+                + "    dr.room_id AS dest_id,\n"
+                + "    dr.room_name AS dest_name,\n"
+                + "    dr.dept_id AS dest_dept\n"
+                + "\n"
+                + "FROM transfer_orders t\n"
+                + "JOIN users u ON t.created_by = u.user_id\n"
+                + "JOIN rooms sr ON t.source_room_id = sr.room_id\n"
+                + "JOIN rooms dr ON t.dest_room_id = dr.room_id\n"
+                + "WHERE t.transfer_id = ?";
+        try (Connection con = new DBContext().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapTransferDept(rs);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     // Tạo phiếu điều chuyển mới
     public int create(TransferOrder t) {
         String sql = "INSERT INTO transfer_orders (created_by, source_room_id, dest_room_id, status, note) VALUES (?, ?, ?, ?, ?)";

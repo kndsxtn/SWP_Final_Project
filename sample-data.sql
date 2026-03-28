@@ -167,6 +167,31 @@ INSERT INTO assets (asset_id, asset_code, asset_name, category_id, supplier_id, 
 SET IDENTITY_INSERT assets OFF;
 GO
 
+-- 8. Asset Images (Hình ảnh minh họa cho toàn bộ lô tài sản)
+INSERT INTO asset_images (asset_id, image_url, description) VALUES
+(1,  'images/assets/macbook_pro_m3_1.jpg', N'Ảnh mặt trước MacBook Pro M3'),
+(1,  'images/assets/macbook_pro_m3_2.jpg', N'Ảnh bàn phím và màn hình MacBook'),
+(2,  'images/assets/dell_latitude_7440.jpg', N'Dell Latitude 7440 nhìn nghiêng'),
+(3,  'images/assets/thinkpad_t14.jpg', N'ThinkPad T14 góc nhìn chính diện'),
+(4,  'images/assets/imac_24_m3.jpg', N'IMac 24-inch trưng bày tại Lab'),
+(5,  'images/assets/hp_prodesk_400.jpg', N'Case HP ProDesk 400 G9'),
+(6,  'images/assets/dell_optiplex_7010.jpg', N'Dell OptiPlex 7010 tại phòng Lab'),
+(7,  'images/assets/dell_ultrasharp_u2424h.jpg', N'Màn hình Dell Ultrasharp hiển thị màu sắc'),
+(8,  'images/assets/lg_24mp500.jpg', N'Màn hình LG văn phòng'),
+(9,  'images/assets/canon_lbp236dw.jpg', N'Máy in Canon tại phòng kế toán'),
+(10, 'images/assets/hp_neverstop_1000w.jpg', N'Máy in HP Neverstop WiFi'),
+(11, 'images/assets/sony_vpl_ex570.jpg', N'Máy chiếu Sony hội trường'),
+(12, 'images/assets/epson_eb_x51.jpg', N'Máy chiếu Epson phòng học'),
+(13, 'images/assets/ghe_xoay_hoaphat.jpg', N'Mẫu ghế xoay văn phòng Hòa Phát'),
+(14, 'images/assets/ban_hop_3m.jpg', N'Bàn họp cao cấp 3 mét'),
+(15, 'images/assets/panasonic_inverter_2hp.jpg', N'Điều hòa Panasonic 2HP'),
+(16, 'images/assets/daikin_25hp_amtran.jpg', N'Điều hòa Daikin âm trần hội trường'),
+(17, 'images/assets/cisco_catalyst_1000.jpg', N'Switch Cisco Catalyst 24-port'),
+(18, 'images/assets/aruba_ap22.jpg', N'Bộ phát Aruba Wifi 6 AP22'),
+(19, 'images/assets/tu_rack_27u.jpg', N'Tủ Rack 27U D800'),
+(20, 'images/assets/bang_ghim_2m.jpg', N'Bảng ghim kính từ tính 2m');
+GO
+
 -- 9. Asset Details (Tạo khoảng 80 cá thể đại diện)
 SET IDENTITY_INSERT asset_details ON;
 INSERT INTO asset_details (instance_id, asset_id, instance_code, room_id, status, is_locked) VALUES
