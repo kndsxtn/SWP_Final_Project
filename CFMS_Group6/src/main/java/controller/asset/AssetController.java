@@ -8,8 +8,6 @@ import model.Asset;
 import model.AssetDetail;
 import model.AssetImage;
 import model.Category;
-import model.TransferOrder;
-import dal.TransferOrderDAO;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -67,7 +65,6 @@ public class AssetController extends HttpServlet {
     private final AssetDAO assetDao = new AssetDAO();
     private final AssetDetailDAO assetDetailDao = new AssetDetailDAO();
     private final AssetHistoryDAO historyDao = new AssetHistoryDAO();
-    private final TransferOrderDAO transferOrderDao = new TransferOrderDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -394,7 +391,7 @@ public class AssetController extends HttpServlet {
             UserDto user = (UserDto) request.getSession().getAttribute("user");
             if (user != null) {
                 historyDao.create(instanceId, user.getUserId(),
-                        "Status_Change",
+                        "Thay đổi trạng thái",
                         "Đổi trạng thái sang: " + convertStatusToVN);
             }
             request.getSession().setAttribute("successMsg", "Cập nhật trạng thái thành công!");
@@ -567,7 +564,7 @@ public class AssetController extends HttpServlet {
         }
 
         model.AssetDetail detail = assetDetailDao.getAssetDetailByInstanceId(instanceId);
-        List<TransferOrder> history = transferOrderDao.getTransferHistoryByInstanceId(instanceId);
+        List<model.AssetHistory> history = historyDao.getByInstanceId(instanceId);
         request.setAttribute("history", history);
         request.setAttribute("detail", detail);
         request.getRequestDispatcher("/views/asset/instance-history.jsp").forward(request, response);

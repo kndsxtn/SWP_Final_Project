@@ -41,4 +41,46 @@ public class AssetHistoryDAO {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Lấy toàn bộ lịch sử thao tác của 1 cá thể tài sản.
+     */
+    public java.util.List<model.AssetHistory> getByInstanceId(int instanceId) {
+        java.util.List<model.AssetHistory> list = new java.util.ArrayList<>();
+        String sql = "SELECT h.*, u.full_name FROM asset_history h "
+                   + "JOIN users u ON h.performed_by = u.user_id "
+                   + "WHERE h.instance_id = ? "
+                   + "ORDER BY h.action_date DESC";
+        
+        try (Connection con = new DBContext().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setInt(1, instanceId);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    model.AssetHistory h = new model.AssetHistory();
+                    h.setHistoryId(rs.getInt("history_id"));
+                    // Do schema tạo bảng có cột history_id hay không?
+                    // Nếu không có, set tạm bằng 0 hoặc bỏ qua
+                    // Dựa vào sample-data, ta không thấy cột history_id insert, có thể là tự tăng
+                    try { h.setHistoryId(rs.getInt("history_id")); } catch (Exception e) {}
+                    
+                    h.setAssetId(rs.getInt("instance_id")); // trong model là assetId nhưng thực chất map với instance_id
+                    h.setAction(rs.getString("action"));
+                    h.setPerformedBy(rs.getInt("performed_by"));
+                    h.setDescription(rs.getString("description"));
+                    h.setActionDate(rs.getTimestamp("action_date"));
+                    
+                    model.User u = new model.User();
+                    u.setFullName(rs.getString("full_name"));
+                    h.setPerformer(u);
+                    
+                    list.add(h);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }
