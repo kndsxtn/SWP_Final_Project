@@ -49,11 +49,6 @@ public class CreateCategoryController extends HttpServlet {
                 return;
             }
             String description = request.getParameter("description");
-            if (description.isBlank()) {
-                status = "Lỗi: Mô tả danh mục không được để trống";
-                forwardWithMessage(status, request, response);
-                return;
-            }
             if (cDao.isHasAttributeCategory("category_name", category_name)) {
                 status = "Lỗi: Có danh mục trùng tên";
                 forwardWithMessage(status, request, response);
