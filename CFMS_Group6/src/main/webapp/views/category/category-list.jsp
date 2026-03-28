@@ -132,7 +132,11 @@
                                                 ${c.prefixCode}
                                             </span>
                                         </td>
-                                        <td>${empty c.description?'Danh mục hiện không có mô tả':c.description}</td>
+                                        <td>
+                                            ${c.description == null || c.description.trim() == '' 
+                                              ? 'Danh mục hiện không có mô tả' 
+                                              : c.description}
+                                        </td>
                                         <c:if
                                             test="${user.roleName == 'Finance Head' || user.roleName == 'Asset Staff'}">
                                             <td class="text-center">
