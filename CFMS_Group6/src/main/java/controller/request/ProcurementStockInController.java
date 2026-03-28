@@ -82,8 +82,10 @@ public class ProcurementStockInController extends HttpServlet {
         }
 
         boolean hasMissing = false;
+        Connection con = null;
 
-        try (Connection con = new DBContext().getConnection()) {
+        try {
+            con = new DBContext().getConnection();
             con.setAutoCommit(false); // Bắt đầu Transaction
 
             // Lấy thông tin chi tiết tài sản
@@ -156,17 +158,25 @@ public class ProcurementStockInController extends HttpServlet {
 
             // Query ArrayList các bản ghi đầy đủ thông tin để in ấn
             List<AssetDetail> newlyGeneratedInstances = assetDetailDAO.getInstancesByIds(newlyGeneratedIds);
-            session.setAttribute("newlyGeneratedInstances", newlyGeneratedInstances); // Flash Attribute túi lưới bảo
-                                                                                      // bối
+            session.setAttribute("newlyGeneratedInstances", newlyGeneratedInstances);
 
             session.setAttribute("successMsg", "Nhập kho thành công! Vui lòng in tem nhãn tài sản.");
             // Chuyển hướng sang trang hiển thị mã cá thể vừa sinh để In mã (Bước 5)
             response.sendRedirect(request.getContextPath() + "/request/procurement-print-codes?id=" + procurementId);
 
         } catch (Exception e) {
+            // Rollback transaction khi có lỗi để đảm bảo tính toàn vẹn dữ liệu
+            if (con != null) {
+                try { con.rollback(); } catch (Exception ignored) {}
+            }
             e.printStackTrace();
             session.setAttribute("errorMsg", "Lỗi nhập kho: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/request/procurement-stockin?id=" + procurementId);
+        } finally {
+            // Đóng connection thủ công
+            if (con != null) {
+                try { con.close(); } catch (Exception ignored) {}
+            }
         }
     }
 }

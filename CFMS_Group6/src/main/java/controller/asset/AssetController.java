@@ -349,33 +349,36 @@ public class AssetController extends HttpServlet {
         int instanceId = parseIntParam(request.getParameter("instanceId"), 0);
         int assetId = parseIntParam(request.getParameter("assetId"), 0);
         String newStatus = request.getParameter("status");
-        String convertStatusToVN = "";
+
+        // Kiểm tra null/empty TRƯỚC khi switch để tránh NullPointerException
+        if (instanceId <= 0 || newStatus == null || newStatus.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/asset/list");
+            return;
+        }
+
+        String convertStatusToVN;
         switch (newStatus) {
-            case ("In_Stock"):
+            case "In_Stock":
                 convertStatusToVN = "Đang trong kho";
                 break;
-            case ("In_Use"):
+            case "In_Use":
                 convertStatusToVN = "Đang sử dụng";
                 break;
-            case ("Maintenance"):
+            case "Maintenance":
                 convertStatusToVN = "Đang trong bảo trì";
                 break;
-            case ("Broken"):
+            case "Broken":
                 convertStatusToVN = "Hỏng";
                 break;
-            case ("Liquidated"):
+            case "Liquidated":
                 convertStatusToVN = "Thanh Lý";
                 break;
             case "Lost":
                 convertStatusToVN = "Mất";
                 break;
             default:
-                throw new RuntimeException("Lỗi");
-        }
-
-        if (instanceId <= 0 || newStatus == null || newStatus.isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/asset/list");
-            return;
+                response.sendRedirect(request.getContextPath() + "/asset/list");
+                return;
         }
 
         // Nếu chuyển sang In_Stock (nhập lại kho) → xóa room_id
