@@ -30,8 +30,9 @@ public class ProcurementPrintCodesController extends HttpServlet {
                 return;
             }
 
-            // Lấy danh sách cá thể từ Flash Attribute (Túi lưới ArrayList trên RAM)
-            List<AssetDetail> instances = (List<AssetDetail>) request.getSession().getAttribute("newlyGeneratedInstances");
+            // Lấy danh sách cá thể từ Flash Attribute
+            List<AssetDetail> instances = (List<AssetDetail>) request.getSession()
+                    .getAttribute("newlyGeneratedInstances");
             request.getSession().removeAttribute("newlyGeneratedInstances"); // Xoá sạch tàn dư ngay lập tức
 
             if (instances == null) {

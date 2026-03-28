@@ -5,14 +5,21 @@ import java.math.BigDecimal;
 import model.Asset;
 
 import exception.AssetException;
+import dal.AssetDAO;
 
 public class AssetValidation {
 
     // validation cho asset khi create và update
-    public static void validateAsset(Asset asset) throws AssetException {
+    public static void validateAsset(Asset asset, AssetDAO assetDao) throws AssetException {
         if (asset.getAssetName() == null || asset.getAssetName().trim().isEmpty()) {
             throw new AssetException("Tên tài sản không được để trống.");
         }
+
+        // Validate trùng tên
+        if (assetDao.isAssetNameExists(asset.getAssetName(), asset.getAssetId())) {
+            throw new AssetException("Tên tài sản '" + asset.getAssetName().trim() + "' đã tồn tại trong hệ thống.");
+        }
+
         if (asset.getCategoryId() <= 0) {
             throw new AssetException("Vui lòng chọn danh mục hợp lệ.");
         }

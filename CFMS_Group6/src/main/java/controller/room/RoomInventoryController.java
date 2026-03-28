@@ -60,25 +60,31 @@ public class RoomInventoryController extends HttpServlet {
             throws ServletException, IOException {
         UserDto user = (UserDto) request.getSession().getAttribute("user");
         List<Room> rooms;
-        // Role 4: Trưởng bộ môn / Giáo viên quản lý -> Chỉ xem phòng của bộ môn mình
+        // Trưởng bộ môn chỉ xem tài sản trong phòng của bộ môn mình
         if (user.getRoleName().equals(Message.TRUONG_BAN)) {
             rooms = roomDao.getByDeptId(user.getDeptId());
         } else {
-            // Các role khác (QLTS, Hiệu trưởng...) -> Xem tất cả
+            // Các role nhân viên quản lí tài sản xem tất cả
             rooms = roomDao.getAll();
         }
         request.setAttribute("rooms", rooms);
-        // Nếu người dùng có chọn 1 phòng trên giao diện (dropdown)
+        // lấy phòng được chọn
         String roomIdStr = request.getParameter("roomId");
         if (roomIdStr != null && !roomIdStr.isEmpty()) {
             try {
                 int roomId = Integer.parseInt(roomIdStr);
 
-                // BẢO MẬT: Kiểm tra xem user có quyền xem phòng này không
-                boolean isAllowed = rooms.stream().anyMatch(r -> r.getRoomId() == roomId);
+                // Kiểm tra xem user có quyền xem phòng này không
+                boolean isAllowed = false;
+                for (Room r : rooms) {
+                    if (r.getRoomId() == roomId) {
+                        isAllowed = true;
+                        break; // Tìm thấy phòng được xem, trả về true
+                    }
+                }
 
                 if (isAllowed) {
-                    // Gọi hàm DAO bạn vừa viết
+                    // Lấy danh sách tài sản trong phòng
                     List<AssetDetail> assetDetails = assetDetailDao.getAssetDetailByRoomId(roomId);
                     request.setAttribute("assetDetails", assetDetails);
                     request.setAttribute("selectedRoomId", roomId);

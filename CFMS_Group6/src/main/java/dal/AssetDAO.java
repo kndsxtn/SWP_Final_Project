@@ -595,70 +595,26 @@ public class AssetDAO {
         }
     }
 
-    // /* Phần của pvtung */
-    // // không dùng nữa
-    // public List<Asset> getByRoomId(int id) {
-    // String sql = "SELECT DISTINCT a.asset_id, a.asset_code, a.asset_name FROM
-    // assets a "
-    // + "JOIN asset_details ad ON a.asset_id = ad.asset_id WHERE ad.room_id = ?";
-    // try (Connection con = new DBContext().getConnection(); PreparedStatement ps =
-    // con.prepareStatement(sql)) {
-    // ps.setInt(1, id);
-    // ResultSet rs = ps.executeQuery();
-    // List<Asset> assets = new ArrayList<>();
-    // while (rs.next()) {
-    // Asset a = new Asset();
-    // a.setAssetId(rs.getInt("asset_id"));
-    // a.setAssetCode(rs.getString("asset_code"));
-    // a.setAssetName(rs.getString("asset_name"));
-    // assets.add(a);
-    // }
-    // return assets;
+    /**
+     * Kiểm tra tên tài sản đã tồn tại chưa (dùng cho validation).
+     * 
+     * @param excludeAssetId ID cần loại trừ (dùng khi update, truyền 0 nếu là
+     *                       create)
+     */
+    public boolean isAssetNameExists(String assetName, int excludeAssetId) {
+        String sql = "SELECT COUNT(*) FROM assets WHERE asset_name = ? AND asset_id != ?";
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, assetName.trim());
+            ps.setInt(2, excludeAssetId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // }
-    // return null;
-    // }
-
-    // public void setRoomId(int roomId, int assetId) {
-    // String sql = "UPDATE asset_details SET room_id = ? WHERE asset_id = ?";
-
-    // try (Connection con = new DBContext().getConnection(); PreparedStatement ps =
-    // con.prepareStatement(sql)) {
-    // ps.setInt(1, roomId);
-    // ps.setInt(2, assetId);
-    // ps.executeUpdate();
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // }
-    // }
-
-    // public Asset getById2(int id) {
-    // String sql = "SELECT asset_id, asset_code, asset_name, category_id,
-    // supplier_id, price, "
-    // + "purchase_date, warranty_expiry_date, quantity, description, created_at
-    // FROM assets WHERE asset_id = ?";
-    // try (Connection con = new DBContext().getConnection(); PreparedStatement ps =
-    // con.prepareStatement(sql)) {
-    // ps.setInt(1, id);
-    // ResultSet rs = ps.executeQuery();
-    // if (rs.next()) {
-    // Asset a = new Asset();
-    // a.setAssetId(rs.getInt("asset_id"));
-    // a.setAssetCode(rs.getString("asset_code"));
-    // a.setAssetName(rs.getString("asset_name"));
-    // a.setCategoryId(rs.getInt("category_id"));
-    // a.setSupplierId(rs.getInt("supplier_id"));
-    // a.setPrice(rs.getBigDecimal("price"));
-    // a.setQuantity(rs.getInt("quantity"));
-    // return a;
-    // }
-    // return null;
-
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // }
-    // return null;
-    // }
 }

@@ -415,7 +415,7 @@
                             </c:if>
 
                             <!-- ═════════════════════════════════════════════════════
-                     PRINCIPAL / VICE PRINCIPAL (Hiệu trưởng / Phó HT)
+                     PRINCIPAL(Hiệu trưởng)
                 ══════════════════════════════════════════════════════ -->
                             <c:if test="${role == 'Principal'}">
 

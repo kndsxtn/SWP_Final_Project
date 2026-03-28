@@ -246,7 +246,7 @@ public class AssetController extends HttpServlet {
         Asset asset = parseAssetFromRequest(request);
 
         try {
-            AssetValidation.validateAsset(asset);
+            AssetValidation.validateAsset(asset, assetDao);
         } catch (AssetException e) {
             request.setAttribute("errorMsg", e.getMessage());
             loadFormData(request);
@@ -271,7 +271,7 @@ public class AssetController extends HttpServlet {
                         asset.getAssetCode(),
                         asset.getQuantity(),
                         user.getUserId(),
-                        "Khởi tạo tài sản từ nhân viên tài sản: " + user.getUsername());
+                        "Khởi tạo tài sản từ nhân viên tài sản: " + user.getFullName());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -319,7 +319,7 @@ public class AssetController extends HttpServlet {
         asset.setAssetId(parseIntParam(request.getParameter("assetId"), 0));
 
         try {
-            AssetValidation.validateAsset(asset);
+            AssetValidation.validateAsset(asset, assetDao);
         } catch (AssetException e) {
             request.setAttribute("errorMsg", e.getMessage());
             loadFormData(request);
@@ -352,6 +352,29 @@ public class AssetController extends HttpServlet {
         int instanceId = parseIntParam(request.getParameter("instanceId"), 0);
         int assetId = parseIntParam(request.getParameter("assetId"), 0);
         String newStatus = request.getParameter("status");
+        String convertStatusToVN = "";
+        switch (newStatus) {
+            case ("In_Stock"):
+                convertStatusToVN = "Đang trong kho";
+                break;
+            case ("In_Use"):
+                convertStatusToVN = "Đang sử dụng";
+                break;
+            case ("Maintenance"):
+                convertStatusToVN = "Đang trong bảo trì";
+                break;
+            case ("Broken"):
+                convertStatusToVN = "Hỏng";
+                break;
+            case ("Liquidated"):
+                convertStatusToVN = "Thanh Lý";
+                break;
+            case "Lost":
+                convertStatusToVN = "Mất";
+                break;
+            default:
+                throw new RuntimeException("Lỗi");
+        }
 
         if (instanceId <= 0 || newStatus == null || newStatus.isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/asset/list");
@@ -372,7 +395,7 @@ public class AssetController extends HttpServlet {
             if (user != null) {
                 historyDao.create(instanceId, user.getUserId(),
                         "Status_Change",
-                        "Đổi trạng thái sang: " + newStatus);
+                        "Đổi trạng thái sang: " + convertStatusToVN);
             }
             request.getSession().setAttribute("successMsg", "Cập nhật trạng thái thành công!");
         } else {

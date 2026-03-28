@@ -209,12 +209,6 @@
                             </li>
                             <h6 class="sidebar-heading">Tài sản</h6>
                             <li class="nav-item">
-                                <a class="nav-link ${param.page == 'room_inventory' ? 'active' : ''}"
-                                    href="${pageContext.request.contextPath}/inventory/room">
-                                    <i class="bi bi-geo-alt-fill"></i> Kiểm kê theo phòng
-                                </a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link ${param.page == 'transfer_confirm' ? 'active' : ''}"
                                     href="${pageContext.request.contextPath}/transfer/confirm">
                                     <i class="bi bi-check2-square"></i> Xác nhận điều chuyển
