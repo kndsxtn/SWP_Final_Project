@@ -138,5 +138,17 @@
             modal.show();
         };
     })();
+    function confirmDeleteCategory(id, name) {
+    CFMS_CONFIRM({
+        title: 'Xác nhận xóa danh mục',
+        message: 'Bạn có chắc chắn muốn xóa danh mục "' + name + '" không? Hành động này không thể hoàn tác.',
+        danger: true,
+        requireReason: false,
+        onConfirm: function () {
+            // Điều hướng đến Controller xóa khi người dùng nhấn "Xác nhận"
+            window.location.href = '${pageContext.request.contextPath}/category/DeleteCategoryController?id=' + id;
+        }
+    });
+}
 </script>
 

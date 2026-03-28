@@ -54,9 +54,16 @@
                         </div>
                     </c:if>
                     <c:if test ="${not empty status}">
-                        <div class="col-md-8 ms-auto mb-3 cfms-msg">
-                            ${status}
-                        </div>
+                            <c:if test = "${status.contains('Lỗi')}">
+                                <div class="cfms-msg cfms-msg-error">
+                                    <i class="bi bi-exclamation-triangle-fill"></i>${status}
+                                </div>
+                            </c:if>
+                            <c:if test = "${not status.contains('Lỗi')}">
+                                <div class="cfms-msg cfms-msg-success">
+                                    <i class="bi bi-check-circle-fill"></i>${status}
+                                </div>
+                            </c:if>
                     </c:if>
 
 
@@ -66,7 +73,7 @@
                                 <div class="row">
                                     <div class="col-md-8 mb-3">
                                         <label for="catName" class="form-label fw-semibold">Tên danh mục <span class="text-danger">*</span></label>
-                                        <input type="text" id="catName" name="category_name" class="form-control" placeholder="Ví dụ: Máy tính xách tay..." required>
+                                        <input type="text" id="catName" name="category_name" class="form-control" placeholder="Ví dụ: Máy tính xách tay..." >
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="preCode" class="form-label fw-semibold">Mã Tiền Tố <span class="text-danger">*</span></label>
@@ -132,5 +139,6 @@
         </div>
 
         <jsp:include page="../components/footer.jsp"></jsp:include>
+        <script src="${pageContext.request.contextPath}/js/message-auto-hide.js"></script>
     </body>
 </html>

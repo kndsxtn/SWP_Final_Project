@@ -39,17 +39,38 @@
                     <!-- ===== Page Header ===== -->
                     <div class="cfms-page-header">
                         <h2><i class="bi bi-tags"></i> Danh sách danh mục tài sản</h2>
+                        <c:if test="${user.roleName == 'Finance Head' || user.roleName == 'Asset Staff'}">
+                            <a href="${pageContext.request.contextPath}/category/CreateCategoryController"
+                               class="btn btn-primary">
+                                <i class="bi bi-plus-lg me-1"></i>Thêm danh mục
+                            </a>
+                        </c:if>
                     </div>
                     <!-- ===== Status ===== -->
-                    <c:if test="${not empty status}">
-                        <div class="col-md-8 ms-auto mb-3 cfms-msg text-end">
-                            <i class="bi bi-info-circle me-1"></i> ${status}
-                        </div>
+                    <c:if test ="${not empty status}">
+                        <c:if test = "${status.contains('Lỗi')}">
+                            <div class="cfms-msg cfms-msg-error">
+                                <i class="bi bi-exclamation-triangle-fill"></i> ${status}
+                            </div>
+                        </c:if>
+                        <c:if test = "${not status.contains('Lỗi')}">
+                            <div class="cfms-msg cfms-msg-success">
+                                <i class="bi bi-check-circle-fill"></i> ${status}
+                            </div>
+                        </c:if>
                     </c:if>
                     <c:if test="${not empty sessionScope.FLASH_MSG}">
-                        <div class="col-md-8 ms-auto mb-3 cfms-msg text-end">
-                            <i class="bi bi-info-circle me-1"></i> ${sessionScope.FLASH_MSG}
-                        </div>
+                        <c:if test = "${sessionScope.FLASH_MSG.contains('Lỗi')}">
+                            <div class="cfms-msg cfms-msg-error">
+                                <i class="bi bi-info-circle me-1"></i> ${sessionScope.FLASH_MSG}
+                            </div>
+                        </c:if>
+                        <c:if test = "${not sessionScope.FLASH_MSG.contains('Lỗi')}">
+                            <div class="cfms-msg cfms-msg-success">
+                                <i class="bi bi-check-circle-fill"></i> ${sessionScope.FLASH_MSG}
+                            </div>
+                        </c:if>
+
                         <c:remove var="FLASH_MSG" scope="session" />
                     </c:if>
                     <!-- ===== Filter & Search Bar ===== -->
@@ -111,7 +132,11 @@
                                                 ${c.prefixCode}
                                             </span>
                                         </td>
-                                        <td>${c.description}</td>
+                                        <td>
+                                            ${c.description == null || c.description.trim() == '' 
+                                              ? 'Danh mục hiện không có mô tả' 
+                                              : c.description}
+                                        </td>
                                         <c:if
                                             test="${user.roleName == 'Finance Head' || user.roleName == 'Asset Staff'}">
                                             <td class="text-center">
@@ -119,10 +144,10 @@
                                                    class="btn btn-sm btn-light me-1" title="Sửa">
                                                     <i class="bi bi-pencil-square text-primary"></i>
                                                 </a>
-                                                <a href="${pageContext.request.contextPath}/category/DeleteCategoryController?id=${c.categoryId}"
-                                                   class="btn btn-sm btn-light"
-                                                   onclick="return confirm('Bạn có chắc muốn xóa?');"
-                                                   title="Xóa">
+                                                <a href="javascript:void(0);" 
+                                                   class="btn btn-sm btn-light" 
+                                                   title="Xóa"
+                                                   onclick="confirmDeleteCategory('${c.categoryId}', '${c.categoryName}')">
                                                     <i class="bi bi-trash text-danger"></i>
                                                 </a>
                                             </td>
@@ -167,7 +192,8 @@
             </div>
         </div>
         <jsp:include page="../components/footer.jsp"></jsp:include>
-
+        <jsp:include page="../components/confirm-modal.jsp"></jsp:include>
+        <script src="${pageContext.request.contextPath}/js/message-auto-hide.js"></script>
     </body>
 
 </html>

@@ -137,7 +137,7 @@
                                             class="btn btn-success px-4 shadow-sm ms-2">
                                             <i class="bi bi-check-circle"></i> Nhận tài sản
                                         </a>
-                                        <a href="${pageContext.request.contextPath}/transfer/update?id=${transfer.transferId}&status=Returned&room=${transfer.sourceRoom.roomName}"
+                                        <a href="${pageContext.request.contextPath}/transfer/update?id=${transfer.transferId}&status=Returned&room=${transfer.destRoom.roomName}"
                                             class="btn btn-danger px-4 shadow-sm ms-2">
                                             <i class="bi bi-x-circle"></i> Từ chối nhận tài sản
                                         </a>
