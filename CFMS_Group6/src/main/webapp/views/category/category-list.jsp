@@ -144,10 +144,10 @@
                                                    class="btn btn-sm btn-light me-1" title="Sửa">
                                                     <i class="bi bi-pencil-square text-primary"></i>
                                                 </a>
-                                                <a href="${pageContext.request.contextPath}/category/DeleteCategoryController?id=${c.categoryId}"
-                                                   class="btn btn-sm btn-light"
-                                                   onclick="return confirm('Bạn có chắc muốn xóa?');"
-                                                   title="Xóa">
+                                                <a href="javascript:void(0);" 
+                                                   class="btn btn-sm btn-light" 
+                                                   title="Xóa"
+                                                   onclick="confirmDeleteCategory('${c.categoryId}', '${c.categoryName}')">
                                                     <i class="bi bi-trash text-danger"></i>
                                                 </a>
                                             </td>
@@ -192,7 +192,8 @@
             </div>
         </div>
         <jsp:include page="../components/footer.jsp"></jsp:include>
-
+        <jsp:include page="../components/confirm-modal.jsp"></jsp:include>
+        <script src="${pageContext.request.contextPath}/js/message-auto-hide.js"></script>
     </body>
 
 </html>

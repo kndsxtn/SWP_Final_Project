@@ -139,5 +139,6 @@
         </div>
 
         <jsp:include page="../components/footer.jsp"></jsp:include>
+        <script src="${pageContext.request.contextPath}/js/message-auto-hide.js"></script>
     </body>
 </html>
