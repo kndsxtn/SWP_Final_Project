@@ -23,7 +23,7 @@ public class CreateCategoryController extends HttpServlet {
         HttpSession session = request.getSession(false);
         UserDto user = (UserDto) session.getAttribute("user");
         if (user == null || (!user.getRoleName().equals("Asset Staff") && !user.getRoleName().equals("Finance Head"))) {
-            request.getSession().setAttribute("status", "Hành động thực hiện không hợp lệ!");
+            request.getSession().setAttribute("status", "Lỗi: Hành động thực hiện không hợp lệ!");
             response.sendRedirect("ViewCategoryController");
             return;
         }
@@ -63,7 +63,7 @@ public class CreateCategoryController extends HttpServlet {
             status = "Tạo danh mục mới thành công";
             forwardWithMessage(status, request, response);
         } catch (IOException e) {
-            status = "Lỗi khi tạo danh mục: " + e.getMessage();
+            status = "Lỗik hông xác định: "+ e.getMessage();
             forwardWithMessage(status, request, response);
         }
     }

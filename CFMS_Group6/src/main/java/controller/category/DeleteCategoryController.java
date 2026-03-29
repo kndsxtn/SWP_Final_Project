@@ -25,7 +25,7 @@ public class DeleteCategoryController extends HttpServlet {
         HttpSession session = request.getSession(false);
         UserDto user = (UserDto) session.getAttribute("user");
         if (user == null || (!user.getRoleName().equals("Asset Staff") && !user.getRoleName().equals("Finance Head"))) {
-            status = "Bạn không có quyền thực hiện hành động này!";
+            status = "Lỗi: Bạn không có quyền thực hiện hành động này!";
             request.setAttribute("status", status);
             request.getRequestDispatcher("/category/ViewCategoryController").forward(request, response);
             return;
@@ -44,7 +44,7 @@ public class DeleteCategoryController extends HttpServlet {
                 request.getSession().setAttribute("FLASH_MSG", status);
             }
         } catch (ClassNotFoundException | SQLException e) {
-               status = "Lỗi: Không xác định: "+ e.getMessage();
+               status = "Lỗi không xác định: "+ e.getMessage();
                request.getSession().setAttribute("FLASH_MSG", status);
         }
         response.sendRedirect("ViewCategoryController?status");
