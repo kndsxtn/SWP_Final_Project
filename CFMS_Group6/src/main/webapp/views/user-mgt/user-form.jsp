@@ -97,22 +97,25 @@
 
                                                                             <%-- Vai tro (Role) – lay tu DB --%>
                                                                                 <div class="col-md-6">
-                                                                                    <label
-                                                                                        class="form-label fw-semibold">Vai
-                                                                                        Trò <span
-                                                                                            class="text-danger">*</span></label>
-                                                                                    <select name="roleId"
-                                                                                        class="form-select py-2">
-                                                                                        <option value="" disabled
-                                                                                            selected>-- Chọn vai trò --
-                                                                                        </option>
-                                                                                        <c:forEach items="${roles}"
-                                                                                            var="r">
-                                                                                            <option value="${r.roleId}"
-                                                                                                <c:if
-                                                                                                test="${r.roleId == oldRoleId}">
-                                                                                                selected</c:if>>
+                                                                                    <label class="form-label fw-semibold">Vai Trò <span class="text-danger">*</span></label>
+                                                                                    <select name="roleId" class="form-select py-2">
+                                                                                        <option value="" disabled selected>-- Chọn vai trò --</option>
+                                                                                        <c:forEach items="${roles}" var="r">
+                                                                                            <option value="${r.roleId}" <c:if test="${r.roleId == oldRoleId}">selected</c:if>>
                                                                                                 ${r.roleName}
+                                                                                            </option>
+                                                                                        </c:forEach>
+                                                                                    </select>
+                                                                                </div>
+
+                                                                            <%-- Bo phan (Department) --%>
+                                                                                <div class="col-md-6">
+                                                                                    <label class="form-label fw-semibold">Phòng ban (Bộ phận)</label>
+                                                                                    <select name="deptId" class="form-select py-2">
+                                                                                        <option value="0" selected>-- Chọn phòng ban (tùy chọn) --</option>
+                                                                                        <c:forEach items="${depts}" var="d">
+                                                                                            <option value="${d.deptId}" <c:if test="${d.deptId == oldDeptId}">selected</c:if>>
+                                                                                                ${d.deptName}
                                                                                             </option>
                                                                                         </c:forEach>
                                                                                     </select>

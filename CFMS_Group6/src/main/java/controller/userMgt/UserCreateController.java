@@ -26,6 +26,10 @@ public class UserCreateController extends HttpServlet {
         UserDAO dao = new UserDAO();
         List<Role> roles = dao.getAllRoles();
         request.setAttribute("roles", roles);
+        
+        List<model.Department> depts = dao.getAllDepartments();
+        request.setAttribute("depts", depts);
+        
         request.getRequestDispatcher("/views/user-mgt/user-form.jsp").forward(request, response);
     }
 
@@ -42,6 +46,12 @@ public class UserCreateController extends HttpServlet {
         String email = request.getParameter("email");
         String phone = request.getParameter("phone");
         int roleId = Integer.parseInt(request.getParameter("roleId"));
+        
+        String deptIdStr = request.getParameter("deptId");
+        int deptId = 0;
+        if (deptIdStr != null && !deptIdStr.trim().isEmpty()) {
+            deptId = Integer.parseInt(deptIdStr);
+        }
 
         UserDAO dao = new UserDAO();
 
@@ -52,6 +62,9 @@ public class UserCreateController extends HttpServlet {
             request.getSession().setAttribute("errorMsg", error);
             List<Role> roles = dao.getAllRoles();
             request.setAttribute("roles", roles);
+            List<model.Department> depts = dao.getAllDepartments();
+            request.setAttribute("depts", depts);
+            
             // giu lai du lieu cu de user khoi phai nhap lai
             request.setAttribute("oldUsername", username);
             request.setAttribute("oldPassword", password);
@@ -59,11 +72,12 @@ public class UserCreateController extends HttpServlet {
             request.setAttribute("oldEmail", email);
             request.setAttribute("oldPhone", phone);
             request.setAttribute("oldRoleId", roleId);
+            request.setAttribute("oldDeptId", deptId);
             request.getRequestDispatcher("/views/user-mgt/user-form.jsp").forward(request, response);
             return;
         }
 
-        boolean success = dao.createUser(username, password, fullName, email, phone, roleId);
+        boolean success = dao.createUser(username, password, fullName, email, phone, roleId, deptId);
 
         if (success) {
             // Them thanh cong -> quay ve danh sach voi thong bao
@@ -73,6 +87,9 @@ public class UserCreateController extends HttpServlet {
             request.getSession().setAttribute("errorMsg", "Thêm thất bại! Có lỗi xảy ra trong hệ thống.");
             List<Role> roles = dao.getAllRoles();
             request.setAttribute("roles", roles);
+            List<model.Department> depts = dao.getAllDepartments();
+            request.setAttribute("depts", depts);
+            
             // giu lai du lieu cu de user khoi phai nhap lai
             request.setAttribute("oldUsername", username);
             request.setAttribute("oldPassword", password);
@@ -80,6 +97,7 @@ public class UserCreateController extends HttpServlet {
             request.setAttribute("oldEmail", email);
             request.setAttribute("oldPhone", phone);
             request.setAttribute("oldRoleId", roleId);
+            request.setAttribute("oldDeptId", deptId);
             request.getRequestDispatcher("/views/user-mgt/user-form.jsp").forward(request, response);
             return;
         }

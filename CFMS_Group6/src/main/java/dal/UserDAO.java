@@ -231,15 +231,15 @@ public class UserDAO {
         return null;
     }
 
-    // them nguoi dung moi vao DB, mat khau luu dang plain (co the hash sau)
+    // them nguoi dung moi vao DB
     public boolean createUser(String username, String password, String fullName,
-            String email, String phone, int roleId) {
+            String email, String phone, int roleId, int deptId) {
         // kiem tra username da ton tai chua
         if (getUserByUserName(username) != null) {
             return false;
         }
-        String sql = "INSERT INTO Users (username, password_hash, full_name, email, phone, role_id, status) "
-                + "VALUES (?, ?, ?, ?, ?, ?, 'Active')";
+        String sql = "INSERT INTO Users (username, password_hash, full_name, email, phone, role_id, dept_id, status) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, 'Active')";
         try (Connection con = new DBContext().getConnection();
                 PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, username);
@@ -248,6 +248,11 @@ public class UserDAO {
             ps.setString(4, email);
             ps.setString(5, phone);
             ps.setInt(6, roleId);
+            if (deptId > 0) {
+                ps.setInt(7, deptId);
+            } else {
+                ps.setNull(7, java.sql.Types.INTEGER);
+            }
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
