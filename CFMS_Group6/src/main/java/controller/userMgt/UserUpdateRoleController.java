@@ -36,7 +36,21 @@ public class UserUpdateRoleController extends HttpServlet {
         try {
             int userId = Integer.parseInt(userIdStr);
             int roleId = Integer.parseInt(roleIdStr);
+            
+            String deptIdStr = request.getParameter("deptId");
+            int deptId = 0;
+            if (deptIdStr != null && !deptIdStr.trim().isEmpty()) {
+                deptId = Integer.parseInt(deptIdStr);
+            }
+            
             UserDAO dao = new UserDAO();
+
+            dto.UserDto user = dao.getUserByid(userId);
+            if (user == null) {
+                request.getSession().setAttribute("errorMsg", "Người dùng không tồn tại!");
+                response.sendRedirect(request.getContextPath() + "/user-mgt/user-list");
+                return;
+            }
 
             // Kiem tra: khong cho phep sua tai khoan Admin
             String currentRole = dao.getRoleNameByUserId(userId);
@@ -53,7 +67,22 @@ public class UserUpdateRoleController extends HttpServlet {
                 return;
             }
 
-            boolean roleUpdated = dao.updateUserRole(userId, roleId);
+            // Kiem tra bat buoc chon department neu user chua co department_id
+            if (user.getDeptId() <= 0 && deptId <= 0) {
+                request.getSession().setAttribute("errorMsg", "Cập nhật thất bại: Phải chọn bộ phận (Department) cho người dùng chưa có bộ phận!");
+                response.sendRedirect(request.getContextPath() + "/user-mgt/user-list");
+                return;
+            }
+
+            boolean roleUpdated = false;
+            // Cap nhat role va ca deptId neu co chon hoac giu nguyen dept_id cu
+            int finalDeptId = (deptId > 0) ? deptId : user.getDeptId();
+            if (finalDeptId > 0) {
+                roleUpdated = dao.updateUserRoleAndDept(userId, roleId, finalDeptId);
+            } else {
+                roleUpdated = dao.updateUserRole(userId, roleId);
+            }
+            
             boolean statusUpdated = true;
             if (status != null && !status.isEmpty()) {
                 statusUpdated = dao.updateUserStatus(userId, status);

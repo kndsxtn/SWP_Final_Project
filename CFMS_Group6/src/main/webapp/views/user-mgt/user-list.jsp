@@ -275,6 +275,22 @@
                                                     </option>
                                                 </select>
                                             </div>
+                                            
+                                            <%-- Chon phong ban (Department) --%>
+                                            <div class="col-md-12">
+                                                <label class="form-label fw-semibold small">
+                                                    Phòng ban (Bắt buộc nếu người dùng chưa có phòng ban) <span class="text-danger">*</span>
+                                                </label>
+                                                <select name="deptId" class="form-select">
+                                                    <option value="0">-- Chọn bộ phận --</option>
+                                                    <c:forEach items="${depts}" var="d">
+                                                        <option value="${d.deptId}" <c:if test="${d.deptId == u.deptId}">selected</c:if>>
+                                                            ${d.deptName}
+                                                        </option>
+                                                    </c:forEach>
+                                                </select>
+                                            </div>
+                                            
                                             <div class="col-12 d-flex justify-content-end gap-2 mt-3">
                                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                                     <i class="bi bi-x-lg me-1"></i>Đóng

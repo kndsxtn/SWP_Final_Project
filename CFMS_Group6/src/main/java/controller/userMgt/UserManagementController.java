@@ -75,6 +75,10 @@ public class UserManagementController extends HttpServlet {
         List<Role> roles = dao.getAllRoles();
         request.setAttribute("roles", roles);
 
+        // Lay danh sach department de hien thi modal
+        List<model.Department> depts = dao.getAllDepartments();
+        request.setAttribute("depts", depts);
+
         request.getRequestDispatcher("/views/user-mgt/user-list.jsp").forward(request, response);
     }
 

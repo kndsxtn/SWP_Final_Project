@@ -274,6 +274,26 @@ public class UserDAO {
         return roles;
     }
 
+    // lay danh sach tat ca phong ban
+    public List<model.Department> getAllDepartments() {
+        List<model.Department> list = new ArrayList<>();
+        String sql = "SELECT dept_id, dept_name, description FROM Departments";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                model.Department d = new model.Department();
+                d.setDeptId(rs.getInt("dept_id"));
+                d.setDeptName(rs.getString("dept_name"));
+                d.setDescription(rs.getString("description"));
+                list.add(d);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     // cap nhat role cho user
     public boolean updateUserRole(int userId, int roleId) {
         String sql = "UPDATE Users SET role_id = ? WHERE user_id = ?";
@@ -281,6 +301,21 @@ public class UserDAO {
                 PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, roleId);
             ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // cap nhat role va phong ban cho user
+    public boolean updateUserRoleAndDept(int userId, int roleId, int deptId) {
+        String sql = "UPDATE Users SET role_id = ?, dept_id = ? WHERE user_id = ?";
+        try (Connection con = new DBContext().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, roleId);
+            ps.setInt(2, deptId);
+            ps.setInt(3, userId);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
